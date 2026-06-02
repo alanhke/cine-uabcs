@@ -46,7 +46,7 @@ export default async function EstrenosTmdbPage() {
       )}
 
       {movies.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="reveal-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {movies.map((movie) => (
             <TmdbMovieCard key={movie.id} movie={movie} />
           ))}

@@ -76,7 +76,7 @@ export default function PerfilAjustesPage() {
         </Card>
       )}
 
-      <Card className="border-primary/15 shadow-matinee">
+      <Card className="border-navy/10 shadow-sm">
         <CardContent className="space-y-4 py-6">
           <CardTitle className="font-display text-base text-navy">
             Datos personales
@@ -85,7 +85,7 @@ export default function PerfilAjustesPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-primary/15 shadow-matinee">
+      <Card className="border-navy/10 shadow-sm">
         <CardContent className="space-y-4 py-6">
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
@@ -102,7 +102,7 @@ export default function PerfilAjustesPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-primary/15 shadow-matinee">
+      <Card className="border-navy/10 shadow-sm">
         <CardContent className="space-y-4 py-6">
           <div className="flex items-center gap-2">
             <KeyRound className="h-5 w-5 text-primary" />
@@ -117,7 +117,7 @@ export default function PerfilAjustesPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-primary/15 shadow-matinee">
+      <Card className="border-navy/10 shadow-sm">
         <CardContent className="space-y-4 py-6">
           <div className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-primary" />

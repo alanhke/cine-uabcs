@@ -119,7 +119,7 @@ export default function DulceriaPage() {
               {r.cantidad > 1 ? "s" : ""}
             </p>
           ))}
-          <p className="mt-2 font-display text-lg font-bold text-paliacate">
+          <p className="mt-2 font-display text-lg font-bold text-navy">
             Subtotal: {formatCurrency(subtotalBoletos)}
           </p>
         </CardContent>
@@ -206,15 +206,31 @@ export default function DulceriaPage() {
             {cart.map((item) => {
               const key = String(item.productoId ?? `c-${item.comboId}`);
               return (
-                <div key={key} className="flex items-center justify-between text-sm">
-                  <span>
-                    {item.nombre} × {item.cantidad}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => updateQty(key, -1)}>
+                <div key={key} className="flex items-center justify-between gap-3 text-sm text-navy">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{item.nombre}</p>
+                    <p className="text-xs text-navy/55">
+                      {formatCurrency(item.precioUnitario * item.cantidad)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 rounded-full border border-navy/15 bg-white p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => updateQty(key, -1)}
+                      aria-label={`Quitar uno de ${item.nombre}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-navy transition-[transform,background-color] duration-150 ease-out-quart hover:bg-navy/5 active:scale-90"
+                    >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <button type="button" onClick={() => updateQty(key, 1)}>
+                    <span className="w-5 text-center font-semibold tabular-nums">
+                      {item.cantidad}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateQty(key, 1)}
+                      aria-label={`Agregar uno de ${item.nombre}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-navy transition-[transform,background-color] duration-150 ease-out-quart hover:bg-navy/5 active:scale-90"
+                    >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>

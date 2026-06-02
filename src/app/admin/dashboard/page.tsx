@@ -210,10 +210,14 @@ export default function AdminDashboardPage() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {links.map(({ href, icon: Icon, label }) => (
-          <Link key={href} href={href}>
-            <Card className="transition hover:bg-primary/5">
+          <Link
+            key={href}
+            href={href}
+            className="group block transition-transform duration-150 ease-out-quart active:scale-[0.97]"
+          >
+            <Card className="h-full transition-[transform,box-shadow,background-color] duration-300 ease-out-quart group-hover:-translate-y-1 group-hover:bg-primary/5 group-hover:shadow-matinee">
               <CardContent className="flex flex-col items-center gap-2 py-6">
-                <Icon className="h-8 w-8 text-primary" />
+                <Icon className="h-8 w-8 text-primary transition-transform duration-300 ease-out-quart group-hover:scale-110" />
                 <span className="text-sm font-semibold text-navy">{label}</span>
               </CardContent>
             </Card>

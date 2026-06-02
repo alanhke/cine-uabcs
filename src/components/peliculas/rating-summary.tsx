@@ -51,7 +51,7 @@ export function RatingSummary({ resumen }: { resumen: ResumenCalificaciones }) {
               <Star className="h-3 w-3 shrink-0 fill-paliacate/80 text-paliacate" aria-hidden />
               <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-navy/10">
                 <div
-                  className="h-full rounded-full bg-primary transition-all"
+                  className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out-quart"
                   style={{ width: `${d.porcentaje}%` }}
                 />
               </div>

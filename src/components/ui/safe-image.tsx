@@ -26,8 +26,8 @@ type SafeImageProps = {
 };
 
 /**
- * /uploads/* → <img> HTML (estático en public/).
- * http(s) → next/image unoptimized (sin caché del optimizador).
+ * Blob/URLs http(s) → next/image unoptimized.
+ * Rutas legacy /uploads/* o vistas previas blob: → <img> nativo cuando aplica.
  */
 export function SafeImage({
   src,

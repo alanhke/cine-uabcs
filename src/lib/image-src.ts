@@ -29,7 +29,7 @@ export function isBlobPreviewUrl(src: string | null | undefined): boolean {
 /**
  * Resuelve src para mostrar en UI.
  * - blob: → solo previsualización en cliente
- * - /uploads/... y http(s) → imágenes persistidas
+ * - Blob/URLs http(s) y rutas legacy /uploads/... → imágenes persistidas
  */
 export function resolveImageSrc(
   src: string | null | undefined
@@ -58,7 +58,7 @@ export function resolveImageSrc(
   }
 }
 
-/** true → servir sin optimizador (uploads runtime, svg, blob preview). */
+/** true → servir sin optimizador (Blob/local legacy, svg, blob preview). */
 export function shouldUnoptimizeImageSrc(src: string): boolean {
   return (
     isLocalUploadPath(src) ||

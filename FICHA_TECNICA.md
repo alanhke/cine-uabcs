@@ -11,6 +11,6 @@
   - `html2canvas`: Generación de imágenes para el módulo Wrapped.
   - `recharts`: Visualización de datos en Dashboard Administrativo.
   - `Lucide React`: Iconografía técnica.
-- **Gestión de Archivos:** Sistema local de File System para carga de pósters en `public/uploads`.
+- **Gestión de Archivos:** Vercel Blob para carga y persistencia de pósters e imágenes.
 
 ---

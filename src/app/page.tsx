@@ -71,10 +71,10 @@ export default async function HomePage() {
           { href: "/cartelera", icon: Ticket, label: "Funciones" },
           { href: "/dulceria", icon: Popcorn, label: "Dulcería" },
         ].map(({ href, icon: Icon, label }) => (
-          <Link key={href} href={href}>
-            <Card className="text-center shadow-sm">
+          <Link key={href} href={href} className="group block active:scale-[0.97] transition-transform duration-150 ease-out-quart">
+            <Card className="h-full text-center shadow-sm transition-[transform,box-shadow] duration-300 ease-out-quart group-hover:-translate-y-1 group-hover:shadow-matinee">
               <CardContent className="flex flex-col items-center gap-2 py-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 transition-colors duration-200 group-hover:bg-primary/15">
                   <Icon className="h-5 w-5 text-primary" />
                 </div>
                 <span className="text-xs font-semibold text-navy">{label}</span>

@@ -7,9 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { LimpiarSesionCompra } from "@/components/compra/limpiar-sesion-compra";
-import { Popcorn } from "lucide-react";
+import { Popcorn, Check } from "lucide-react";
 
 export default async function ConfirmacionPage({
   params,
@@ -53,15 +52,26 @@ export default async function ConfirmacionPage({
   return (
     <div className="space-y-6 px-4 py-6 text-center">
       <LimpiarSesionCompra />
-      <Badge variant="navy" className="text-base px-4 py-1">
-        ¡Compra confirmada!
-      </Badge>
-      <h1 className="font-display text-2xl font-bold text-navy">
-        Folio: {searchParams.folio ?? compra.folio}
-      </h1>
-      <p className="text-sm text-navy/60">
-        Total: {formatCurrency(Number(compra.total))}
-      </p>
+      <div className="success-pop mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-cta">
+        <Check className="h-8 w-8" strokeWidth={3} />
+      </div>
+      <div className="space-y-1">
+        <h1 className="font-display text-2xl font-bold text-navy">
+          ¡Compra confirmada!
+        </h1>
+        <p className="text-sm text-navy/60">Pago simulado, sin cargo real</p>
+      </div>
+      <div className="mx-auto inline-flex flex-col items-center gap-1 rounded-2xl border border-navy/10 bg-white/70 px-6 py-3">
+        <span className="text-xs font-medium uppercase tracking-wide text-navy/50">
+          Folio
+        </span>
+        <span className="font-display text-xl font-bold tracking-wide text-navy">
+          {searchParams.folio ?? compra.folio}
+        </span>
+        <span className="text-sm text-navy/60">
+          Total {formatCurrency(Number(compra.total))}
+        </span>
+      </div>
 
       {qrDataUrl && (
         <Card className="mx-auto max-w-sm border-navy/10">

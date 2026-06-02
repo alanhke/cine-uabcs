@@ -7,6 +7,7 @@ import {
   MessageCircle,
   Settings,
   Sparkles,
+  Star,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -114,7 +115,7 @@ export function PerfilPublicoView({
       {showEditButton && (
         <Link
           href="/perfil/ajustes"
-          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-primary transition hover:bg-primary-dark"
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-cta transition hover:bg-primary-dark"
           title="Editar perfil"
           aria-label="Ajustes del perfil"
         >
@@ -210,7 +211,7 @@ export function PerfilPublicoView({
 
       {showWrappedBanner && (
         <Link href="/wrapped" className="block">
-          <Card className="overflow-hidden border-primary/25 bg-gradient-to-r from-primary/10 via-white/80 to-cream shadow-matinee transition hover:shadow-primary">
+          <Card className="overflow-hidden border-primary/25 bg-gradient-to-r from-primary/10 via-white/80 to-cream shadow-matinee transition hover:shadow-cta">
             <CardContent className="flex items-center gap-4 py-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                 <Sparkles className="h-6 w-6 text-paliacate" aria-hidden />
@@ -246,14 +247,14 @@ export function PerfilPublicoView({
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
             {perfil.favoritos.map((p) => (
               <Link key={p.id} href={`/peliculas/${p.id}`} className="group">
-                <Card className="overflow-hidden transition-transform group-hover:scale-[1.02]">
+                <Card className="overflow-hidden transition-[transform,box-shadow] duration-300 ease-out-quart group-hover:-translate-y-1 group-hover:shadow-matinee-lg group-active:scale-[0.98]">
                   <div className="relative aspect-[2/3] overflow-hidden rounded-2xl shadow-matinee ring-1 ring-paliacate/30">
                     <SafeImage
                       src={p.posterUrl}
                       alt={p.titulo}
                       variant="poster"
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-500 ease-out-quart group-hover:scale-105"
                       sizes="120px"
                     />
                   </div>
@@ -278,7 +279,7 @@ export function PerfilPublicoView({
             {perfil.actividad.map((a) => (
               <Card
                 key={`${a.tipo}-${a.id}`}
-                className="border-primary/10 shadow-matinee"
+                className="border-navy/10 shadow-sm transition-shadow duration-200 hover:shadow-matinee"
               >
                 <CardContent className="flex gap-3 py-3">
                   <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded-xl shadow-sm ring-1 ring-paliacate/25">
@@ -298,11 +299,15 @@ export function PerfilPublicoView({
                     >
                       {a.pelicula.titulo}
                     </Link>
-                    <p className="text-xs text-navy/50">
+                    <p className="flex items-center gap-1 text-xs text-navy/50">
                       {formatRelativeTime(a.createdAt)}
-                      {a.tipo === "calificacion" && a.puntuacion
-                        ? ` · ★ ${a.puntuacion}`
-                        : ""}
+                      {a.tipo === "calificacion" && a.puntuacion ? (
+                        <>
+                          <span aria-hidden>·</span>
+                          <Star className="h-3 w-3 fill-paliacate text-paliacate" aria-hidden />
+                          {a.puntuacion}
+                        </>
+                      ) : null}
                     </p>
                     {a.tipo === "resena" && a.texto && (
                       <p className="mt-1 line-clamp-2 text-sm text-navy/75">
