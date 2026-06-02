@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+  <rect width="300" height="450" fill="#FDF8E1"/>
+  <rect x="24" y="24" width="252" height="402" rx="24" fill="#1A2B4A" opacity="0.08"/>
+  <circle cx="150" cy="175" r="48" fill="#1A2B4A" opacity="0.15"/>
+  <path d="M118 200 L150 165 L182 200 L150 235 Z" fill="#F5C842"/>
+  <text x="150" y="320" text-anchor="middle" fill="#1A2B4A" font-family="system-ui,sans-serif" font-size="20" font-weight="700">Cine UABCS</text>
+  <text x="150" y="348" text-anchor="middle" fill="#1A2B4A" font-family="system-ui,sans-serif" font-size="13" opacity="0.6">Sábado de Matiné</text>
+</svg>

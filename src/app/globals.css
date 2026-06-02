@@ -3,25 +3,86 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --cream: #fdf8e1;
+  --navy: #1a2b4a;
+  --primary: #005b96;
+  --primary-dark: #004a7c;
+  --mobility: #f5e6a8;
+  --mobility-accent: #f5c842;
+  --paliacate: #f5c842;
+  --background: var(--cream);
+  --foreground: var(--navy);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .pb-safe {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
+
+@keyframes wrapped-dashboard-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes wrapped-dashboard-stagger {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wrapped-dashboard-enter {
+  opacity: 0;
+  transform: scale(0.94) translateY(12px);
+}
+
+.wrapped-dashboard-enter-active {
+  animation: wrapped-dashboard-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.wrapped-dashboard-stagger {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.wrapped-dashboard-stagger-active {
+  animation: wrapped-dashboard-stagger 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .wrapped-print-area,
+  .wrapped-print-area * {
+    visibility: visible;
+  }
+  .wrapped-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
   }
 }

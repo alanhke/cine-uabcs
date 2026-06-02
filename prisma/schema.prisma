@@ -1,0 +1,465 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum RolUsuario {
+  CLIENTE
+  ADMINISTRADOR
+}
+
+enum EstadoEntidad {
+  ACTIVO
+  INACTIVO
+  ELIMINADO
+}
+
+enum EstadoCompra {
+  PENDIENTE
+  CONFIRMADA
+  CANCELADA
+}
+
+enum EstadoBoletoUso {
+  VIGENTE
+  USADO
+  SEPARADO
+}
+
+enum TipoQR {
+  GRUPAL
+  INDIVIDUAL
+}
+
+enum EstadoSolicitudAmistad {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+}
+
+enum TipoMensaje {
+  TEXTO
+  RECOMENDACION
+}
+
+enum TipoButaca {
+  NORMAL
+  MOVILIDAD
+}
+
+model Usuario {
+  id              Int       @id @default(autoincrement())
+  nombre          String
+  apellidoPaterno String    @map("apellido_paterno")
+  apellidoMaterno String?   @map("apellido_materno")
+  correo          String    @unique
+  avatarUrl       String?   @map("avatar_url")
+  passwordHash    String    @map("password_hash")
+  rol             RolUsuario
+  estado          EstadoEntidad @default(ACTIVO)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  cliente         Cliente?
+  administrador   Administrador?
+  authTokens      AuthToken[]
+  calificaciones  Calificacion[]
+  resenas         Resena[]
+  peliculasFavoritas PeliculaFavorita[]
+  solicitudesEnviadas   SolicitudAmistad[] @relation("SolicitudEmisor")
+  solicitudesRecibidas  SolicitudAmistad[] @relation("SolicitudReceptor")
+  chatsComoA      ChatPrivado[] @relation("ChatUsuarioA")
+  chatsComoB      ChatPrivado[] @relation("ChatUsuarioB")
+  mensajesEnviados MensajeChat[]
+  recomendacionesEnviadas RecomendacionPelicula[] @relation("RecomendacionEmisor")
+  recomendacionesRecibidas RecomendacionPelicula[] @relation("RecomendacionReceptor")
+  likesResenas        LikeResena[]
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id           Int      @id @default(autoincrement())
+  usuarioId    Int      @unique @map("usuario_id")
+  telefono     String?
+  codigoAmigo  String   @unique @map("codigo_amigo")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  compras Compra[]
+
+  @@map("clientes")
+}
+
+model Administrador {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @unique @map("usuario_id")
+  cargo     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("administradores")
+}
+
+model AuthToken {
+  id         Int      @id @default(autoincrement())
+  usuarioId  Int      @map("usuario_id")
+  token      String   @unique
+  expiracion DateTime
+  activo     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("auth_tokens")
+}
+
+model Pelicula {
+  id            Int           @id @default(autoincrement())
+  titulo        String
+  sinopsis      String        @db.Text
+  clasificacion String
+  duracionMin   Int           @map("duracion_min")
+  actores       String?       @db.Text
+  posterUrl     String?       @map("poster_url")
+  tmdbId        Int?          @unique @map("tmdb_id")
+  estado        EstadoEntidad @default(ACTIVO)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  funciones       Funcion[]
+  calificaciones  Calificacion[]
+  resenas         Resena[]
+  recomendaciones RecomendacionPelicula[]
+  favoritos       PeliculaFavorita[]
+
+  @@map("peliculas")
+}
+
+model Sala {
+  id        Int           @id @default(autoincrement())
+  nombre    String
+  filas     Int
+  columnas  Int
+  estado    EstadoEntidad @default(ACTIVO)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  butacas  Butaca[]
+  funciones Funcion[]
+
+  @@map("salas")
+}
+
+model Butaca {
+  id        Int           @id @default(autoincrement())
+  salaId    Int           @map("sala_id")
+  fila      String
+  numero    Int
+  tipo      TipoButaca    @default(NORMAL)
+  estado    EstadoEntidad @default(ACTIVO)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  sala    Sala     @relation(fields: [salaId], references: [id], onDelete: Cascade)
+  boletos Boleto[]
+
+  @@unique([salaId, fila, numero])
+  @@map("butacas")
+}
+
+model Funcion {
+  id          Int           @id @default(autoincrement())
+  peliculaId  Int           @map("pelicula_id")
+  salaId      Int           @map("sala_id")
+  fechaHora   DateTime      @map("fecha_hora")
+  precioBase  Decimal       @map("precio_base") @db.Decimal(10, 2)
+  estado      EstadoEntidad @default(ACTIVO)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  pelicula  Pelicula @relation(fields: [peliculaId], references: [id])
+  sala      Sala     @relation(fields: [salaId], references: [id])
+  boletos   Boleto[]
+  preciosTipo FuncionTipoBoleto[]
+
+  @@map("funciones")
+}
+
+model TipoBoleto {
+  id           Int           @id @default(autoincrement())
+  nombre       String
+  factorPrecio Decimal       @map("factor_precio") @db.Decimal(4, 2)
+  estado       EstadoEntidad @default(ACTIVO)
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  boletos      Boleto[]
+  funciones    FuncionTipoBoleto[]
+
+  @@map("tipos_boleto")
+}
+
+model FuncionTipoBoleto {
+  id           Int      @id @default(autoincrement())
+  funcionId    Int      @map("funcion_id")
+  tipoBoletoId Int      @map("tipo_boleto_id")
+  precio       Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  funcion    Funcion    @relation(fields: [funcionId], references: [id], onDelete: Cascade)
+  tipoBoleto TipoBoleto @relation(fields: [tipoBoletoId], references: [id])
+
+  @@unique([funcionId, tipoBoletoId])
+  @@map("funcion_tipo_boleto")
+}
+
+model Compra {
+  id               Int          @id @default(autoincrement())
+  clienteId        Int?         @map("cliente_id")
+  nombreComprador  String       @map("nombre_comprador")
+  correoComprador  String       @map("correo_comprador")
+  telefonoComprador String?     @map("telefono_comprador")
+  folio            String       @unique
+  fechaCompra      DateTime     @default(now()) @map("fecha_compra")
+  total            Decimal      @db.Decimal(10, 2)
+  estado           EstadoCompra @default(CONFIRMADA)
+  esInvitado       Boolean      @default(false) @map("es_invitado")
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  cliente       Cliente?              @relation(fields: [clienteId], references: [id])
+  boletos       Boleto[]
+  detalleDulceria DetalleDulceriaCompra[]
+  pago          PagoSimulado?
+
+  @@index([correoComprador, folio])
+  @@map("compras")
+}
+
+model Boleto {
+  id             Int             @id @default(autoincrement())
+  compraId       Int             @map("compra_id")
+  funcionId      Int             @map("funcion_id")
+  butacaId       Int             @map("butaca_id")
+  tipoBoletoId   Int             @map("tipo_boleto_id")
+  precioUnitario Decimal         @map("precio_unitario") @db.Decimal(10, 2)
+  estadoUso      EstadoBoletoUso @default(VIGENTE) @map("estado_uso")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  compra     Compra     @relation(fields: [compraId], references: [id], onDelete: Cascade)
+  funcion    Funcion    @relation(fields: [funcionId], references: [id])
+  butaca     Butaca     @relation(fields: [butacaId], references: [id])
+  tipoBoleto TipoBoleto @relation(fields: [tipoBoletoId], references: [id])
+  qrBoletos  QRBoleto[]
+
+  @@unique([funcionId, butacaId])
+  @@map("boletos")
+}
+
+model QRBoleto {
+  id        Int     @id @default(autoincrement())
+  boletoId  Int?    @map("boleto_id")
+  compraId  Int?    @map("compra_id")
+  codigo    String  @unique
+  tipoQR    TipoQR  @map("tipo_qr")
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  boleto Boleto? @relation(fields: [boletoId], references: [id], onDelete: Cascade)
+
+  @@map("qr_boletos")
+}
+
+model ProductoDulceria {
+  id        Int           @id @default(autoincrement())
+  nombre    String
+  categoria String
+  precio    Decimal       @db.Decimal(10, 2)
+  stock     Int           @default(0)
+  imagenUrl String?       @map("imagen_url")
+  estado    EstadoEntidad @default(ACTIVO)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  detallesCompra DetalleDulceriaCompra[]
+  comboDetalles  ComboDetalle[]
+
+  @@map("productos_dulceria")
+}
+
+model Combo {
+  id        Int           @id @default(autoincrement())
+  nombre    String
+  precio    Decimal       @db.Decimal(10, 2)
+  estado    EstadoEntidad @default(ACTIVO)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  detalles     ComboDetalle[]
+  compras      DetalleDulceriaCompra[]
+
+  @@map("combos")
+}
+
+model ComboDetalle {
+  id         Int      @id @default(autoincrement())
+  comboId    Int      @map("combo_id")
+  productoId Int      @map("producto_id")
+  cantidad   Int      @default(1)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  combo    Combo            @relation(fields: [comboId], references: [id], onDelete: Cascade)
+  producto ProductoDulceria @relation(fields: [productoId], references: [id])
+
+  @@map("combo_detalles")
+}
+
+model DetalleDulceriaCompra {
+  id             Int     @id @default(autoincrement())
+  compraId       Int     @map("compra_id")
+  productoId     Int?    @map("producto_id")
+  comboId        Int?    @map("combo_id")
+  cantidad       Int
+  precioUnitario Decimal @map("precio_unitario") @db.Decimal(10, 2)
+  subtotal       Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  compra   Compra            @relation(fields: [compraId], references: [id], onDelete: Cascade)
+  producto ProductoDulceria? @relation(fields: [productoId], references: [id])
+  combo    Combo?            @relation(fields: [comboId], references: [id])
+
+  @@map("detalle_dulceria_compra")
+}
+
+model PagoSimulado {
+  id         Int          @id @default(autoincrement())
+  compraId   Int          @unique @map("compra_id")
+  referencia String
+  monto      Decimal      @db.Decimal(10, 2)
+  estado     EstadoCompra @default(CONFIRMADA)
+  fechaPago  DateTime     @default(now()) @map("fecha_pago")
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  compra Compra @relation(fields: [compraId], references: [id], onDelete: Cascade)
+
+  @@map("pagos_simulados")
+}
+
+model Calificacion {
+  id         Int      @id @default(autoincrement())
+  usuarioId  Int      @map("usuario_id")
+  peliculaId Int      @map("pelicula_id")
+  puntuacion Int
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  usuario  Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  pelicula Pelicula @relation(fields: [peliculaId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, peliculaId])
+  @@map("calificaciones")
+}
+
+model Resena {
+  id              Int           @id @default(autoincrement())
+  usuarioId       Int           @map("usuario_id")
+  peliculaId      Int           @map("pelicula_id")
+  parentResenaId  Int?          @map("parent_resena_id")
+  comentario      String        @db.Text
+  estado          EstadoEntidad @default(ACTIVO)
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  usuario       Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  pelicula      Pelicula  @relation(fields: [peliculaId], references: [id], onDelete: Cascade)
+  parentResena  Resena?   @relation("ResenaRespuestas", fields: [parentResenaId], references: [id], onDelete: Cascade)
+  respuestas    Resena[]  @relation("ResenaRespuestas")
+  likes         LikeResena[]
+
+  @@index([peliculaId, parentResenaId])
+  @@map("resenas")
+}
+
+model LikeResena {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  resenaId  Int      @map("resena_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  resena  Resena  @relation(fields: [resenaId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, resenaId])
+  @@map("likes_resenas")
+}
+
+model PeliculaFavorita {
+  id         Int      @id @default(autoincrement())
+  usuarioId  Int      @map("usuario_id")
+  peliculaId Int      @map("pelicula_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  usuario  Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  pelicula Pelicula @relation(fields: [peliculaId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, peliculaId])
+  @@map("peliculas_favoritas")
+}
+
+model SolicitudAmistad {
+  id                Int                    @id @default(autoincrement())
+  emisorUsuarioId   Int                    @map("emisor_usuario_id")
+  receptorUsuarioId Int                    @map("receptor_usuario_id")
+  estado            EstadoSolicitudAmistad @default(PENDIENTE)
+  createdAt         DateTime               @default(now()) @map("created_at")
+
+  emisor   Usuario @relation("SolicitudEmisor", fields: [emisorUsuarioId], references: [id], onDelete: Cascade)
+  receptor Usuario @relation("SolicitudReceptor", fields: [receptorUsuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([emisorUsuarioId, receptorUsuarioId])
+  @@map("solicitudes_amistad")
+}
+
+model ChatPrivado {
+  id          Int      @id @default(autoincrement())
+  usuarioAId  Int      @map("usuario_a_id")
+  usuarioBId  Int      @map("usuario_b_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  usuarioA Usuario       @relation("ChatUsuarioA", fields: [usuarioAId], references: [id], onDelete: Cascade)
+  usuarioB Usuario       @relation("ChatUsuarioB", fields: [usuarioBId], references: [id], onDelete: Cascade)
+  mensajes MensajeChat[]
+
+  @@unique([usuarioAId, usuarioBId])
+  @@map("chats_privados")
+}
+
+model MensajeChat {
+  id              Int         @id @default(autoincrement())
+  chatId          Int         @map("chat_id")
+  emisorUsuarioId Int         @map("emisor_usuario_id")
+  contenido       String      @db.Text
+  tipoMensaje     TipoMensaje @default(TEXTO) @map("tipo_mensaje")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  chat              ChatPrivado            @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  emisor            Usuario                @relation(fields: [emisorUsuarioId], references: [id], onDelete: Cascade)
+  recomendacion     RecomendacionPelicula?
+
+  @@map("mensajes_chat")
+}
+
+model RecomendacionPelicula {
+  id                Int      @id @default(autoincrement())
+  emisorUsuarioId   Int      @map("emisor_usuario_id")
+  receptorUsuarioId Int      @map("receptor_usuario_id")
+  peliculaId        Int      @map("pelicula_id")
+  mensajeChatId     Int?     @unique @map("mensaje_chat_id")
+  comentario        String?  @db.Text
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  emisor   Usuario     @relation("RecomendacionEmisor", fields: [emisorUsuarioId], references: [id], onDelete: Cascade)
+  receptor Usuario     @relation("RecomendacionReceptor", fields: [receptorUsuarioId], references: [id], onDelete: Cascade)
+  pelicula Pelicula    @relation(fields: [peliculaId], references: [id], onDelete: Cascade)
+  mensaje  MensajeChat? @relation(fields: [mensajeChatId], references: [id])
+
+  @@map("recomendaciones_peliculas")
+}
