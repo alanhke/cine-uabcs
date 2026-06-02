@@ -1,7 +1,6 @@
-import { existsSync, mkdirSync, readdirSync, writeFileSync, unlinkSync } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
-import { normalizePublicImagePath, UPLOADS_PUBLIC_PREFIX } from "@/lib/image-path";
+import { del, list, put } from "@vercel/blob";
+import { normalizePublicImagePath } from "@/lib/image-path";
 
 export type UploadPrefix = "poster" | "product" | "avatar";
 
@@ -17,40 +16,38 @@ const MIME_TO_EXT: Record<string, string> = {
 
 const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 
-/** Ruta absoluta: {proyecto}/public/uploads */
-export function getUploadDirAbsolute(): string {
-  return path.join(process.cwd(), "public", "uploads");
-}
-
-export function ensureUploadDirSync(): string {
-  const dir = getUploadDirAbsolute();
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-    console.log("[UPLOAD_DIR_CREATED]", dir);
-  }
-  return dir;
-}
-
 function extensionFromMime(mime: string, originalName: string): string {
   if (MIME_TO_EXT[mime]) return MIME_TO_EXT[mime];
   const match = originalName.match(/\.(jpe?g|png|webp|gif)$/i);
   if (!match) return ".jpg";
-  const e = match[1].toLowerCase();
-  if (e === "jpeg" || e === "jpg") return ".jpg";
-  return `.${e}`;
+  const ext = match[1].toLowerCase();
+  if (ext === "jpeg" || ext === "jpg") return ".jpg";
+  return `.${ext}`;
+}
+
+function toBlobKey(prefix: UploadPrefix, filename: string): string {
+  return `${prefix}/${filename}`;
+}
+
+function makeFilename(prefix: UploadPrefix, ext: string, customFilename?: string): string {
+  if (customFilename) return customFilename;
+  return `${prefix}-${Date.now()}-${randomUUID().slice(0, 8)}${ext}`;
+}
+
+function getUploadToken(): string | undefined {
+  return process.env.BLOB_READ_WRITE_TOKEN;
 }
 
 /**
- * Escribe el archivo en disco de forma síncrona.
- * @returns Solo ruta relativa del navegador: /uploads/archivo.ext
+ * Sube un archivo a Vercel Blob y devuelve su URL pública.
  */
-export function saveBufferToUploads(
+export async function saveBufferToUploads(
   buffer: Buffer,
   prefix: UploadPrefix,
   mimeType: string,
   originalName = "image.jpg",
   customFilename?: string
-): string {
+): Promise<string> {
   if (!buffer.length) {
     throw new Error("Buffer vacío");
   }
@@ -58,27 +55,21 @@ export function saveBufferToUploads(
     throw new Error("La imagen no debe superar 5 MB");
   }
 
-  const uploadDir = ensureUploadDirSync();
   const ext = extensionFromMime(mimeType, originalName);
   if (!ALLOWED_EXTENSIONS.has(ext) && ext !== ".jpeg") {
     throw new Error(`Extensión no permitida: ${ext}`);
   }
+
   const safeExt = ext === ".jpeg" ? ".jpg" : ext;
-  const filename =
-    customFilename ??
-    `${prefix}-${Date.now()}-${randomUUID().slice(0, 8)}${safeExt}`;
-  const absolutePath = path.join(uploadDir, filename);
+  const filename = makeFilename(prefix, safeExt, customFilename);
+  const pathname = toBlobKey(prefix, filename);
+  const blob = await put(pathname, buffer, {
+    access: "public",
+    token: getUploadToken(),
+    contentType: mimeType,
+  });
 
-  writeFileSync(absolutePath, buffer);
-
-  if (!existsSync(absolutePath)) {
-    throw new Error(`No se pudo verificar el archivo en disco: ${absolutePath}`);
-  }
-
-  const publicPath = `${UPLOADS_PUBLIC_PREFIX}/${filename}`;
-  console.log("[UPLOAD_WRITE_SYNC]", { absolutePath, publicPath, bytes: buffer.length });
-
-  return publicPath;
+  return blob.url;
 }
 
 export async function saveWebFileToUploads(
@@ -91,8 +82,8 @@ export async function saveWebFileToUploads(
 }
 
 /**
- * Descarga una imagen remota y la guarda en public/uploads.
- * @returns Ruta pública del navegador, p. ej. /uploads/tmdb-12345.jpg
+ * Descarga una imagen remota y la guarda en Vercel Blob.
+ * @returns URL pública de Blob.
  */
 export async function downloadRemoteImageToUploads(
   imageUrl: string,
@@ -131,21 +122,17 @@ export async function downloadRemoteImageToUploads(
   );
 }
 
-export function deleteUploadFromDisk(url: string | null | undefined): void {
+/**
+ * Elimina una imagen de Vercel Blob. Si llega una ruta legacy local, la ignora.
+ */
+export async function deleteUploadFromDisk(url: string | null | undefined): Promise<void> {
   const normalized = normalizePublicImagePath(url);
-  if (!normalized?.startsWith(`${UPLOADS_PUBLIC_PREFIX}/`)) return;
-  const absolute = path.join(process.cwd(), "public", normalized);
-  try {
-    if (existsSync(absolute)) {
-      unlinkSync(absolute);
-      console.log("[UPLOAD_DELETE]", absolute);
-    }
-  } catch {
-    /* ignorar */
-  }
+  if (!normalized) return;
+  if (normalized.startsWith("/uploads/")) return;
+  await del(normalized, { token: getUploadToken() });
 }
 
-export function listUploadFilesOnDisk(): string[] {
-  const dir = ensureUploadDirSync();
-  return readdirSync(dir).filter((f) => !f.startsWith("."));
+export async function listUploadFilesOnDisk(prefix?: string): Promise<string[]> {
+  const result = await list({ prefix, token: getUploadToken(), limit: 1000 });
+  return result.blobs.map((b) => b.url);
 }

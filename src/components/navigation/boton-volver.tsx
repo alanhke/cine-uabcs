@@ -17,7 +17,7 @@ export function BotonVolver({ href, label, className }: BotonVolverProps) {
   const button = (
     <span
       className={cn(
-        "inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-navy/15 bg-white text-navy shadow-sm transition-colors hover:bg-paliacate/40 hover:border-navy/30",
+        "inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-navy/15 bg-white text-navy shadow-sm transition-[transform,background-color,border-color] duration-150 ease-out-quart hover:bg-paliacate/40 hover:border-navy/30 active:scale-90",
         className
       )}
       aria-label={label ?? "Volver"}

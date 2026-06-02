@@ -96,7 +96,24 @@ export default function ButacasPage() {
   }
 
   if (loading) {
-    return <p className="p-8 text-center text-navy/60">Cargando sala...</p>;
+    return (
+      <div className="space-y-5 px-4 py-6" aria-busy="true" aria-label="Cargando sala">
+        <div className="mx-auto h-1.5 w-4/5 rounded-full bg-navy/10" />
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, r) => (
+            <div key={r} className="flex justify-center gap-1.5">
+              {Array.from({ length: 10 }).map((_, c) => (
+                <div
+                  key={c}
+                  className="h-8 w-8 animate-pulse rounded-lg bg-navy/10 sm:h-9 sm:w-9"
+                  style={{ animationDelay: `${(r * 10 + c) * 12}ms` }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (

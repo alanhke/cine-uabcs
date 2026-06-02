@@ -28,7 +28,7 @@ export function ConversacionesImpacto({
             {items.map((item) => (
               <li
                 key={item.resenaId}
-                className="rounded-2xl border-l-4 border-navy/40 bg-white/70 pl-4 pr-3 py-3"
+                className="rounded-2xl border border-navy/10 bg-white/70 px-4 py-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">

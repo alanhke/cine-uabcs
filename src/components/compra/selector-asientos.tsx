@@ -31,7 +31,7 @@ function isMovilidad(tipo?: SeatTipo) {
 
 function seatButtonClass(seat: Seat) {
   if (seat.status === "selected") {
-    return "bg-primary border-2 border-primary-dark text-primary-foreground scale-110 shadow-primary";
+    return "bg-primary border-2 border-primary-dark text-primary-foreground scale-110 shadow-cta";
   }
   if (seat.status === "occupied") {
     return "bg-cream border-2 border-navy/10 text-navy/20 cursor-not-allowed";
@@ -40,9 +40,9 @@ function seatButtonClass(seat: Seat) {
     return "bg-transparent cursor-not-allowed opacity-40";
   }
   if (isMovilidad(seat.tipo)) {
-    return "bg-mobility border-2 border-mobility-accent/80 text-mobility-foreground hover:border-primary";
+    return "bg-mobility border-2 border-mobility-accent/80 text-mobility-foreground hover:border-primary hover:scale-105 active:scale-95";
   }
-  return "bg-white border-2 border-navy/15 text-navy hover:border-primary hover:bg-white";
+  return "bg-white border-2 border-navy/15 text-navy hover:border-primary hover:scale-105 active:scale-95";
 }
 
 export function SelectorAsientos({
@@ -72,8 +72,11 @@ export function SelectorAsientos({
 
   return (
     <div className="space-y-5">
-      <div className="mx-auto w-3/4 rounded-full bg-navy/8 py-2.5 text-center text-xs font-semibold uppercase tracking-wider text-navy/55">
-        Pantalla
+      <div className="space-y-1.5">
+        <div className="mx-auto h-1.5 w-4/5 rounded-full bg-gradient-to-b from-primary/60 to-primary/10 shadow-[0_8px_24px_-6px_rgba(0,91,150,0.55)]" />
+        <p className="text-center text-xs font-semibold uppercase tracking-wider text-navy/50">
+          Pantalla
+        </p>
       </div>
 
       <div className="space-y-2 overflow-x-auto pb-2">
@@ -91,7 +94,7 @@ export function SelectorAsientos({
                   }
                   onClick={() => onSelect(seat.id)}
                   className={cn(
-                    "h-8 w-8 rounded-lg text-[10px] font-bold transition-all sm:h-9 sm:w-9",
+                    "h-8 w-8 rounded-lg text-[10px] font-bold transition-[transform,background-color,border-color,box-shadow] duration-150 ease-out-quart sm:h-9 sm:w-9",
                     seatButtonClass(seat)
                   )}
                   aria-label={`Butaca ${fila}${seat.numero}${

@@ -22,7 +22,7 @@ export async function saveUploadedImage(
 }
 
 export async function deleteLocalUpload(url: string | null | undefined): Promise<void> {
-  deleteUploadFromDisk(url);
+  await deleteUploadFromDisk(url);
 }
 
 function getFileFromFormData(formData: FormData, key: string): File | null {
@@ -34,7 +34,7 @@ function getFileFromFormData(formData: FormData, key: string): File | null {
 }
 
 /**
- * Archivo nuevo → guardar en /public/uploads y devolver /uploads/...
+ * Archivo nuevo → guardar en Vercel Blob y devolver una URL pública.
  * Sin archivo → conservar ruta previa válida (nunca blob:).
  */
 export async function resolveImagePathFromForm(
@@ -61,7 +61,7 @@ export async function resolveImagePathFromForm(
     }
     const newPath = await saveWebFileToUploads(file, prefix);
     if (prev && prev !== newPath) {
-      deleteUploadFromDisk(prev);
+      await deleteUploadFromDisk(prev);
     }
     console.log("[UPLOAD_FORM_RESOLVE]", { fileField, newPath, bytes: buffer.length });
     return assertPersistableImagePath(newPath, pathField);

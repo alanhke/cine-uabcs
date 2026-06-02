@@ -175,7 +175,7 @@ export default function SeleccionTiposBoletoPage() {
                 <p className="text-sm text-navy/60">
                   {formatCurrency(tipo.precio)}
                   {tipo.descuentoPct > 0 && (
-                    <span className="ml-1 text-paliacate font-semibold">
+                    <span className="ml-1 font-semibold text-green-700">
                       (−{tipo.descuentoPct}%)
                     </span>
                   )}
@@ -186,7 +186,7 @@ export default function SeleccionTiposBoletoPage() {
                   type="button"
                   onClick={() => cambiarCantidad(tipo.id, -1)}
                   disabled={(cantidades[tipo.id] ?? 0) <= 0}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-30"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-cta transition-[transform,background-color] duration-150 ease-out-quart hover:bg-primary-dark active:scale-90 disabled:opacity-30 disabled:active:scale-100 disabled:shadow-none"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
@@ -197,7 +197,7 @@ export default function SeleccionTiposBoletoPage() {
                   type="button"
                   onClick={() => cambiarCantidad(tipo.id, 1)}
                   disabled={totalAsignado >= totalAsientos}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-30"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-cta transition-[transform,background-color] duration-150 ease-out-quart hover:bg-primary-dark active:scale-90 disabled:opacity-30 disabled:active:scale-100 disabled:shadow-none"
                 >
                   <Plus className="h-4 w-4" />
                 </button>

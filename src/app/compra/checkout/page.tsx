@@ -191,7 +191,7 @@ export default function CheckoutPage() {
           )}
           <div className="flex justify-between border-t border-navy/15 pt-2">
             <span className="font-display font-bold text-navy">Total</span>
-            <span className="font-display text-xl font-bold text-paliacate">
+            <span className="font-display text-xl font-bold text-navy">
               {formatCurrency(total)}
             </span>
           </div>
@@ -202,7 +202,12 @@ export default function CheckoutPage() {
         <CardContent className="space-y-4 py-5">
           {!session && (
             <label className="flex items-center gap-2 text-sm text-navy">
-              <input type="checkbox" {...register("esInvitado")} defaultChecked />
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-navy/30 accent-primary"
+                {...register("esInvitado")}
+                defaultChecked
+              />
               Comprar como invitado (recuperar con correo + folio)
             </label>
           )}

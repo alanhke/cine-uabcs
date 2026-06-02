@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { UserPlus, Check, X, Copy, Share2, Search, User } from "lucide-react";
+import { UserPlus, Check, X, Copy, Share2, Search, User, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,7 +57,7 @@ function AmigoRow({ amigo }: { amigo: Amigo }) {
 
   return (
     <Link href={href} className="group mb-2 block">
-      <Card className="transition hover:border-primary/30 hover:shadow-matinee">
+      <Card className="transition-[transform,box-shadow,border-color] duration-200 ease-out-quart hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-matinee active:scale-[0.99]">
         <CardContent className="flex items-center gap-3 py-3">
           <UserAvatar
             usuarioId={amigo.id}
@@ -167,7 +167,7 @@ export default function AmigosPage() {
     <div className="space-y-6 px-4 py-6">
       <h1 className="font-display text-2xl font-bold text-navy">Amigos</h1>
 
-      <Card className="overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-cream to-white shadow-matinee">
+      <Card className="overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-cream to-white shadow-sm">
         <CardContent className="space-y-4 py-6 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Share2 className="h-6 w-6" />
@@ -295,7 +295,15 @@ export default function AmigosPage() {
       <section>
         <h2 className="mb-3 font-semibold text-navy">Mis amigos</h2>
         {amigos.length === 0 ? (
-          <p className="text-sm text-navy/50">Aún no tienes amigos confirmados.</p>
+          <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-navy/15 bg-white/60 px-6 py-10 text-center">
+            <Users className="h-7 w-7 text-navy/40" />
+            <p className="text-sm font-medium text-navy/70">
+              Aún no tienes amigos confirmados
+            </p>
+            <p className="text-xs text-navy/55">
+              Comparte tu código o busca a alguien por el suyo para conectar.
+            </p>
+          </div>
         ) : (
           amigos.map((a) => <AmigoRow key={a.id} amigo={a} />)
         )}

@@ -73,7 +73,10 @@ export default async function AdminPeliculasPage({
               </tr>
             ) : (
               peliculas.map((p) => (
-                <tr key={p.id} className="border-b border-navy/5 last:border-0">
+                <tr
+                  key={p.id}
+                  className="border-b border-navy/5 transition-colors last:border-0 hover:bg-cream/60"
+                >
                   <td className="px-4 py-3 font-medium text-navy">{p.titulo}</td>
                   <td className="px-4 py-3 text-navy/70">{p.clasificacion}</td>
                   <td className="px-4 py-3 text-navy/70">{p.duracionMin} min</td>

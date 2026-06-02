@@ -48,8 +48,10 @@ export function MobileNav() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 text-xs font-medium transition-colors",
-                active ? "bg-primary text-primary-foreground" : "text-navy/60"
+                "flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 text-xs font-medium transition-[transform,background-color,color] duration-200 ease-out-quart active:scale-95",
+                active
+                  ? "bg-primary text-primary-foreground shadow-cta"
+                  : "text-navy/70 hover:text-navy"
               )}
             >
               <Icon

@@ -48,7 +48,7 @@ function StatNumber({ children }: { children: React.ReactNode }) {
 }
 
 const navBtnClass =
-  "rounded-full bg-primary text-primary-foreground shadow-primary hover:bg-primary-dark disabled:bg-navy/15 disabled:text-navy/40 disabled:shadow-none";
+  "rounded-full bg-primary text-primary-foreground shadow-cta hover:bg-primary-dark disabled:bg-navy/15 disabled:text-navy/40 disabled:shadow-none";
 
 export function WrappedStory({ data }: { data: WrappedData }) {
   const [slide, setSlide] = useState(0);
@@ -362,7 +362,7 @@ export function WrappedStory({ data }: { data: WrappedData }) {
                   type="button"
                   onClick={() => setSlide(i)}
                   className={cn(
-                    "h-2 rounded-full transition-all",
+                    "h-2 rounded-full transition-[width,background-color] duration-300 ease-out-quart",
                     i === slide ? "w-8 bg-primary" : "w-2 bg-navy/20"
                   )}
                   aria-label={

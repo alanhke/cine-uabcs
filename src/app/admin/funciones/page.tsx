@@ -76,7 +76,7 @@ export default async function AdminFuncionesPage({
               </tr>
             ) : (
               funciones.map((f) => (
-                <tr key={f.id} className="border-b border-navy/5 last:border-0">
+                <tr key={f.id} className="border-b border-navy/5 transition-colors last:border-0 hover:bg-cream/60">
                   <td className="px-4 py-3 font-medium text-navy">
                     {f.pelicula.titulo}
                   </td>

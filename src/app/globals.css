@@ -12,6 +12,8 @@
   --paliacate: #f5c842;
   --background: var(--cream);
   --foreground: var(--navy);
+  --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 body {
@@ -69,6 +71,61 @@ body {
 
 .wrapped-dashboard-stagger-active {
   animation: wrapped-dashboard-stagger 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Entrada escalonada para grids. El contenido es visible por defecto
+   (la animación parte de opacity:0 pero corre en el load, sin gating por JS),
+   y los delays se reinician cada 6 elementos para que un grid largo no arrastre. */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-grid > * {
+  animation: reveal-up 0.5s var(--ease-out-quart) both;
+}
+.reveal-grid > *:nth-child(6n + 1) { animation-delay: 0ms; }
+.reveal-grid > *:nth-child(6n + 2) { animation-delay: 45ms; }
+.reveal-grid > *:nth-child(6n + 3) { animation-delay: 90ms; }
+.reveal-grid > *:nth-child(6n + 4) { animation-delay: 135ms; }
+.reveal-grid > *:nth-child(6n + 5) { animation-delay: 180ms; }
+.reveal-grid > *:nth-child(6n + 6) { animation-delay: 225ms; }
+
+/* Pop de éxito para confirmaciones (momento poco frecuente: se permite deleite). */
+@keyframes success-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.success-pop {
+  animation: success-pop 0.5s var(--ease-out-quart) both;
+}
+
+/* Motion is sickness-inducing for some; keep comprehension cues (fades),
+   drop movement. Not zero motion — fewer and gentler. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @media print {

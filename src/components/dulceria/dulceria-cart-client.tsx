@@ -117,23 +117,49 @@ export function DulceriaCartClient({
         {productos.length === 0 ? (
           <p className="text-sm text-navy/50">No hay productos disponibles.</p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {productos.map((p) => (
-              <Card key={p.id} className="border-navy/10 bg-white/90 shadow-sm">
-                <CardContent className="flex items-center justify-between gap-3 p-4">
-                  <div className="min-w-0">
-                    <p className="font-display font-bold text-navy">{p.nombre}</p>
-                    <p className="mt-1 text-lg font-semibold text-primary">
-                      {formatCurrency(Number(p.precio))}
-                    </p>
-                    <p className="text-xs text-navy/50">Stock: {p.stock}</p>
-                  </div>
-                  <Button size="icon" disabled={p.stock < 1} onClick={() => addProducto(p)}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="reveal-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {productos.map((p) => {
+              const agotado = p.stock < 1;
+              const pocoStock = !agotado && p.stock <= 5;
+              return (
+                <Card
+                  key={p.id}
+                  className="border-navy/10 bg-white/90 shadow-sm transition-[transform,box-shadow] duration-200 ease-out-quart hover:-translate-y-0.5 hover:shadow-matinee"
+                >
+                  <CardContent className="flex items-center justify-between gap-3 p-4">
+                    <div className="min-w-0">
+                      <p className="font-display font-bold text-navy">{p.nombre}</p>
+                      <p className="mt-1 text-lg font-semibold text-primary">
+                        {formatCurrency(Number(p.precio))}
+                      </p>
+                      <p
+                        className={
+                          agotado
+                            ? "text-xs font-medium text-red-600"
+                            : pocoStock
+                              ? "text-xs font-medium text-amber-700"
+                              : "text-xs text-navy/50"
+                        }
+                      >
+                        {agotado
+                          ? "Agotado"
+                          : pocoStock
+                            ? `Últimas ${p.stock}`
+                            : `${p.stock} disponibles`}
+                      </p>
+                    </div>
+                    <Button
+                      size="icon"
+                      disabled={agotado}
+                      onClick={() => addProducto(p)}
+                      aria-label={`Agregar ${p.nombre}`}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </section>
@@ -143,9 +169,12 @@ export function DulceriaCartClient({
         {combos.length === 0 ? (
           <p className="text-sm text-navy/50">No hay combos disponibles.</p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="reveal-grid grid gap-4 sm:grid-cols-2">
             {combos.map((c) => (
-              <Card key={c.id} className="border-primary/15 bg-white/90 shadow-sm">
+              <Card
+                key={c.id}
+                className="border-primary/15 bg-white/90 shadow-sm transition-[transform,box-shadow] duration-200 ease-out-quart hover:-translate-y-0.5 hover:shadow-matinee"
+              >
                 <CardContent className="flex items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
                     <p className="font-display font-bold text-navy">{c.nombre}</p>
@@ -153,7 +182,7 @@ export function DulceriaCartClient({
                       {formatCurrency(Number(c.precio))}
                     </p>
                   </div>
-                  <Button size="icon" onClick={() => addCombo(c)}>
+                  <Button size="icon" onClick={() => addCombo(c)} aria-label={`Agregar ${c.nombre}`}>
                     <Plus className="h-4 w-4" />
                   </Button>
                 </CardContent>
@@ -173,15 +202,31 @@ export function DulceriaCartClient({
             {cart.map((item) => {
               const k = keyOf(item);
               return (
-                <div key={k} className="flex items-center justify-between text-sm text-navy">
-                  <span className="min-w-0 truncate">
-                    {item.nombre} × {item.cantidad}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => updateQty(k, -1)}>
+                <div key={k} className="flex items-center justify-between gap-3 text-sm text-navy">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{item.nombre}</p>
+                    <p className="text-xs text-navy/55">
+                      {formatCurrency(item.precioUnitario * item.cantidad)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 rounded-full border border-navy/15 bg-white p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => updateQty(k, -1)}
+                      aria-label={`Quitar uno de ${item.nombre}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-navy transition-[transform,background-color] duration-150 ease-out-quart hover:bg-navy/5 active:scale-90"
+                    >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <button type="button" onClick={() => updateQty(k, 1)}>
+                    <span className="w-5 text-center text-sm font-semibold tabular-nums">
+                      {item.cantidad}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateQty(k, 1)}
+                      aria-label={`Agregar uno de ${item.nombre}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-navy transition-[transform,background-color] duration-150 ease-out-quart hover:bg-navy/5 active:scale-90"
+                    >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
@@ -190,7 +235,7 @@ export function DulceriaCartClient({
             })}
             <div className="flex items-center justify-between border-t border-navy/10 pt-2">
               <span className="font-semibold text-navy">Total</span>
-              <span className="font-display text-lg font-bold text-paliacate">
+              <span className="font-display text-xl font-bold text-navy">
                 {formatCurrency(total)}
               </span>
             </div>

@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     if (replacePath) {
-      deleteUploadFromDisk(replacePath);
+      await deleteUploadFromDisk(replacePath);
     }
 
     const publicPath = await saveWebFileToUploads(file, prefix);

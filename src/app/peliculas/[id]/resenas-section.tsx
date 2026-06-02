@@ -93,14 +93,14 @@ export function ResenasSection({ peliculaId }: { peliculaId: number }) {
                     onMouseEnter={() => setHoverPuntuacion(n)}
                     onMouseLeave={() => setHoverPuntuacion(0)}
                     onClick={() => setPuntuacion(n)}
-                    className="rounded-md p-1 transition-transform hover:scale-110"
+                    className="rounded-md p-1 transition-transform duration-150 ease-out-quart hover:scale-110 active:scale-95"
                     aria-label={`${n} estrella${n > 1 ? "s" : ""}`}
                   >
                     <Star
                       className={cn(
-                        "h-7 w-7 transition-colors",
+                        "h-7 w-7 transition-colors duration-150",
                         active
-                          ? "fill-yellow-400 text-yellow-500"
+                          ? "fill-paliacate text-paliacate"
                           : "text-navy/25"
                       )}
                     />

@@ -39,10 +39,21 @@ const config: Config = {
       },
       boxShadow: {
         matinee: "0 8px 30px rgba(0, 74, 124, 0.12)",
-        primary: "0 6px 20px rgba(0, 91, 150, 0.35)",
+        /** Sombra plana de color sólido (sin halo/neón). Nombre propio para no
+            colisionar con la utilidad de color de sombra `shadow-primary`. */
+        cta: "0 3px 0 0 #004a7c",
+        "matinee-lg": "0 16px 48px rgba(0, 74, 124, 0.18)",
+      },
+      transitionTimingFunction: {
+        // Strong ease-out for entering UI — feels instant and responsive.
+        "out-quart": "cubic-bezier(0.23, 1, 0.32, 1)",
+        // Natural acceleration/deceleration for on-screen movement.
+        "in-out-quart": "cubic-bezier(0.77, 0, 0.175, 1)",
+        // iOS-like drawer/sheet curve.
+        drawer: "cubic-bezier(0.32, 0.72, 0, 1)",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
 export default config;

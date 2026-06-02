@@ -16,7 +16,7 @@ export function isAbsoluteHttpUrl(value: string): boolean {
   return value.startsWith("http://") || value.startsWith("https://");
 }
 
-/** Ruta pública para el navegador: solo /uploads/... o rutas http(s) válidas. */
+/** Ruta pública para el navegador: Blob/URLs http(s) válidas o rutas legacy /uploads/... */
 export function normalizePublicImagePath(
   value: string | null | undefined
 ): string | null {
@@ -49,7 +49,7 @@ export function isLocalUploadPath(url: string | null | undefined): boolean {
   return Boolean(url?.startsWith(`${UPLOADS_PUBLIC_PREFIX}/`));
 }
 
-/** Solo rutas que pueden guardarse en Prisma. */
+/** Solo rutas públicas que pueden guardarse en Prisma. */
 export function assertPersistableImagePath(
   path: string | null | undefined,
   fieldLabel = "imagen"
