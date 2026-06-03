@@ -123,6 +123,71 @@ body {
   animation: success-pop 0.5s var(--ease-out-quart) both;
 }
 
+/* ───────────────────────────────────────────────────────────────────────────
+   Cine / "sala": la oscuridad de los clímax (detalle, butacas, boleto).
+   Capa atmosférica que NO cobra fricción: todo es transform/opacity/filter,
+   sin animar layout, con brillo de pantalla contenido (nada de neón).
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Escena de sala: fondo oscuro con viñeta + un halo cálido arriba, como la
+   luz que escapa de la pantalla cuando las luces ya bajaron. */
+.sala-scene {
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(245, 200, 66, 0.12), transparent 55%),
+    radial-gradient(100% 70% at 50% 120%, rgba(0, 91, 150, 0.18), transparent 60%),
+    #0a1020;
+}
+
+/* Backdrop cinematográfico: el póster a pantalla completa, desenfocado y
+   oscurecido, para que el contenido encima respire y se lea. */
+.cinema-backdrop {
+  transform: scale(1.08);
+  filter: blur(18px) saturate(1.15) brightness(0.7);
+  will-change: transform;
+}
+.cinema-veil {
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 16, 32, 0.55) 0%,
+    rgba(10, 16, 32, 0.78) 55%,
+    #0a1020 100%
+  );
+}
+
+/* Ken-Burns: deriva lentísima del backdrop. Solo transform → GPU, barato. */
+@keyframes ken-burns {
+  from { transform: scale(1.08) translate3d(0, 0, 0); }
+  to   { transform: scale(1.16) translate3d(0, -1.5%, 0); }
+}
+.ken-burns {
+  animation: ken-burns 22s var(--ease-in-out-quart) infinite alternate both;
+}
+
+/* "Bajan las luces": entrada de las superficies oscuras. Sutil, una vez. */
+@keyframes lights-dim {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.lights-dim {
+  animation: lights-dim 0.6s var(--ease-out-quart) both;
+}
+
+/* El póster que "aterriza" en el detalle: sube con un poco de escala. */
+@keyframes poster-land {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.poster-land {
+  animation: poster-land 0.7s var(--ease-out-quart) both;
+}
+
+/* Arco de "PANTALLA" en la selección de butacas: brillo que se proyecta. */
+.screen-arc {
+  background: linear-gradient(to bottom, rgba(246, 241, 227, 0.9), rgba(246, 241, 227, 0));
+  filter: blur(0.5px);
+  box-shadow: 0 0 60px 8px rgba(245, 200, 66, 0.35);
+}
+
 /* Motion is sickness-inducing for some; keep comprehension cues (fades),
    drop movement. Not zero motion — fewer and gentler. */
 @media (prefers-reduced-motion: reduce) {

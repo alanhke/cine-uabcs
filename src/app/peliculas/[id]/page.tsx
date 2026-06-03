@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import { SafeImage } from "@/components/ui/safe-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarClock, ChevronRight } from "lucide-react";
@@ -63,34 +62,25 @@ export default async function PeliculaDetailPage({
   const promedio = resumenCalificaciones.promedio;
 
   return (
-    <div className="space-y-6 px-4 py-6">
+    <div className="pb-10">
       <PeliculaHeader
         titulo={pelicula.titulo}
         clasificacion={pelicula.clasificacion}
         duracionMin={pelicula.duracionMin}
         promedio={promedio}
-      >
-        <div className="relative aspect-[2/3] w-28 shrink-0 overflow-hidden rounded-2xl shadow-matinee ring-1 ring-navy/10 sm:w-32">
-          <SafeImage
-            src={pelicula.posterUrl}
-            alt={pelicula.titulo}
-            variant="poster"
-            fill
-            className="object-cover"
-            sizes="128px"
-          />
+        posterUrl={pelicula.posterUrl}
+      />
+      <div className="space-y-6 px-4 pt-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <FavoritoButton peliculaId={pelicula.id} />
+          <RecomendarButton peliculaId={pelicula.id} titulo={pelicula.titulo} />
         </div>
-      </PeliculaHeader>
-      <div className="flex flex-wrap items-center gap-2">
-        <FavoritoButton peliculaId={pelicula.id} />
-        <RecomendarButton peliculaId={pelicula.id} titulo={pelicula.titulo} />
-      </div>
 
-      <p className="max-w-prose text-sm leading-relaxed text-navy/80 text-pretty">
-        {pelicula.sinopsis}
-      </p>
+        <p className="max-w-prose text-sm leading-relaxed text-navy/80 text-pretty">
+          {pelicula.sinopsis}
+        </p>
 
-      <RatingSummary resumen={resumenCalificaciones} />
+        <RatingSummary resumen={resumenCalificaciones} />
 
       <section>
         <div className="mb-3 flex items-baseline justify-between gap-3">
@@ -147,7 +137,8 @@ export default async function PeliculaDetailPage({
         )}
       </section>
 
-      <ResenasSection peliculaId={pelicula.id} />
+        <ResenasSection peliculaId={pelicula.id} />
+      </div>
     </div>
   );
 }
