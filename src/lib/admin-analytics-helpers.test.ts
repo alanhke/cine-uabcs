@@ -20,6 +20,10 @@ describe("obtenerPosicionesCentrales", () => {
     expect(obtenerPosicionesCentrales(8)).toEqual(new Set([3, 4, 5, 6]));
   });
 
+  it("favorece la posicion menor en empates para formar un bloque contiguo", () => {
+    expect(obtenerPosicionesCentrales(6)).toEqual(new Set([2, 3, 4]));
+  });
+
   it("elige las posiciones mas cercanas al centro en una dimension impar", () => {
     expect(obtenerPosicionesCentrales(5)).toEqual(new Set([2, 3, 4]));
   });
@@ -134,5 +138,51 @@ describe("construirMapasButacas", () => {
       true,
       false,
     ]);
+  });
+
+  it("no comprime filas ausentes al calcular la geometria central", () => {
+    const [mapa] = construirMapasButacas(
+      [
+        {
+          id: 5,
+          nombre: "Sala con filas ausentes",
+          filas: 5,
+          columnas: 1,
+          butacas: [
+            { id: 51, fila: "A", numero: 1, estado: "ACTIVO" },
+            { id: 52, fila: "C", numero: 1, estado: "ACTIVO" },
+            { id: 53, fila: "E", numero: 1, estado: "ACTIVO" },
+          ],
+        },
+      ],
+      []
+    );
+
+    expect(mapa.butacas.map((butaca) => butaca.esCentral)).toEqual([
+      false,
+      true,
+      false,
+    ]);
+  });
+
+  it("mantiene el orden geometrico de etiquetas de fila extendidas", () => {
+    const [mapa] = construirMapasButacas(
+      [
+        {
+          id: 6,
+          nombre: "Sala con muchas filas",
+          filas: 27,
+          columnas: 1,
+          butacas: [
+            { id: 61, fila: "AA", numero: 1, estado: "ACTIVO" },
+            { id: 62, fila: "Z", numero: 1, estado: "ACTIVO" },
+            { id: 63, fila: "A", numero: 1, estado: "ACTIVO" },
+          ],
+        },
+      ],
+      []
+    );
+
+    expect(mapa.butacas.map((butaca) => butaca.fila)).toEqual(["A", "Z", "AA"]);
   });
 });
