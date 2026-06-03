@@ -97,15 +97,19 @@ export default function ButacasPage() {
 
   if (loading) {
     return (
-      <div className="space-y-5 px-4 py-6" aria-busy="true" aria-label="Cargando sala">
-        <div className="mx-auto h-1.5 w-4/5 rounded-full bg-navy/10" />
+      <div
+        className="sala-scene min-h-[calc(100dvh-4rem)] space-y-5 px-4 py-6"
+        aria-busy="true"
+        aria-label="Cargando sala"
+      >
+        <div className="screen-arc mx-auto h-2 w-4/5 rounded-[100%]" />
         <div className="space-y-2">
           {Array.from({ length: 8 }).map((_, r) => (
             <div key={r} className="flex justify-center gap-1.5">
               {Array.from({ length: 10 }).map((_, c) => (
                 <div
                   key={c}
-                  className="h-8 w-8 animate-pulse rounded-lg bg-navy/10 sm:h-9 sm:w-9"
+                  className="h-8 w-8 animate-pulse rounded-lg bg-white/10 sm:h-9 sm:w-9"
                   style={{ animationDelay: `${(r * 10 + c) * 12}ms` }}
                 />
               ))}
@@ -117,12 +121,13 @@ export default function ButacasPage() {
   }
 
   return (
-    <div className="space-y-6 px-4 py-6 pb-32">
+    <div className="sala-scene lights-dim min-h-[calc(100dvh-4rem)] space-y-6 px-4 py-6 pb-32">
       <PageHeaderConVolver
         href={`/peliculas/${peliculaId}`}
         label="Funciones"
         title="Elige tus butacas"
         subtitle={titulo ? `Función: ${titulo}` : undefined}
+        onDark
       />
 
       <SelectorAsientos
@@ -137,6 +142,7 @@ export default function ButacasPage() {
             ? `${selected.length} butaca(s) seleccionada(s)`
             : "Selecciona al menos una butaca"
         }
+        onDark
       />
     </div>
   );
