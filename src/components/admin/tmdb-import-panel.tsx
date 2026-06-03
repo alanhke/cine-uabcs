@@ -80,7 +80,7 @@ export function TmdbImportPanel() {
         </Card>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {movies.map((m) => {
           const yaImportada = importedIds.has(m.id);
           const importando = importingId === m.id;

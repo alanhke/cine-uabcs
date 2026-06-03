@@ -9,8 +9,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
@@ -33,6 +31,12 @@ const RANGO_LABELS: Record<string, string> = {
   hoy: "Hoy",
   "7dias": "Últimos 7 días",
   mes: "Mes actual",
+  "1mes": "Último mes",
+  bimestre: "Último bimestre",
+  trimestre: "Último trimestre",
+  cuatrimestre: "Último cuatrimestre",
+  semestre: "Último semestre",
+  anio: "Último año",
 };
 
 const CHART_HEIGHT = 300;
@@ -117,38 +121,6 @@ export function DashboardCharts({ data, chartKey = 0 }: DashboardChartsProps) {
                   isAnimationActive
                 />
               </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="py-4">
-          <CardTitle className="mb-4 text-base">
-            Mapa de calor — butacas más vendidas
-          </CardTitle>
-          <ChartContainer>
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT} debounce={50}>
-              <BarChart data={data.mapaButacas}>
-                <CartesianGrid strokeDasharray="3 3" stroke={`${NAVY}15`} />
-                <XAxis dataKey="etiqueta" tick={{ fill: NAVY, fontSize: 10 }} />
-                <YAxis tick={{ fill: NAVY, fontSize: 11 }} />
-                <Tooltip
-                  contentStyle={{
-                    background: CREAM,
-                    borderRadius: 16,
-                    border: `2px solid ${NAVY}`,
-                  }}
-                />
-                <Bar
-                  dataKey="ventas"
-                  fill={PALIACATE}
-                  radius={[8, 8, 0, 0]}
-                  animationDuration={800}
-                  animationEasing="ease-out"
-                  isAnimationActive
-                />
-              </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>

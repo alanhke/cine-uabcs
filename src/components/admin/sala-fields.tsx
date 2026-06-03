@@ -17,7 +17,7 @@ export function SalaFields({
         <Label>Nombre de la sala</Label>
         <Input name="nombre" defaultValue={defaults?.nombre} required />
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1">
           <Label>Filas</Label>
           <Input

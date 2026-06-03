@@ -39,11 +39,11 @@ export function ResenasDestacadas({
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {resenas.map((r) => (
         <article
           key={r.id}
-          className="flex flex-col rounded-2xl border border-navy/10 bg-white/90 p-4 shadow-sm"
+          className="flex min-w-0 flex-col rounded-2xl border border-navy/10 bg-white/90 p-4 shadow-sm"
         >
           <div className="flex items-start gap-3">
             <UserAvatar
@@ -86,7 +86,7 @@ export function ResenasDestacadas({
               </Link>
             )}
           </div>
-          <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-navy/80">
+          <p className="mt-3 line-clamp-3 flex-1 break-words text-sm leading-relaxed text-navy/80">
             {r.comentario}
           </p>
           <p className="mt-3 flex items-center gap-1 text-xs font-medium text-navy/50">
