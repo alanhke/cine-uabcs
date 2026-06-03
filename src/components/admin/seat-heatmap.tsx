@@ -8,6 +8,19 @@ interface SeatHeatmapProps {
   mapas: SalaHeatmap[];
 }
 
+function etiquetaFilaDesdePosicion(posicion: number): string {
+  let valor = posicion;
+  let etiqueta = "";
+
+  while (valor > 0) {
+    valor -= 1;
+    etiqueta = String.fromCharCode(65 + (valor % 26)) + etiqueta;
+    valor = Math.floor(valor / 26);
+  }
+
+  return etiqueta;
+}
+
 export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
   const [salaId, setSalaId] = useState<number | null>(mapas[0]?.salaId ?? null);
 
@@ -26,11 +39,9 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
     );
   }
 
-  const butacasPorFila = new Map<string, typeof sala.butacas>();
+  const butacasPorPosicion = new Map<string, (typeof sala.butacas)[number]>();
   for (const butaca of sala.butacas) {
-    const fila = butacasPorFila.get(butaca.fila) ?? [];
-    fila.push(butaca);
-    butacasPorFila.set(butaca.fila, fila);
+    butacasPorPosicion.set(`${butaca.fila}:${butaca.numero}`, butaca);
   }
 
   return (
@@ -90,50 +101,89 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
           aria-label={`Mapa de butacas de ${sala.nombre}`}
           className="mx-auto w-max min-w-full space-y-2"
         >
-          {Array.from(butacasPorFila.entries()).map(([fila, butacas]) => (
-            <div
-              key={fila}
-              role="row"
-              className="flex items-center justify-center gap-1.5"
-            >
-              <span
-                aria-hidden="true"
-                className="w-6 shrink-0 text-xs font-bold text-navy/45"
-              >
-                {fila}
-              </span>
-              {butacas.map((butaca) => {
-                const estado =
-                  butaca.estado === "ACTIVO" ? "activa" : "inactiva";
+          {Array.from({ length: sala.filas }, (_, index) => {
+            const fila = etiquetaFilaDesdePosicion(index + 1);
 
-                return (
-                  <span
-                    key={butaca.id}
-                    role="gridcell"
-                    aria-label={`Butaca ${butaca.etiqueta} de ${sala.nombre}, ${estado}, ${butaca.ventas} ventas`}
-                    title={`${butaca.etiqueta}: ${estado}, ${butaca.ventas} ventas`}
-                    className="h-8 w-8 shrink-0 rounded-lg border border-navy/10 shadow-sm sm:h-9 sm:w-9"
-                    style={{
-                      backgroundColor: colorButacaHeatmap(
-                        butaca.ventas,
-                        sala.maxVentas,
-                        butaca.estado
-                      ),
-                    }}
-                  />
-                );
-              })}
-            </div>
-          ))}
+            return (
+              <div
+                key={fila}
+                role="row"
+                className="flex items-center justify-center gap-1.5"
+              >
+                <span
+                  aria-hidden="true"
+                  className="w-6 shrink-0 text-xs font-bold text-navy/45"
+                >
+                  {fila}
+                </span>
+                {Array.from({ length: sala.columnas }, (_, numeroIndex) => {
+                  const numero = numeroIndex + 1;
+                  const butaca = butacasPorPosicion.get(`${fila}:${numero}`);
+
+                  if (!butaca) {
+                    return (
+                      <span
+                        key={`${fila}:${numero}`}
+                        aria-hidden="true"
+                        className="invisible h-8 w-8 shrink-0 sm:h-9 sm:w-9"
+                      />
+                    );
+                  }
+
+                  const estado =
+                    butaca.estado === "ACTIVO" ? "activa" : "inactiva";
+
+                  return (
+                    <span
+                      key={butaca.id}
+                      role="gridcell"
+                      tabIndex={0}
+                      aria-label={`Butaca ${butaca.etiqueta} de ${sala.nombre}, ${estado}, ${butaca.ventas} ventas`}
+                      title={`${butaca.etiqueta}: ${estado}, ${butaca.ventas} ventas`}
+                      className="h-8 w-8 shrink-0 rounded-lg border border-navy/10 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:h-9 sm:w-9"
+                      style={{
+                        backgroundColor: colorButacaHeatmap(
+                          butaca.ventas,
+                          sala.maxVentas,
+                          butaca.estado
+                        ),
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <div className="space-y-2 text-xs text-navy/60">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <span>0 ventas</span>
-          <span className="h-3 w-40 rounded-full border border-navy/10 bg-[linear-gradient(90deg,#FFFFFF_0%,#FDE68A_35%,#FB923C_68%,#DC2626_100%)]" />
-          <span>{sala.maxVentas} ventas</span>
-        </div>
+      <div
+        role="group"
+        aria-label="Leyenda del mapa de calor"
+        className="space-y-2 text-xs text-navy/60"
+      >
+        {sala.maxVentas === 0 ? (
+          <p className="text-center font-semibold">Sin ventas en el periodo</p>
+        ) : (
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded border border-navy/10 bg-white" />
+              Sin ventas
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded bg-[#FDE68A]" />
+              Demanda baja
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded bg-[#FB923C]" />
+              Demanda media
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded bg-[#DC2626]" />
+              Demanda alta
+            </span>
+          </div>
+        )}
         <div className="flex items-center justify-center gap-1.5">
           <span className="h-3 w-3 rounded bg-[#D8DDE4]" />
           <span>Butaca inactiva</span>
