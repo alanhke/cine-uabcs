@@ -12,7 +12,7 @@
     "db:clean-blobs": "npx tsx scripts/clean-blob-urls.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "test:watch": "vitest"
   },
   "prisma": {
