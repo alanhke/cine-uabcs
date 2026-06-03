@@ -36,7 +36,8 @@ export function calcularTicketPromedio(
   totalCompras: number
 ): number {
   if (totalCompras === 0) return 0;
-  return Math.round((ingresosTotales / totalCompras) * 100) / 100;
+  const promedio = ingresosTotales / totalCompras;
+  return Math.round((promedio + Number.EPSILON) * 100) / 100;
 }
 
 export function obtenerPosicionesCentrales(dimension: number): Set<number> {

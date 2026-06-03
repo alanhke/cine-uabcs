@@ -10,6 +10,10 @@ describe("calcularTicketPromedio", () => {
     expect(calcularTicketPromedio(2500, 10)).toBe(250);
   });
 
+  it("redondea correctamente importes monetarios a dos decimales", () => {
+    expect(calcularTicketPromedio(2.01, 2)).toBe(1.01);
+  });
+
   it("regresa cero cuando no existen compras", () => {
     expect(calcularTicketPromedio(0, 0)).toBe(0);
   });
