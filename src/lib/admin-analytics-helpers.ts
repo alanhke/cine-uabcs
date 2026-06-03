@@ -21,6 +21,16 @@ export interface VentaButacaInput {
   salaId: number;
 }
 
+function obtenerPosicionFila(fila: string): number | null {
+  const etiqueta = fila.trim().toUpperCase();
+  if (!/^[A-Z]+$/.test(etiqueta)) return null;
+
+  return Array.from(etiqueta).reduce(
+    (posicion, letra) => posicion * 26 + letra.charCodeAt(0) - 64,
+    0
+  );
+}
+
 export function calcularTicketPromedio(
   ingresosTotales: number,
   totalCompras: number
@@ -33,6 +43,7 @@ export function obtenerPosicionesCentrales(dimension: number): Set<number> {
   const cantidad = Math.ceil(dimension * 0.5);
   const centro = (dimension + 1) / 2;
 
+  // En empates se favorece la posicion menor para mantener un bloque contiguo.
   return new Set(
     Array.from({ length: dimension }, (_, index) => index + 1)
       .sort((a, b) => Math.abs(a - centro) - Math.abs(b - centro) || a - b)
@@ -53,15 +64,12 @@ export function construirMapasButacas(
   }
 
   return salas.map((sala) => {
-    const filasOrdenadas = Array.from(
-      new Set(sala.butacas.map((butaca) => butaca.fila))
-    ).sort();
     const filasCentrales = obtenerPosicionesCentrales(sala.filas);
     const columnasCentrales = obtenerPosicionesCentrales(sala.columnas);
 
     const butacas: ButacaHeatmapItem[] = sala.butacas
       .map((butaca) => {
-        const posicionFila = filasOrdenadas.indexOf(butaca.fila) + 1;
+        const posicionFila = obtenerPosicionFila(butaca.fila);
         const claveVenta = `${sala.id}:${butaca.id}`;
 
         return {
@@ -72,13 +80,17 @@ export function construirMapasButacas(
           estado: butaca.estado,
           ventas: ventasPorButaca.get(claveVenta) ?? 0,
           esCentral:
+            posicionFila !== null &&
             filasCentrales.has(posicionFila) &&
             columnasCentrales.has(butaca.numero),
         };
       })
       .sort(
         (a, b) =>
-          a.fila.localeCompare(b.fila, "es") || a.numero - b.numero
+          (obtenerPosicionFila(a.fila) ?? Number.MAX_SAFE_INTEGER) -
+            (obtenerPosicionFila(b.fila) ?? Number.MAX_SAFE_INTEGER) ||
+          a.fila.localeCompare(b.fila, "es") ||
+          a.numero - b.numero
       );
 
     const butacasActivas = butacas.filter((butaca) => butaca.estado === "ACTIVO");
