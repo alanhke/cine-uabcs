@@ -100,36 +100,37 @@ export default function DulceriaPage() {
   }
 
   return (
-    <div className="space-y-6 px-4 py-6 pb-28">
+    <div className="sala-scene lights-dim min-h-[calc(100dvh-4rem)] space-y-6 px-4 py-6 pb-28">
       <PageHeaderConVolver
         href="/compra/boletos"
         label="Tipos de boleto"
         title="Dulcería"
         subtitle="Agrega snacks antes de pagar"
+        onDark
       />
 
-      <Card className="border-navy/15 bg-white/90">
+      <Card className="border-white/10 bg-sala-surface text-sala-ink">
         <CardContent className="py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-sala-muted">
             Tus boletos
           </p>
           {resumenBoletos.map((r) => (
-            <p key={r.nombre} className="mt-1 text-sm font-medium text-navy">
+            <p key={r.nombre} className="mt-1 text-sm font-medium text-sala-ink">
               {r.cantidad} {r.nombre}
               {r.cantidad > 1 ? "s" : ""}
             </p>
           ))}
-          <p className="mt-2 font-display text-lg font-bold text-navy">
+          <p className="mt-2 font-display text-lg font-bold text-white">
             Subtotal: {formatCurrency(subtotalBoletos)}
           </p>
         </CardContent>
       </Card>
 
       <section>
-        <h2 className="mb-3 font-semibold text-navy">Productos</h2>
+        <h2 className="mb-3 font-semibold text-white">Productos</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {productos.map((p) => (
-            <Card key={p.id}>
+            <Card key={p.id} className="border-white/10 bg-sala-surface text-sala-ink">
               <CardContent className="flex items-center gap-3 py-3">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
                   <SafeImage
@@ -142,8 +143,8 @@ export default function DulceriaPage() {
                   />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-navy">{p.nombre}</p>
-                  <p className="text-sm text-navy/60">
+                  <p className="font-semibold text-white">{p.nombre}</p>
+                  <p className="text-sm text-sala-muted">
                     {formatCurrency(Number(p.precio))} · Stock {p.stock}
                   </p>
                 </div>
@@ -167,14 +168,14 @@ export default function DulceriaPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-navy">Combos</h2>
+        <h2 className="mb-3 font-semibold text-white">Combos</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {combos.map((c) => (
-            <Card key={c.id} className="border-paliacate/50">
+            <Card key={c.id} className="border-mobility-accent/40 bg-sala-surface text-sala-ink">
               <CardContent className="flex items-center justify-between py-3">
                 <div>
-                  <p className="font-semibold text-navy">{c.nombre}</p>
-                  <p className="text-sm text-navy/60">
+                  <p className="font-semibold text-white">{c.nombre}</p>
+                  <p className="text-sm text-sala-muted">
                     {formatCurrency(Number(c.precio))}
                   </p>
                 </div>
@@ -197,28 +198,28 @@ export default function DulceriaPage() {
       </section>
 
       {cart.length > 0 && (
-        <Card className="sticky bottom-20 border-navy/20 shadow-matinee">
+        <Card className="sticky bottom-20 border-white/10 bg-sala-surface/95 text-sala-ink shadow-poster ring-1 ring-white/10">
           <CardContent className="space-y-3 py-4">
-            <div className="flex items-center gap-2 font-semibold text-navy">
+            <div className="flex items-center gap-2 font-semibold text-white">
               <ShoppingCart className="h-5 w-5" />
               Carrito dulcería ({cart.length})
             </div>
             {cart.map((item) => {
               const key = String(item.productoId ?? `c-${item.comboId}`);
               return (
-                <div key={key} className="flex items-center justify-between gap-3 text-sm text-navy">
+                <div key={key} className="flex items-center justify-between gap-3 text-sm text-sala-ink">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{item.nombre}</p>
-                    <p className="text-xs text-navy/55">
+                    <p className="text-xs text-sala-muted">
                       {formatCurrency(item.precioUnitario * item.cantidad)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 rounded-full border border-navy/15 bg-white p-0.5">
+                  <div className="flex items-center gap-1 rounded-full border border-white/15 bg-sala-elevated p-0.5">
                     <button
                       type="button"
                       onClick={() => updateQty(key, -1)}
                       aria-label={`Quitar uno de ${item.nombre}`}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-navy transition-[transform,background-color] duration-150 ease-out-quart hover:bg-navy/5 active:scale-90"
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-sala-ink transition-[transform,background-color] duration-150 ease-out-quart hover:bg-white/10 active:scale-90"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -229,7 +230,7 @@ export default function DulceriaPage() {
                       type="button"
                       onClick={() => updateQty(key, 1)}
                       aria-label={`Agregar uno de ${item.nombre}`}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-navy transition-[transform,background-color] duration-150 ease-out-quart hover:bg-navy/5 active:scale-90"
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-sala-ink transition-[transform,background-color] duration-150 ease-out-quart hover:bg-white/10 active:scale-90"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -237,7 +238,7 @@ export default function DulceriaPage() {
                 </div>
               );
             })}
-            <p className="font-bold text-navy">
+            <p className="font-bold text-white">
               Subtotal dulcería: {formatCurrency(totalDulceria)}
             </p>
           </CardContent>

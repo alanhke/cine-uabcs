@@ -155,50 +155,53 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="space-y-6 px-4 py-6 pb-8">
+    <div className="sala-scene lights-dim min-h-[calc(100dvh-4rem)] space-y-6 px-4 py-6 pb-8">
       <PageHeaderConVolver
         href={tieneDulceria && resumenBoletos.length === 0 ? "/dulceria" : "/compra/dulceria"}
         label="Dulcería"
         title="Confirmar compra"
         subtitle="Pago simulado — sin cargo real"
+        onDark
       />
 
-      <Card className="border-paliacate/30 bg-paliacate/10">
+      <Card className="border-white/10 bg-sala-surface text-sala-ink">
         <CardContent className="space-y-2 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-sala-muted">
             Resumen
           </p>
           {resumenBoletos.map((r) => (
-            <div key={r.nombre} className="flex justify-between text-sm text-navy">
+            <div key={r.nombre} className="flex justify-between text-sm text-sala-ink">
               <span>
                 {r.cantidad} × {r.nombre}
               </span>
             </div>
           ))}
-          <div className="flex justify-between border-t border-navy/10 pt-2 text-sm">
-            <span className="text-navy/70">Boletos</span>
-            <span className="font-semibold text-navy">
+          <div className="flex justify-between border-t border-white/10 pt-2 text-sm">
+            <span className="text-sala-muted">Boletos</span>
+            <span className="font-semibold text-sala-ink">
               {formatCurrency(subtotalBoletos)}
             </span>
           </div>
           {subtotalDulceria > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-navy/70">Dulcería</span>
-              <span className="font-semibold text-navy">
+              <span className="text-sala-muted">Dulcería</span>
+              <span className="font-semibold text-sala-ink">
                 {formatCurrency(subtotalDulceria)}
               </span>
             </div>
           )}
-          <div className="flex justify-between border-t border-navy/15 pt-2">
-            <span className="font-display font-bold text-navy">Total</span>
-            <span className="font-display text-xl font-bold text-navy">
+          <div className="flex justify-between border-t border-white/15 pt-2">
+            <span className="font-display font-bold text-white">Total</span>
+            <span className="font-display text-xl font-bold text-white">
               {formatCurrency(total)}
             </span>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      {/* La taquilla iluminada: el formulario se mantiene claro para que la
+          captura de datos sea nítida sobre la sala a oscuras. */}
+      <Card className="shadow-poster">
         <CardContent className="space-y-4 py-5">
           {!session && (
             <label className="flex items-center gap-2 text-sm text-navy">
@@ -236,7 +239,7 @@ export default function CheckoutPage() {
         </CardContent>
       </Card>
 
-      <FormError message={errors.root?.message} variant="navy" />
+      <FormError message={errors.root?.message} variant="paliacate" />
 
       <Button
         size="pill"

@@ -140,27 +140,32 @@ export default function SeleccionTiposBoletoPage() {
   }
 
   if (loading || !asientosState) {
-    return <p className="p-8 text-center text-navy/60">Cargando tipos de boleto...</p>;
+    return (
+      <div className="sala-scene min-h-[calc(100dvh-4rem)] p-8 text-center text-sala-muted">
+        Cargando tipos de boleto...
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6 px-4 py-6 pb-28">
+    <div className="sala-scene lights-dim min-h-[calc(100dvh-4rem)] space-y-6 px-4 py-6 pb-28">
       <PageHeaderConVolver
         href={`/compra/funcion/${asientosState.funcionId}/butacas`}
         label="Asientos"
         title="Tipo de boleto"
         subtitle={`Asigna ${totalAsientos} boleto(s) para tus butacas seleccionadas`}
+        onDark
       />
 
-      <Card className="border-paliacate/40 bg-paliacate/15">
+      <Card className="border-mobility-accent/30 bg-mobility-accent/10 text-sala-ink">
         <CardContent className="py-4">
-          <p className="text-sm text-navy">
+          <p className="text-sm text-sala-ink">
             Butacas:{" "}
             {asientosState.butacas
               .map((b) => `${b.fila}${b.numero}`)
               .join(", ")}
           </p>
-          <p className="mt-2 text-sm font-medium text-navy">
+          <p className="mt-2 text-sm font-medium text-mobility-accent">
             Asignados: {totalAsignado} / {totalAsientos}
           </p>
         </CardContent>
@@ -168,14 +173,14 @@ export default function SeleccionTiposBoletoPage() {
 
       <div className="space-y-4">
         {tipos.map((tipo) => (
-          <Card key={tipo.id}>
+          <Card key={tipo.id} className="border-white/10 bg-sala-surface text-sala-ink">
             <CardContent className="flex items-center justify-between gap-4 py-4">
               <div className="min-w-0 flex-1">
-                <p className="font-display font-bold text-navy">{tipo.nombre}</p>
-                <p className="text-sm text-navy/60">
+                <p className="font-display font-bold text-white">{tipo.nombre}</p>
+                <p className="text-sm text-sala-muted">
                   {formatCurrency(tipo.precio)}
                   {tipo.descuentoPct > 0 && (
-                    <span className="ml-1 font-semibold text-green-700">
+                    <span className="ml-1 font-semibold text-green-400">
                       (−{tipo.descuentoPct}%)
                     </span>
                   )}
@@ -190,7 +195,7 @@ export default function SeleccionTiposBoletoPage() {
                 >
                   <Minus className="h-4 w-4" />
                 </button>
-                <span className="w-8 text-center font-display text-xl font-bold text-navy">
+                <span className="w-8 text-center font-display text-xl font-bold text-white">
                   {cantidades[tipo.id] ?? 0}
                 </span>
                 <button
@@ -208,14 +213,14 @@ export default function SeleccionTiposBoletoPage() {
       </div>
 
       {error && (
-        <p className="rounded-2xl bg-paliacate/40 px-4 py-2 text-sm font-medium text-navy">
+        <p className="rounded-2xl bg-mobility-accent/15 px-4 py-2 text-sm font-medium text-mobility-accent ring-1 ring-mobility-accent/30">
           {error}
         </p>
       )}
 
-      <div className="sticky bottom-20 rounded-3xl bg-white/95 p-4 shadow-matinee backdrop-blur-sm">
-        <p className="text-sm text-navy/70">Subtotal boletos</p>
-        <p className="font-display text-2xl font-bold text-primary">
+      <div className="sticky bottom-20 rounded-3xl bg-sala-surface/90 p-4 shadow-poster ring-1 ring-white/10 backdrop-blur-sm">
+        <p className="text-sm text-sala-muted">Subtotal boletos</p>
+        <p className="font-display text-2xl font-bold text-white">
           {formatCurrency(subtotal)}
         </p>
         <Button
