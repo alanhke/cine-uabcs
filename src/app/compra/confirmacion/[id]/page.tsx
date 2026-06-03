@@ -4,11 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { LimpiarSesionCompra } from "@/components/compra/limpiar-sesion-compra";
-import { Popcorn, Check } from "lucide-react";
+import { BoletoStub } from "@/components/compra/boleto-stub";
+import { Check } from "lucide-react";
 
 export default async function ConfirmacionPage({
   params,
@@ -24,7 +24,7 @@ export default async function ConfirmacionPage({
         include: {
           butaca: true,
           tipoBoleto: true,
-          funcion: { include: { pelicula: true } },
+          funcion: { include: { pelicula: true, sala: true } },
         },
       },
       detalleDulceria: { include: { producto: true, combo: true } },
@@ -49,6 +49,13 @@ export default async function ConfirmacionPage({
     })
     .join(", ");
 
+  // El stub muestra la función principal (la del primer boleto) y reúne todas
+  // las butacas de esa misma función.
+  const funcion = compra.boletos[0]?.funcion;
+  const butacas = compra.boletos
+    .filter((b) => b.funcion.id === funcion?.id)
+    .map((b) => `${b.butaca.fila}${b.butaca.numero}`);
+
   return (
     <div className="space-y-6 px-4 py-6 text-center">
       <LimpiarSesionCompra />
@@ -61,56 +68,34 @@ export default async function ConfirmacionPage({
         </h1>
         <p className="text-sm text-navy/60">Pago simulado, sin cargo real</p>
       </div>
-      <div className="mx-auto inline-flex flex-col items-center gap-1 rounded-2xl border border-navy/10 bg-white/70 px-6 py-3">
-        <span className="text-xs font-medium uppercase tracking-wide text-navy/50">
-          Folio
-        </span>
-        <span className="font-display text-xl font-bold tracking-wide text-navy">
-          {searchParams.folio ?? compra.folio}
-        </span>
-        <span className="text-sm text-navy/60">
-          Total {formatCurrency(Number(compra.total))}
-        </span>
-      </div>
-
-      {qrDataUrl && (
-        <Card className="mx-auto max-w-sm border-navy/10">
-          <CardContent className="flex flex-col items-center gap-3 py-6">
-            {soloDulceria ? (
-              <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
-                <Popcorn className="h-4 w-4" />
-                QR de recolección
-              </div>
-            ) : null}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={qrDataUrl}
-              alt={soloDulceria ? "QR de recolección" : "QR grupal"}
-              className="rounded-3xl ring-2 ring-paliacate/25"
-            />
-            <p className="text-xs text-navy/50 break-all">{qrGrupal?.codigo}</p>
-            <p className="text-sm font-medium text-navy">
-              {soloDulceria
-                ? "Presenta este QR en barra para recoger tus productos"
-                : "QR grupal de acceso"}
-            </p>
-            {soloDulceria && resumenDulceria ? (
-              <p className="text-sm text-navy/70">{resumenDulceria}</p>
-            ) : null}
-          </CardContent>
-        </Card>
-      )}
+      <BoletoStub
+        titulo={funcion?.pelicula.titulo}
+        fechaHora={funcion ? formatDateTime(funcion.fechaHora) : undefined}
+        sala={funcion?.sala.nombre}
+        butacas={butacas}
+        qrDataUrl={qrDataUrl}
+        qrCodigo={qrGrupal?.codigo}
+        folio={searchParams.folio ?? compra.folio}
+        total={formatCurrency(Number(compra.total))}
+        soloDulceria={soloDulceria}
+        resumenDulceria={resumenDulceria}
+      />
 
       {!soloDulceria ? (
-        <div className="text-left space-y-2">
-          <p className="font-semibold text-navy">Boletos ({compra.boletos.length})</p>
-          {compra.boletos.map((b) => (
-            <p key={b.id} className="text-sm text-navy/70">
-              {b.funcion.pelicula.titulo} — {b.tipoBoleto.nombre} — Butaca {b.butaca.fila}
-              {b.butaca.numero}
-            </p>
-          ))}
-        </div>
+        <details className="mx-auto max-w-sm text-left">
+          <summary className="cursor-pointer text-sm font-medium text-navy/60 transition-colors hover:text-navy">
+            Ver detalle de boletos ({compra.boletos.length})
+          </summary>
+          <div className="mt-2 space-y-1.5 rounded-2xl bg-white/70 p-4">
+            {compra.boletos.map((b) => (
+              <p key={b.id} className="text-sm text-navy/70">
+                {b.funcion.pelicula.titulo} — {b.tipoBoleto.nombre} — Butaca{" "}
+                {b.butaca.fila}
+                {b.butaca.numero}
+              </p>
+            ))}
+          </div>
+        </details>
       ) : null}
 
       {compra.esInvitado && (
