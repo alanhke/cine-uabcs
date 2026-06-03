@@ -15,10 +15,24 @@ export interface AsistenciaHoy {
 }
 
 export interface ButacaHeatmapItem {
+  id: number;
   etiqueta: string;
   fila: string;
   numero: number;
+  estado: string;
   ventas: number;
+  esCentral: boolean;
+}
+
+export interface SalaHeatmap {
+  salaId: number;
+  nombre: string;
+  filas: number;
+  columnas: number;
+  maxVentas: number;
+  butacasMasPedidas: string[];
+  concentracionCentral: number;
+  butacas: ButacaHeatmapItem[];
 }
 
 export interface SatisfaccionCliente {
@@ -35,6 +49,40 @@ export interface ConversacionImpacto {
   totalRespuestas: number;
 }
 
+export interface OcupacionFranja {
+  franja: string;
+  vendidos: number;
+  capacidad: number;
+  porcentaje: number;
+}
+
+export interface OcupacionSalas {
+  porcentajeGlobal: number;
+  asientosVendidos: number;
+  asientosDisponibles: number;
+  funcionesContadas: number;
+  porFranja: OcupacionFranja[];
+}
+
+export interface DulceriaMetrics {
+  attachRate: number;
+  comprasConDulceria: number;
+  gastoPromedioDulceria: number;
+}
+
+export interface ProductoStockBajo {
+  id: number;
+  nombre: string;
+  categoria: string;
+  stock: number;
+}
+
+export interface InventarioDulceria {
+  agotados: number;
+  umbral: number;
+  stockBajo: ProductoStockBajo[];
+}
+
 export interface AdminAnalytics {
   rango: RangoVentas;
   ingresosTotales: number;
@@ -43,11 +91,15 @@ export interface AdminAnalytics {
   boletosVendidos: number;
   ventasDulceria: number;
   totalCompras: number;
+  ticketPromedio: number;
   porPelicula: Array<{ titulo: string; boletos: number; ingresos: number }>;
   productosTop: Array<{ nombre: string; cantidad: number }>;
   ventasSerie: VentaDiaria[];
   conversacionesImpacto: ConversacionImpacto[];
   asistencia: AsistenciaHoy;
-  mapaButacas: ButacaHeatmapItem[];
+  mapasButacas: SalaHeatmap[];
   satisfaccion: SatisfaccionCliente;
+  ocupacion: OcupacionSalas;
+  dulceriaMetrics: DulceriaMetrics;
+  inventario: InventarioDulceria;
 }
