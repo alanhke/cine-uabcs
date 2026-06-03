@@ -7,8 +7,25 @@ import {
   startOfDay,
   ultimosNDiasClaves,
 } from "@/lib/datetime";
+import {
+  calcularTicketPromedio,
+  construirMapasButacas,
+} from "@/lib/admin-analytics-helpers";
 import type { RangoVentas } from "@/lib/validations/admin";
 import type { AdminAnalytics, ConversacionImpacto } from "@/types/admin-analytics";
+
+/** Asientos con menos de este stock disparan alerta de reabastecimiento. */
+const UMBRAL_STOCK_BAJO = 10;
+
+/** Clasifica una función por franja horaria según la hora local del servidor. */
+function franjaHoraria(fechaHora: Date): string {
+  const hora = fechaHora.getHours();
+  if (hora < 14) return "Matinée";
+  if (hora < 18) return "Tarde";
+  return "Noche";
+}
+
+const ORDEN_FRANJAS = ["Matinée", "Tarde", "Noche"];
 import { nombreCompleto } from "@/lib/format-relative";
 
 function inicioMes(date: Date): Date {
@@ -91,30 +108,80 @@ export async function obtenerAnalyticsAdmin(
   const hoyInicio = startOfDay(ahora);
   const hoyFin = endOfDay(ahora);
 
-  const [comprasRango, boletosConButaca, calificaciones, conversacionesImpacto] =
-    await Promise.all([
-      prisma.compra.findMany({
-        where: {
+  const [
+    comprasRango,
+    boletosConButaca,
+    calificaciones,
+    conversacionesImpacto,
+    funcionesRango,
+    boletosPorFuncion,
+    productosStock,
+    salasConButacas,
+  ] = await Promise.all([
+    prisma.compra.findMany({
+      where: {
+        estado: "CONFIRMADA",
+        fechaCompra: { gte: inicio, lte: fin },
+      },
+      include: {
+        boletos: { include: { funcion: { include: { pelicula: true } } } },
+        detalleDulceria: { include: { producto: true, combo: true } },
+      },
+    }),
+    prisma.boleto.findMany({
+      where: {
+        compra: {
           estado: "CONFIRMADA",
           fechaCompra: { gte: inicio, lte: fin },
         },
-        include: {
-          boletos: { include: { funcion: { include: { pelicula: true } } } },
-          detalleDulceria: { include: { producto: true, combo: true } },
+      },
+      select: {
+        butacaId: true,
+        butaca: {
+          select: { salaId: true },
         },
-      }),
-      prisma.boleto.findMany({
-        where: {
-          compra: {
-            estado: "CONFIRMADA",
-            fechaCompra: { gte: inicio, lte: fin },
+      },
+    }),
+    prisma.calificacion.findMany(),
+    obtenerConversacionesImpacto(5),
+    // Funciones cuyo horario cae en el periodo: base para medir ocupación.
+    prisma.funcion.findMany({
+      where: {
+        estado: { not: "ELIMINADO" },
+        fechaHora: { gte: inicio, lte: fin },
+      },
+      include: { sala: { select: { filas: true, columnas: true } } },
+    }),
+    // Boletos confirmados agrupados por función (asientos efectivamente vendidos).
+    prisma.boleto.groupBy({
+      by: ["funcionId"],
+      where: {
+        compra: { estado: "CONFIRMADA" },
+        funcion: { fechaHora: { gte: inicio, lte: fin } },
+      },
+      _count: { _all: true },
+    }),
+    prisma.productoDulceria.findMany({
+      where: { estado: "ACTIVO" },
+      orderBy: { stock: "asc" },
+      select: { id: true, nombre: true, categoria: true, stock: true },
+    }),
+    prisma.sala.findMany({
+      where: { estado: { not: "ELIMINADO" } },
+      orderBy: { nombre: "asc" },
+      include: {
+        butacas: {
+          orderBy: [{ fila: "asc" }, { numero: "asc" }],
+          select: {
+            id: true,
+            fila: true,
+            numero: true,
+            estado: true,
           },
         },
-        include: { butaca: true },
-      }),
-      prisma.calificacion.findMany(),
-      obtenerConversacionesImpacto(5),
-    ]);
+      },
+    }),
+  ]);
 
   const ingresosBoletos = comprasRango.reduce(
     (s, c) =>
@@ -209,31 +276,13 @@ export async function obtenerAnalyticsAdmin(
         ? 100
         : 0;
 
-  const butacaMap: Record<
-    string,
-    { fila: string; numero: number; ventas: number }
-  > = {};
-  for (const b of boletosConButaca) {
-    const key = `${b.butaca.fila}-${b.butaca.numero}`;
-    if (!butacaMap[key]) {
-      butacaMap[key] = {
-        fila: b.butaca.fila,
-        numero: b.butaca.numero,
-        ventas: 0,
-      };
-    }
-    butacaMap[key].ventas += 1;
-  }
-
-  const mapaButacas = Object.values(butacaMap)
-    .map((b) => ({
-      etiqueta: `${b.fila}${b.numero}`,
-      fila: b.fila,
-      numero: b.numero,
-      ventas: b.ventas,
+  const mapasButacas = construirMapasButacas(
+    salasConButacas,
+    boletosConButaca.map((boleto) => ({
+      butacaId: boleto.butacaId,
+      salaId: boleto.butaca.salaId,
     }))
-    .sort((a, b) => b.ventas - a.ventas)
-    .slice(0, 12);
+  );
 
   const distribucionMap: Record<number, number> = {
     1: 0,
@@ -254,6 +303,73 @@ export async function obtenerAnalyticsAdmin(
       ? Math.round((suma / totalCalificaciones) * 10) / 10
       : 0;
 
+  // --- Ocupación de salas ---
+  const vendidosPorFuncion: Record<number, number> = {};
+  for (const grupo of boletosPorFuncion) {
+    vendidosPorFuncion[grupo.funcionId] = grupo._count._all;
+  }
+
+  const franjaAcum: Record<string, { vendidos: number; capacidad: number }> = {};
+  let asientosVendidos = 0;
+  let asientosDisponibles = 0;
+  for (const funcion of funcionesRango) {
+    const capacidad = funcion.sala.filas * funcion.sala.columnas;
+    const vendidos = vendidosPorFuncion[funcion.id] ?? 0;
+    asientosVendidos += vendidos;
+    asientosDisponibles += capacidad;
+
+    const franja = franjaHoraria(funcion.fechaHora);
+    if (!franjaAcum[franja]) {
+      franjaAcum[franja] = { vendidos: 0, capacidad: 0 };
+    }
+    franjaAcum[franja].vendidos += vendidos;
+    franjaAcum[franja].capacidad += capacidad;
+  }
+
+  const porcentaje = (vendidos: number, capacidad: number) =>
+    capacidad > 0 ? Math.round((vendidos / capacidad) * 100) : 0;
+
+  const ocupacion = {
+    porcentajeGlobal: porcentaje(asientosVendidos, asientosDisponibles),
+    asientosVendidos,
+    asientosDisponibles,
+    funcionesContadas: funcionesRango.length,
+    porFranja: ORDEN_FRANJAS.filter((f) => franjaAcum[f]).map((franja) => ({
+      franja,
+      vendidos: franjaAcum[franja].vendidos,
+      capacidad: franjaAcum[franja].capacidad,
+      porcentaje: porcentaje(
+        franjaAcum[franja].vendidos,
+        franjaAcum[franja].capacidad
+      ),
+    })),
+  };
+
+  // --- Métricas de dulcería ---
+  const totalCompras = comprasRango.length;
+  const ticketPromedio = calcularTicketPromedio(ingresosTotales, totalCompras);
+  const comprasConDulceria = comprasRango.filter(
+    (c) => c.detalleDulceria.length > 0
+  ).length;
+  const dulceriaMetrics = {
+    attachRate:
+      totalCompras > 0
+        ? Math.round((comprasConDulceria / totalCompras) * 100)
+        : 0,
+    comprasConDulceria,
+    gastoPromedioDulceria:
+      comprasConDulceria > 0
+        ? Math.round((ingresosDulceria / comprasConDulceria) * 100) / 100
+        : 0,
+  };
+
+  // --- Inventario de dulcería (alertas de stock) ---
+  const inventario = {
+    umbral: UMBRAL_STOCK_BAJO,
+    agotados: productosStock.filter((p) => p.stock === 0).length,
+    stockBajo: productosStock.filter((p) => p.stock <= UMBRAL_STOCK_BAJO),
+  };
+
   return {
     rango,
     ingresosTotales,
@@ -261,7 +377,7 @@ export async function obtenerAnalyticsAdmin(
     ingresosDulceria,
     boletosVendidos,
     ventasDulceria: ingresosDulceria,
-    totalCompras: comprasRango.length,
+    totalCompras,
     porPelicula: Object.values(porPelicula),
     productosTop: Object.entries(productosMap)
       .map(([nombre, cantidad]) => ({ nombre, cantidad }))
@@ -274,7 +390,8 @@ export async function obtenerAnalyticsAdmin(
       promedioDiario,
       porcentajeVsPromedio,
     },
-    mapaButacas,
+    ticketPromedio,
+    mapasButacas,
     satisfaccion: {
       promedio,
       totalCalificaciones,
@@ -283,5 +400,8 @@ export async function obtenerAnalyticsAdmin(
         cantidad: distribucionMap[estrellas] ?? 0,
       })),
     },
+    ocupacion,
+    dulceriaMetrics,
+    inventario,
   };
 }
