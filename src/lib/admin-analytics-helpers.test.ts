@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   calcularTicketPromedio,
+  colorButacaHeatmap,
   construirMapasButacas,
   obtenerPosicionesCentrales,
 } from "@/lib/admin-analytics-helpers";
@@ -30,6 +31,19 @@ describe("obtenerPosicionesCentrales", () => {
 
   it("elige las posiciones mas cercanas al centro en una dimension impar", () => {
     expect(obtenerPosicionesCentrales(5)).toEqual(new Set([2, 3, 4]));
+  });
+});
+
+describe("colorButacaHeatmap", () => {
+  it("deja en gris las butacas inactivas", () => {
+    expect(colorButacaHeatmap(5, 10, "INACTIVO")).toBe("#D8DDE4");
+  });
+
+  it("recorre blanco, amarillo, naranja y rojo", () => {
+    expect(colorButacaHeatmap(0, 10, "ACTIVO")).toBe("#FFFFFF");
+    expect(colorButacaHeatmap(2, 10, "ACTIVO")).toBe("#FDE68A");
+    expect(colorButacaHeatmap(5, 10, "ACTIVO")).toBe("#FB923C");
+    expect(colorButacaHeatmap(10, 10, "ACTIVO")).toBe("#DC2626");
   });
 });
 

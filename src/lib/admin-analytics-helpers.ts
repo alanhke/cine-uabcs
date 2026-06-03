@@ -21,6 +21,12 @@ export interface VentaButacaInput {
   salaId: number;
 }
 
+const COLOR_BUTACA_INACTIVA = "#D8DDE4";
+const COLOR_BUTACA_SIN_VENTAS = "#FFFFFF";
+const COLOR_BUTACA_BAJA = "#FDE68A";
+const COLOR_BUTACA_MEDIA = "#FB923C";
+const COLOR_BUTACA_ALTA = "#DC2626";
+
 function obtenerPosicionFila(fila: string): number | null {
   const etiqueta = fila.trim().toUpperCase();
   if (!/^[A-Z]+$/.test(etiqueta)) return null;
@@ -51,6 +57,20 @@ export function obtenerPosicionesCentrales(dimension: number): Set<number> {
       .slice(0, cantidad)
       .sort((a, b) => a - b)
   );
+}
+
+export function colorButacaHeatmap(
+  ventas: number,
+  maxVentas: number,
+  estado: string
+): string {
+  if (estado !== "ACTIVO") return COLOR_BUTACA_INACTIVA;
+  if (ventas === 0 || maxVentas === 0) return COLOR_BUTACA_SIN_VENTAS;
+
+  const intensidad = ventas / maxVentas;
+  if (intensidad <= 0.33) return COLOR_BUTACA_BAJA;
+  if (intensidad <= 0.66) return COLOR_BUTACA_MEDIA;
+  return COLOR_BUTACA_ALTA;
 }
 
 export function construirMapasButacas(
