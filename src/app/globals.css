@@ -16,11 +16,19 @@
   --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
+/* Evita el scroll horizontal en móvil en cualquier dispositivo.
+   Se aplica en <html> (no en <body>) para no romper position: sticky
+   del header ni el fixed de la barra de navegación inferior. */
+html {
+  overflow-x: hidden;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-body), system-ui, sans-serif;
   min-height: 100dvh;
+  max-width: 100%;
 }
 
 .font-display {

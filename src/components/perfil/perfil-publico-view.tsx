@@ -184,6 +184,25 @@ export function PerfilPublicoView({
         </div>
       </header>
 
+      {perfil.esPropio && (
+        <nav className="grid grid-cols-2 gap-3">
+          <Link
+            href="/social/amigos"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-navy/10 bg-white/90 px-4 py-3 text-sm font-semibold text-navy shadow-sm transition hover:border-primary/30 hover:text-primary active:scale-[0.98]"
+          >
+            <Users className="h-5 w-5 text-primary" aria-hidden />
+            Amigos
+          </Link>
+          <Link
+            href="/social/chat"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-navy/10 bg-white/90 px-4 py-3 text-sm font-semibold text-navy shadow-sm transition hover:border-primary/30 hover:text-primary active:scale-[0.98]"
+          >
+            <MessageCircle className="h-5 w-5 text-primary" aria-hidden />
+            Chat
+          </Link>
+        </nav>
+      )}
+
       {estadisticas && (
         <section>
           <h2 className="font-display mb-3 text-lg font-bold text-navy">

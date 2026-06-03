@@ -63,11 +63,9 @@ export async function resolveImagePathFromForm(
     if (prev && prev !== newPath) {
       await deleteUploadFromDisk(prev);
     }
-    console.log("[UPLOAD_FORM_RESOLVE]", { fileField, newPath, bytes: buffer.length });
     return assertPersistableImagePath(newPath, pathField);
   }
 
   const kept = existing || prev || null;
-  console.log("[UPLOAD_FORM_KEEP]", { pathField, kept });
   return assertPersistableImagePath(kept, pathField);
 }

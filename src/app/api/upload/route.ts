@@ -48,8 +48,6 @@ export async function POST(req: Request) {
 
     const publicPath = await saveWebFileToUploads(file, prefix);
 
-    console.log("[API_UPLOAD_OK]", publicPath);
-
     return NextResponse.json({ path: publicPath }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al subir";

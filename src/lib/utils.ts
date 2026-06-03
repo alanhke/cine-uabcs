@@ -17,5 +17,6 @@ export function formatDateTime(date: Date | string) {
   return new Intl.DateTimeFormat("es-MX", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "America/Mazatlan",
   }).format(new Date(date));
 }

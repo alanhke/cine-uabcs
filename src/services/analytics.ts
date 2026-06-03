@@ -3,8 +3,12 @@ import {
   daysAgo,
   endOfDay,
   formatDateKey,
+  formatMonthKey,
+  horaEnLaPaz,
+  monthsAgo,
   serverNow,
   startOfDay,
+  startOfMonth,
   ultimosNDiasClaves,
 } from "@/lib/datetime";
 import {
@@ -17,9 +21,9 @@ import type { AdminAnalytics, ConversacionImpacto } from "@/types/admin-analytic
 /** Asientos con menos de este stock disparan alerta de reabastecimiento. */
 const UMBRAL_STOCK_BAJO = 10;
 
-/** Clasifica una función por franja horaria según la hora local del servidor. */
+/** Clasifica una función por franja horaria según la hora local de La Paz. */
 function franjaHoraria(fechaHora: Date): string {
-  const hora = fechaHora.getHours();
+  const hora = horaEnLaPaz(fechaHora);
   if (hora < 14) return "Matinée";
   if (hora < 18) return "Tarde";
   return "Noche";
@@ -28,11 +32,34 @@ function franjaHoraria(fechaHora: Date): string {
 const ORDEN_FRANJAS = ["Matinée", "Tarde", "Noche"];
 import { nombreCompleto } from "@/lib/format-relative";
 
-function inicioMes(date: Date): Date {
-  const d = new Date(date);
-  d.setDate(1);
-  d.setHours(0, 0, 0, 0);
-  return d;
+/** Periodos que abarcan varios meses: la serie se agrega por mes, no por día. */
+const MESES_POR_RANGO: Partial<Record<RangoVentas, number>> = {
+  bimestre: 2,
+  trimestre: 3,
+  cuatrimestre: 4,
+  semestre: 6,
+  anio: 12,
+};
+
+const MESES_CORTOS = [
+  "ene",
+  "feb",
+  "mar",
+  "abr",
+  "may",
+  "jun",
+  "jul",
+  "ago",
+  "sep",
+  "oct",
+  "nov",
+  "dic",
+];
+
+type Granularidad = "dia" | "mes";
+
+function granularidadRango(rango: RangoVentas): Granularidad {
+  return MESES_POR_RANGO[rango] ? "mes" : "dia";
 }
 
 function rangoFechas(rango: RangoVentas): { inicio: Date; fin: Date } {
@@ -42,7 +69,14 @@ function rangoFechas(rango: RangoVentas): { inicio: Date; fin: Date } {
     return { inicio: startOfDay(ahora), fin };
   }
   if (rango === "mes") {
-    return { inicio: inicioMes(ahora), fin };
+    return { inicio: startOfMonth(ahora), fin };
+  }
+  if (rango === "1mes") {
+    return { inicio: monthsAgo(1), fin };
+  }
+  const meses = MESES_POR_RANGO[rango];
+  if (meses) {
+    return { inicio: startOfMonth(monthsAgo(meses - 1)), fin };
   }
   return { inicio: daysAgo(6), fin };
 }
@@ -52,10 +86,21 @@ function clavesSerie(rango: RangoVentas): string[] {
   if (rango === "hoy") {
     return [formatDateKey(ahora)];
   }
-  if (rango === "mes") {
-    const inicio = inicioMes(ahora);
+  const meses = MESES_POR_RANGO[rango];
+  if (meses) {
     const claves: string[] = [];
-    const cursor = new Date(inicio);
+    const cursor = startOfMonth(monthsAgo(meses - 1));
+    const ultimoMes = startOfMonth(ahora);
+    while (cursor <= ultimoMes) {
+      claves.push(formatMonthKey(cursor));
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return claves;
+  }
+  if (rango === "mes" || rango === "1mes") {
+    const { inicio } = rangoFechas(rango);
+    const claves: string[] = [];
+    const cursor = startOfDay(inicio);
     while (cursor <= ahora) {
       claves.push(formatDateKey(cursor));
       cursor.setDate(cursor.getDate() + 1);
@@ -63,6 +108,20 @@ function clavesSerie(rango: RangoVentas): string[] {
     return claves;
   }
   return ultimosNDiasClaves(7);
+}
+
+/** Clave de serie (día o mes) para una fecha según la granularidad del rango. */
+function claveDeFecha(date: Date, granularidad: Granularidad): string {
+  return granularidad === "mes" ? formatMonthKey(date) : formatDateKey(date);
+}
+
+/** Etiqueta legible para el eje del gráfico. */
+function etiquetaSerie(clave: string, granularidad: Granularidad): string {
+  if (granularidad === "mes") {
+    const [anio, mes] = clave.split("-");
+    return `${MESES_CORTOS[Number(mes) - 1]} ${anio.slice(2)}`;
+  }
+  return clave.slice(5).replace("-", "/");
 }
 
 export async function obtenerConversacionesImpacto(
@@ -104,6 +163,7 @@ export async function obtenerAnalyticsAdmin(
 ): Promise<AdminAnalytics> {
   const { inicio, fin } = rangoFechas(rango);
   const claves = clavesSerie(rango);
+  const granularidad = granularidadRango(rango);
   const ahora = serverNow();
   const hoyInicio = startOfDay(ahora);
   const hoyFin = endOfDay(ahora);
@@ -234,7 +294,7 @@ export async function obtenerAnalyticsAdmin(
   }
 
   for (const compra of comprasRango) {
-    const key = formatDateKey(compra.fechaCompra);
+    const key = claveDeFecha(compra.fechaCompra, granularidad);
     if (!ventasPorDia[key]) {
       ventasPorDia[key] = { ingresos: 0, boletos: 0, dulceria: 0 };
     }
@@ -253,7 +313,7 @@ export async function obtenerAnalyticsAdmin(
 
   const ventasSerie = claves.map((fecha) => ({
     fecha,
-    label: fecha.slice(5).replace("-", "/"),
+    label: etiquetaSerie(fecha, granularidad),
     ingresos: ventasPorDia[fecha]?.ingresos ?? 0,
     boletos: ventasPorDia[fecha]?.boletos ?? 0,
     dulceria: ventasPorDia[fecha]?.dulceria ?? 0,
@@ -264,11 +324,15 @@ export async function obtenerAnalyticsAdmin(
   );
   const boletosHoy = comprasHoy.reduce((s, c) => s + c.boletos.length, 0);
 
-  const diasConVentas =
-    ventasSerie.filter((d) => d.boletos > 0).length || 1;
-  const totalBoletosPeriodo = ventasSerie.reduce((s, d) => s + d.boletos, 0);
+  // Promedio por día real del periodo (la serie puede estar agregada por mes).
+  const MS_POR_DIA = 86_400_000;
+  const finEfectivo = fin < ahora ? fin : ahora;
+  const diasPeriodo = Math.max(
+    1,
+    Math.floor((finEfectivo.getTime() - inicio.getTime()) / MS_POR_DIA) + 1
+  );
   const promedioDiario =
-    Math.round((totalBoletosPeriodo / diasConVentas) * 10) / 10;
+    Math.round((boletosVendidos / diasPeriodo) * 10) / 10;
   const porcentajeVsPromedio =
     promedioDiario > 0
       ? Math.round((boletosHoy / promedioDiario) * 100)

@@ -117,7 +117,7 @@ export function DulceriaCartClient({
         {productos.length === 0 ? (
           <p className="text-sm text-navy/50">No hay productos disponibles.</p>
         ) : (
-          <div className="reveal-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="reveal-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {productos.map((p) => {
               const agotado = p.stock < 1;
               const pocoStock = !agotado && p.stock <= 5;
@@ -169,7 +169,7 @@ export function DulceriaCartClient({
         {combos.length === 0 ? (
           <p className="text-sm text-navy/50">No hay combos disponibles.</p>
         ) : (
-          <div className="reveal-grid grid gap-4 sm:grid-cols-2">
+          <div className="reveal-grid grid grid-cols-1 gap-4 sm:grid-cols-2">
             {combos.map((c) => (
               <Card
                 key={c.id}

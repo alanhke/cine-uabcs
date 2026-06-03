@@ -127,7 +127,7 @@ export default function DulceriaPage() {
 
       <section>
         <h2 className="mb-3 font-semibold text-navy">Productos</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {productos.map((p) => (
             <Card key={p.id}>
               <CardContent className="flex items-center gap-3 py-3">
@@ -168,7 +168,7 @@ export default function DulceriaPage() {
 
       <section>
         <h2 className="mb-3 font-semibold text-navy">Combos</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {combos.map((c) => (
             <Card key={c.id} className="border-paliacate/50">
               <CardContent className="flex items-center justify-between py-3">

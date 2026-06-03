@@ -48,7 +48,6 @@ export async function crearPelicula(
       parsed.data.posterUrl || posterUrl,
       "póster"
     );
-    console.log("DB_SAVE_CHECK", posterGuardado);
 
     await prisma.pelicula.create({
       data: {
@@ -104,7 +103,6 @@ export async function actualizarPelicula(
       parsed.data.posterUrl || posterUrl,
       "póster"
     );
-    console.log("DB_SAVE_CHECK", nuevoPoster);
     if (anterior?.posterUrl && anterior.posterUrl !== nuevoPoster) {
       await deleteLocalUpload(anterior.posterUrl);
     }

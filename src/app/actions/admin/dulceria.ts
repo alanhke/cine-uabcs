@@ -51,7 +51,6 @@ export async function crearProducto(
       parsed.data.imagenUrl || imagenUrl,
       "imagen del producto"
     );
-    console.log("DB_SAVE_CHECK", imagenGuardada);
 
     await prisma.productoDulceria.create({
       data: {
@@ -104,7 +103,6 @@ export async function actualizarProducto(
       parsed.data.imagenUrl || imagenUrl,
       "imagen del producto"
     );
-    console.log("DB_SAVE_CHECK", nuevaImagen);
     if (anterior?.imagenUrl && anterior.imagenUrl !== nuevaImagen) {
       await deleteLocalUpload(anterior.imagenUrl);
     }

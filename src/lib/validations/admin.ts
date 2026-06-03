@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseLaPazLocal } from "@/lib/datetime";
 
 const precioPositivo = z.coerce
   .number()
@@ -39,7 +40,7 @@ export const funcionAdminSchema = z
   })
   .refine(
     (data) => {
-      const fecha = new Date(data.fechaHora);
+      const fecha = parseLaPazLocal(data.fechaHora);
       return !Number.isNaN(fecha.getTime()) && fecha > new Date();
     },
     { message: "La función debe programarse en una fecha futura", path: ["fechaHora"] }
@@ -78,6 +79,25 @@ export const comboAdminSchema = z.object({
 
 export type ComboAdminInput = z.infer<typeof comboAdminSchema>;
 
-export type RangoVentas = "hoy" | "7dias" | "mes";
+export type RangoVentas =
+  | "hoy"
+  | "7dias"
+  | "mes"
+  | "1mes"
+  | "bimestre"
+  | "trimestre"
+  | "cuatrimestre"
+  | "semestre"
+  | "anio";
 
-export const rangoVentasSchema = z.enum(["hoy", "7dias", "mes"]);
+export const rangoVentasSchema = z.enum([
+  "hoy",
+  "7dias",
+  "mes",
+  "1mes",
+  "bimestre",
+  "trimestre",
+  "cuatrimestre",
+  "semestre",
+  "anio",
+]);

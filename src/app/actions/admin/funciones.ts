@@ -11,6 +11,7 @@ import {
   existeSolapamientoFuncion,
   sincronizarPreciosTipoFuncion,
 } from "@/lib/funciones-overlap";
+import { parseLaPazLocal } from "@/lib/datetime";
 import { revalidarAdmin } from "./revalidate";
 import type { ActionResult } from "@/lib/actions/types";
 import {
@@ -41,7 +42,7 @@ export async function crearFuncion(
     });
     if (!pelicula) return { ok: false, error: "Película no encontrada" };
 
-    const fechaHora = new Date(parsed.data.fechaHora);
+    const fechaHora = parseLaPazLocal(parsed.data.fechaHora);
     const solapa = await existeSolapamientoFuncion(
       parsed.data.salaId,
       fechaHora,
@@ -95,7 +96,7 @@ export async function actualizarFuncion(
     });
     if (!pelicula) return { ok: false, error: "Película no encontrada" };
 
-    const fechaHora = new Date(parsed.data.fechaHora);
+    const fechaHora = parseLaPazLocal(parsed.data.fechaHora);
     if (Number.isNaN(fechaHora.getTime())) {
       return { ok: false, error: "Fecha u hora inválida" };
     }

@@ -74,6 +74,10 @@ Abre [http://localhost:3000](http://localhost:3000).
 - Módulo social: amistades, chat privado, recomendaciones
 - Panel `/admin`: dashboard, películas, funciones, salas, dulcería, ventas
 
+## Estándares de código
+
+El proyecto sigue un estándar consistente de Next.js + TypeScript + Tailwind con dominio en español. El manual completo está en [ESTANDARES_CODIGO.md](./ESTANDARES_CODIGO.md).
+
 ## TMDB
 
 Obtén una API key en [themoviedb.org](https://www.themoviedb.org/settings/api) y configúrala en `.env`:
