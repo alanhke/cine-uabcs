@@ -1,14 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import {
   LayoutDashboard,
-  Film,
-  Calendar,
   Popcorn,
-  DoorOpen,
-  BarChart3,
   Ticket,
   RefreshCw,
   Download,
@@ -23,6 +18,7 @@ import { formatCurrency } from "@/lib/utils";
 import { DashboardCharts } from "@/components/admin/dashboard-charts";
 import { SeatHeatmap } from "@/components/admin/seat-heatmap";
 import { ConversacionesImpacto } from "@/components/admin/conversaciones-impacto";
+import { AdminDashboardNavigation } from "@/components/admin/admin-dashboard-navigation";
 import type { AdminAnalytics } from "@/types/admin-analytics";
 import type { RangoVentas } from "@/lib/validations/admin";
 import { cn } from "@/lib/utils";
@@ -61,16 +57,10 @@ export default function AdminDashboardPage() {
     cargarStats(rango);
   }, [rango, cargarStats]);
 
-  const links = [
-    { href: "/admin/peliculas", icon: Film, label: "Películas" },
-    { href: "/admin/funciones", icon: Calendar, label: "Funciones" },
-    { href: "/admin/dulceria", icon: Popcorn, label: "Dulcería" },
-    { href: "/admin/salas", icon: DoorOpen, label: "Salas" },
-    { href: "/admin/ventas", icon: BarChart3, label: "Ventas" },
-  ];
-
   return (
-    <div className="space-y-6 px-4 py-6 md:max-w-4xl lg:max-w-5xl">
+    <div className="grid gap-6 px-4 py-6 lg:max-w-7xl lg:grid-cols-[13rem_minmax(0,1fr)]">
+      <AdminDashboardNavigation variant="desktop" />
+      <div className="min-w-0 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <LayoutDashboard className="h-8 w-8 text-navy" />
@@ -114,6 +104,8 @@ export default function AdminDashboardPage() {
           Importar de TMDB
         </button>
       </div>
+
+      <AdminDashboardNavigation variant="mobile" />
 
       {tab === "tmdb" && <TmdbImportPanel />}
 
@@ -382,24 +374,9 @@ export default function AdminDashboardPage() {
         </>
       )}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {links.map(({ href, icon: Icon, label }) => (
-          <Link
-            key={href}
-            href={href}
-            className="group block transition-transform duration-150 ease-out-quart active:scale-[0.97]"
-          >
-            <Card className="h-full transition-[transform,box-shadow,background-color] duration-300 ease-out-quart group-hover:-translate-y-1 group-hover:bg-primary/5 group-hover:shadow-matinee">
-              <CardContent className="flex flex-col items-center gap-2 py-6">
-                <Icon className="h-8 w-8 text-primary transition-transform duration-300 ease-out-quart group-hover:scale-110" />
-                <span className="text-sm font-semibold text-navy">{label}</span>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
         </>
       )}
+      </div>
     </div>
   );
 }
