@@ -30,24 +30,40 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-8 px-4 py-6">
-      <section className="relative overflow-hidden rounded-4xl shadow-matinee">
-        <div className="absolute inset-0">
-          <Image
-            src="/hero-cinema.jpeg"
-            alt="Sala de cine"
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-navy/90 via-navy/75 to-primary/60" />
+      <section className="lights-dim relative flex min-h-[340px] flex-col justify-end overflow-hidden rounded-4xl shadow-matinee-lg sm:min-h-[400px]">
+        {/* Marquesina: la sala con las luces ya bajas. Deriva lentísima del
+            fondo (ken-burns, solo transform), velo profundo y un brillo cálido
+            que sube desde abajo, como la luz que escapa de la pantalla. */}
+        <div className="absolute inset-0 -z-10" aria-hidden="true">
+          <div className="ken-burns absolute inset-0">
+            <Image
+              src="/hero-cinema.jpeg"
+              alt=""
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-sala/95 via-sala/80 to-primary/40" />
+          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(70%_100%_at_50%_120%,rgba(245,200,66,0.20),transparent_70%)]" />
         </div>
         <div className="relative z-10 p-6 text-cream sm:p-8">
-          <h1 className="font-display mt-2 text-3xl font-bold leading-tight text-white sm:text-4xl">
-            Tu cine universitario, en el bolsillo
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-md">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-paliacate opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-paliacate" />
+            </span>
+            En cartelera esta semana
+          </span>
+          <h1 className="font-display mt-4 text-3xl font-bold leading-[1.05] text-white text-balance drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)] sm:text-4xl">
+            Tu próxima función
+            <br />
+            empieza aquí
           </h1>
           <p className="mt-3 max-w-md text-sm text-white/85">
-            Boletos, dulcería y amigos. Compra como invitado o crea tu cuenta.
+            Elige película, escoge tu butaca y pasa por la dulcería. Sin filas,
+            sin cuenta obligatoria.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/cartelera">
