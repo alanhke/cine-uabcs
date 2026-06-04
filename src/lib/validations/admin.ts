@@ -10,6 +10,8 @@ const enteroPositivo = z.coerce
   .int()
   .positive("Debe ser un número entero positivo");
 
+const tipoFuncionSchema = z.enum(["TRADICIONAL", "TRES_D", "CUATRO_D"]);
+
 export const peliculaAdminSchema = z.object({
   titulo: z.string().min(2, "Título requerido"),
   sinopsis: z.string().min(10, "Sinopsis muy corta"),
@@ -36,6 +38,7 @@ export const funcionAdminSchema = z
     salaId: z.coerce.number().int().positive(),
     fechaHora: z.string().min(1, "Fecha y hora requeridas"),
     precioBase: precioPositivo,
+    tipoFuncion: tipoFuncionSchema,
     estado: z.enum(["ACTIVO", "INACTIVO"]),
   })
   .refine(
@@ -54,6 +57,7 @@ export const funcionAdminUpdateSchema = z.object({
   salaId: z.coerce.number().int().positive(),
   fechaHora: z.string().min(1, "Fecha y hora requeridas"),
   precioBase: precioPositivo,
+  tipoFuncion: tipoFuncionSchema,
   estado: z.enum(["ACTIVO", "INACTIVO"]),
 });
 

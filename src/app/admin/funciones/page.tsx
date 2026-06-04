@@ -8,6 +8,7 @@ import { AdminRecycleButtons } from "@/components/admin/admin-recycle-buttons";
 import { AdminEstadoBadge } from "@/components/admin/admin-estado-badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { tipoFuncionLabel } from "@/lib/tipo-funcion";
 import {
   eliminarLogicoFuncion,
   eliminarPermanenteFuncion,
@@ -60,6 +61,7 @@ export default async function AdminFuncionesPage({
               <th className="px-4 py-3">Película</th>
               <th className="px-4 py-3">Sala</th>
               <th className="px-4 py-3">Fecha</th>
+              <th className="px-4 py-3">Tipo</th>
               <th className="px-4 py-3">Precio</th>
               <th className="px-4 py-3">Estado</th>
               <th className="px-4 py-3 text-right">Acciones</th>
@@ -68,7 +70,7 @@ export default async function AdminFuncionesPage({
           <tbody>
             {funciones.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-navy/50">
+                <td colSpan={7} className="px-4 py-8 text-center text-navy/50">
                   {enPapelera
                     ? "La papelera está vacía."
                     : "No hay funciones registradas."}
@@ -83,6 +85,9 @@ export default async function AdminFuncionesPage({
                   <td className="px-4 py-3 text-navy/70">{f.sala.nombre}</td>
                   <td className="px-4 py-3 text-navy/70">
                     {formatDateTime(f.fechaHora)}
+                  </td>
+                  <td className="px-4 py-3 text-navy/70">
+                    {tipoFuncionLabel(f.tipoFuncion)}
                   </td>
                   <td className="px-4 py-3 text-navy/70">
                     {formatCurrency(Number(f.precioBase))}

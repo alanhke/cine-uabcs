@@ -51,6 +51,12 @@ enum TipoButaca {
   MOVILIDAD
 }
 
+enum TipoFuncion {
+  TRADICIONAL
+  TRES_D
+  CUATRO_D
+}
+
 model Usuario {
   id              Int       @id @default(autoincrement())
   nombre          String
@@ -177,6 +183,7 @@ model Funcion {
   peliculaId  Int           @map("pelicula_id")
   salaId      Int           @map("sala_id")
   fechaHora   DateTime      @map("fecha_hora")
+  tipoFuncion TipoFuncion   @default(TRADICIONAL) @map("tipo_funcion")
   precioBase  Decimal       @map("precio_base") @db.Decimal(10, 2)
   estado      EstadoEntidad @default(ACTIVO)
   createdAt   DateTime      @default(now()) @map("created_at")

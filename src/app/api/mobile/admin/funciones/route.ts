@@ -1,7 +1,8 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type TipoFuncion } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getMobileCatalog } from "@/lib/mobile-catalog";
 import { handleMobileError, requireMobileAdmin } from "@/lib/mobile-auth";
+import { calcularPrecioFuncion } from "@/lib/tipo-funcion";
 
 export const dynamic = "force-dynamic";
 
@@ -13,16 +14,23 @@ export async function POST(req: Request) {
     const peliculaId = Number(body.peliculaId);
     const salaId = Number(body.salaId);
     const fechaHora = new Date(String(body.fechaHora));
-    const precioBase = Number(body.precioBase);
+    const precioTradicional = Number(body.precioBase);
+    const tipoFuncion = (["TRADICIONAL", "TRES_D", "CUATRO_D"].includes(
+      String(body.tipoFuncion)
+    )
+      ? String(body.tipoFuncion)
+      : "TRADICIONAL") as TipoFuncion;
+    const precioBase = calcularPrecioFuncion(precioTradicional, tipoFuncion);
     const data = {
       peliculaId,
       salaId,
       fechaHora,
+      tipoFuncion,
       precioBase: new Prisma.Decimal(precioBase),
       estado: "ACTIVO" as const,
     };
 
-    if (!peliculaId || !salaId || Number.isNaN(fechaHora.getTime()) || precioBase <= 0) {
+    if (!peliculaId || !salaId || Number.isNaN(fechaHora.getTime()) || precioTradicional <= 0) {
       return Response.json({ error: "Datos inválidos" }, { status: 400 });
     }
 

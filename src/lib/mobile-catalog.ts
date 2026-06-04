@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { tipoFuncionLabel } from "@/lib/tipo-funcion";
 
 export async function getMobileCatalog() {
   const [peliculas, productos, combos, salas] = await Promise.all([
@@ -52,8 +53,8 @@ export async function getMobileCatalog() {
         peliculaId: String(funcion.peliculaId),
         salaId: String(funcion.salaId),
         sala: funcion.sala.nombre,
-        tipoSala: "Tradicional",
-        formato: "Doblada",
+        tipoSala: tipoFuncionLabel(funcion.tipoFuncion),
+        formato: tipoFuncionLabel(funcion.tipoFuncion),
         fechaHora: funcion.fechaHora.toISOString(),
         precioBase: Number(funcion.precioBase),
         butacasDisponibles: funcion.sala.filas * funcion.sala.columnas,

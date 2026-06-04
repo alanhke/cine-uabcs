@@ -12,6 +12,7 @@ import {
   sincronizarPreciosTipoFuncion,
 } from "@/lib/funciones-overlap";
 import { parseLaPazLocal } from "@/lib/datetime";
+import { calcularPrecioFuncion } from "@/lib/tipo-funcion";
 import { revalidarAdmin } from "./revalidate";
 import type { ActionResult } from "@/lib/actions/types";
 import {
@@ -31,6 +32,7 @@ export async function crearFuncion(
       salaId: formData.get("salaId"),
       fechaHora: formData.get("fechaHora"),
       precioBase: formData.get("precioBase"),
+      tipoFuncion: formData.get("tipoFuncion"),
       estado: formData.get("estado"),
     });
     if (!parsed.success) {
@@ -55,17 +57,23 @@ export async function crearFuncion(
       };
     }
 
+    const precioBase = calcularPrecioFuncion(
+      parsed.data.precioBase,
+      parsed.data.tipoFuncion
+    );
+
     const funcion = await prisma.funcion.create({
       data: {
         peliculaId: parsed.data.peliculaId,
         salaId: parsed.data.salaId,
         fechaHora,
-        precioBase: new Prisma.Decimal(parsed.data.precioBase),
+        tipoFuncion: parsed.data.tipoFuncion,
+        precioBase: new Prisma.Decimal(precioBase),
         estado: parsed.data.estado,
       },
     });
 
-    await sincronizarPreciosTipoFuncion(funcion.id, parsed.data.precioBase);
+    await sincronizarPreciosTipoFuncion(funcion.id, precioBase);
     await revalidarAdmin();
     return { ok: true };
   } catch (e) {
@@ -85,6 +93,7 @@ export async function actualizarFuncion(
       salaId: formData.get("salaId"),
       fechaHora: formData.get("fechaHora"),
       precioBase: formData.get("precioBase"),
+      tipoFuncion: formData.get("tipoFuncion"),
       estado: formData.get("estado"),
     });
     if (!parsed.success) {
@@ -114,18 +123,24 @@ export async function actualizarFuncion(
       };
     }
 
+    const precioBase = calcularPrecioFuncion(
+      parsed.data.precioBase,
+      parsed.data.tipoFuncion
+    );
+
     await prisma.funcion.update({
       where: { id },
       data: {
         peliculaId: parsed.data.peliculaId,
         salaId: parsed.data.salaId,
         fechaHora,
-        precioBase: new Prisma.Decimal(parsed.data.precioBase),
+        tipoFuncion: parsed.data.tipoFuncion,
+        precioBase: new Prisma.Decimal(precioBase),
         estado: parsed.data.estado,
       },
     });
 
-    await sincronizarPreciosTipoFuncion(id, parsed.data.precioBase);
+    await sincronizarPreciosTipoFuncion(id, precioBase);
     await revalidarAdmin();
     return { ok: true };
   } catch (e) {
