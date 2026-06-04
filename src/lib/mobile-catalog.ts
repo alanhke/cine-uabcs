@@ -25,6 +25,12 @@ export async function getMobileCatalog() {
     prisma.sala.findMany({
       where: { estado: "ACTIVO" },
       orderBy: { id: "asc" },
+      include: {
+        butacas: {
+          orderBy: [{ fila: "asc" }, { numero: "asc" }],
+          select: { fila: true, numero: true, estado: true },
+        },
+      },
     }),
   ]);
 
@@ -71,7 +77,13 @@ export async function getMobileCatalog() {
     salas: salas.map((sala) => ({
       id: String(sala.id),
       nombre: sala.nombre,
+      filas: sala.filas,
+      columnas: sala.columnas,
       capacidad: sala.filas * sala.columnas,
+      butacasActivas: sala.butacas.filter((butaca) => butaca.estado === "ACTIVO").length,
+      butacasInactivas: sala.butacas
+        .filter((butaca) => butaca.estado !== "ACTIVO")
+        .map((butaca) => `${butaca.fila}${butaca.numero}`),
     })),
   };
 }
