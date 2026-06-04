@@ -36,6 +36,7 @@ export default async function EditarProductoPage({
               defaults={{
                 nombre: producto.nombre,
                 categoria: producto.categoria,
+                costo: Number(producto.costo),
                 precio: Number(producto.precio),
                 stock: producto.stock,
                 imagenUrl: producto.imagenUrl ?? "",

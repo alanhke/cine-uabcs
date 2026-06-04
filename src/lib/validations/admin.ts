@@ -62,6 +62,7 @@ export type FuncionAdminUpdateInput = z.infer<typeof funcionAdminUpdateSchema>;
 export const productoDulceriaSchema = z.object({
   nombre: z.string().min(2),
   categoria: z.string().min(2),
+  costo: z.coerce.number().min(0, "El costo no puede ser negativo"),
   precio: precioPositivo,
   stock: z.coerce.number().int().min(0),
   imagenUrl: z.string().optional().or(z.literal("")),
