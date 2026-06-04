@@ -31,9 +31,12 @@ const clientItems: NavItem[] = [
 export function MobileNav() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  // La barra inferior se limita a 5 íconos para que quepan sin desbordarse
+  // en cualquier teléfono. Wrapped, Amigos y Chat quedan accesibles desde
+  // la página de Perfil.
   const items =
     session?.user?.role === "CLIENTE"
-      ? [...publicItems.slice(0, 3), ...clientItems]
+      ? [...publicItems.slice(0, 3), ...clientItems.slice(0, 2)]
       : publicItems;
 
   if (pathname.startsWith("/admin") || pathname.startsWith("/auth")) return null;
@@ -48,8 +51,10 @@ export function MobileNav() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 text-xs font-medium transition-colors",
-                active ? "bg-primary text-primary-foreground" : "text-navy/60"
+                "flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 text-xs font-medium transition-[transform,background-color,color] duration-200 ease-out-quart active:scale-95",
+                active
+                  ? "bg-primary text-primary-foreground shadow-cta"
+                  : "text-navy/70 hover:text-navy"
               )}
             >
               <Icon

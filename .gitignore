@@ -40,3 +40,18 @@ next-env.d.ts
 # uploads generados en runtime (conservar carpeta con .gitkeep)
 /public/uploads/*
 !/public/uploads/.gitkeep
+.env*
+
+# herramientas de IA / asistentes de codigo
+.claude/
+.agents/
+.impeccable/
+.cursor/
+.cursorrules
+.windsurf/
+.aider*
+.continue/
+.codeium/
+.github/copilot-instructions.md
+CLAUDE.local.md
+.mcp.json

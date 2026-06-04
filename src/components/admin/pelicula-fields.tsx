@@ -32,7 +32,7 @@ export function PeliculaFields({
           className="w-full rounded-2xl border-2 border-navy/15 bg-white px-3 py-2 text-sm text-navy"
         />
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1">
           <Label>Clasificación</Label>
           <Input

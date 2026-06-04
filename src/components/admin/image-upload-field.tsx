@@ -28,7 +28,7 @@ export function ImageUploadField({
 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /** Ruta ya guardada en servidor (/uploads/...); nunca blob: */
+  /** Ruta ya guardada en servidor; nunca una vista previa blob: */
   const savedPath = resolveImageSrc(currentPath) ?? "";
 
   /** Solo UI: URL temporal del archivo elegido */
@@ -81,7 +81,7 @@ export function ImageUploadField({
   return (
     <div className="space-y-3">
       <Label>{label}</Label>
-      {/* Solo ruta del servidor; vacío si hay archivo nuevo → el action usa el File */}
+      {/* Solo ruta persistida; vacío si hay archivo nuevo → el action usa el File */}
       <input
         type="hidden"
         name={pathFieldName}

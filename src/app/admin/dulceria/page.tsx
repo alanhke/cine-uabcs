@@ -90,7 +90,7 @@ export default async function AdminDulceriaPage({
                 </tr>
               ) : (
                 productos.map((p) => (
-                  <tr key={p.id} className="border-b border-navy/5">
+                  <tr key={p.id} className="border-b border-navy/5 transition-colors last:border-0 hover:bg-cream/60">
                     <td className="px-4 py-3 font-medium text-navy">{p.nombre}</td>
                     <td className="px-4 py-3 text-navy/70">{p.categoria}</td>
                     <td className="px-4 py-3">{formatCurrency(Number(p.precio))}</td>
@@ -165,7 +165,7 @@ export default async function AdminDulceriaPage({
                 </tr>
               ) : (
                 combos.map((c) => (
-                  <tr key={c.id} className="border-b border-navy/5">
+                  <tr key={c.id} className="border-b border-navy/5 transition-colors last:border-0 hover:bg-cream/60">
                     <td className="px-4 py-3 font-medium text-navy">{c.nombre}</td>
                     <td className="px-4 py-3">{formatCurrency(Number(c.precio))}</td>
                     <td className="px-4 py-3 text-navy/70">

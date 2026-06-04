@@ -3,19 +3,63 @@ import {
   daysAgo,
   endOfDay,
   formatDateKey,
+  formatMonthKey,
+  horaEnLaPaz,
+  monthsAgo,
   serverNow,
   startOfDay,
+  startOfMonth,
   ultimosNDiasClaves,
 } from "@/lib/datetime";
+import {
+  calcularTicketPromedio,
+  construirMapasButacas,
+} from "@/lib/admin-analytics-helpers";
 import type { RangoVentas } from "@/lib/validations/admin";
 import type { AdminAnalytics, ConversacionImpacto } from "@/types/admin-analytics";
+
+/** Asientos con menos de este stock disparan alerta de reabastecimiento. */
+const UMBRAL_STOCK_BAJO = 10;
+
+/** Clasifica una función por franja horaria según la hora local de La Paz. */
+function franjaHoraria(fechaHora: Date): string {
+  const hora = horaEnLaPaz(fechaHora);
+  if (hora < 14) return "Matinée";
+  if (hora < 18) return "Tarde";
+  return "Noche";
+}
+
+const ORDEN_FRANJAS = ["Matinée", "Tarde", "Noche"];
 import { nombreCompleto } from "@/lib/format-relative";
 
-function inicioMes(date: Date): Date {
-  const d = new Date(date);
-  d.setDate(1);
-  d.setHours(0, 0, 0, 0);
-  return d;
+/** Periodos que abarcan varios meses: la serie se agrega por mes, no por día. */
+const MESES_POR_RANGO: Partial<Record<RangoVentas, number>> = {
+  bimestre: 2,
+  trimestre: 3,
+  cuatrimestre: 4,
+  semestre: 6,
+  anio: 12,
+};
+
+const MESES_CORTOS = [
+  "ene",
+  "feb",
+  "mar",
+  "abr",
+  "may",
+  "jun",
+  "jul",
+  "ago",
+  "sep",
+  "oct",
+  "nov",
+  "dic",
+];
+
+type Granularidad = "dia" | "mes";
+
+function granularidadRango(rango: RangoVentas): Granularidad {
+  return MESES_POR_RANGO[rango] ? "mes" : "dia";
 }
 
 function rangoFechas(rango: RangoVentas): { inicio: Date; fin: Date } {
@@ -25,7 +69,14 @@ function rangoFechas(rango: RangoVentas): { inicio: Date; fin: Date } {
     return { inicio: startOfDay(ahora), fin };
   }
   if (rango === "mes") {
-    return { inicio: inicioMes(ahora), fin };
+    return { inicio: startOfMonth(ahora), fin };
+  }
+  if (rango === "1mes") {
+    return { inicio: monthsAgo(1), fin };
+  }
+  const meses = MESES_POR_RANGO[rango];
+  if (meses) {
+    return { inicio: startOfMonth(monthsAgo(meses - 1)), fin };
   }
   return { inicio: daysAgo(6), fin };
 }
@@ -35,10 +86,21 @@ function clavesSerie(rango: RangoVentas): string[] {
   if (rango === "hoy") {
     return [formatDateKey(ahora)];
   }
-  if (rango === "mes") {
-    const inicio = inicioMes(ahora);
+  const meses = MESES_POR_RANGO[rango];
+  if (meses) {
     const claves: string[] = [];
-    const cursor = new Date(inicio);
+    const cursor = startOfMonth(monthsAgo(meses - 1));
+    const ultimoMes = startOfMonth(ahora);
+    while (cursor <= ultimoMes) {
+      claves.push(formatMonthKey(cursor));
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return claves;
+  }
+  if (rango === "mes" || rango === "1mes") {
+    const { inicio } = rangoFechas(rango);
+    const claves: string[] = [];
+    const cursor = startOfDay(inicio);
     while (cursor <= ahora) {
       claves.push(formatDateKey(cursor));
       cursor.setDate(cursor.getDate() + 1);
@@ -46,6 +108,20 @@ function clavesSerie(rango: RangoVentas): string[] {
     return claves;
   }
   return ultimosNDiasClaves(7);
+}
+
+/** Clave de serie (día o mes) para una fecha según la granularidad del rango. */
+function claveDeFecha(date: Date, granularidad: Granularidad): string {
+  return granularidad === "mes" ? formatMonthKey(date) : formatDateKey(date);
+}
+
+/** Etiqueta legible para el eje del gráfico. */
+function etiquetaSerie(clave: string, granularidad: Granularidad): string {
+  if (granularidad === "mes") {
+    const [anio, mes] = clave.split("-");
+    return `${MESES_CORTOS[Number(mes) - 1]} ${anio.slice(2)}`;
+  }
+  return clave.slice(5).replace("-", "/");
 }
 
 export async function obtenerConversacionesImpacto(
@@ -87,34 +163,85 @@ export async function obtenerAnalyticsAdmin(
 ): Promise<AdminAnalytics> {
   const { inicio, fin } = rangoFechas(rango);
   const claves = clavesSerie(rango);
+  const granularidad = granularidadRango(rango);
   const ahora = serverNow();
   const hoyInicio = startOfDay(ahora);
   const hoyFin = endOfDay(ahora);
 
-  const [comprasRango, boletosConButaca, calificaciones, conversacionesImpacto] =
-    await Promise.all([
-      prisma.compra.findMany({
-        where: {
+  const [
+    comprasRango,
+    boletosConButaca,
+    calificaciones,
+    conversacionesImpacto,
+    funcionesRango,
+    boletosPorFuncion,
+    productosStock,
+    salasConButacas,
+  ] = await Promise.all([
+    prisma.compra.findMany({
+      where: {
+        estado: "CONFIRMADA",
+        fechaCompra: { gte: inicio, lte: fin },
+      },
+      include: {
+        boletos: { include: { funcion: { include: { pelicula: true } } } },
+        detalleDulceria: { include: { producto: true, combo: true } },
+      },
+    }),
+    prisma.boleto.findMany({
+      where: {
+        compra: {
           estado: "CONFIRMADA",
           fechaCompra: { gte: inicio, lte: fin },
         },
-        include: {
-          boletos: { include: { funcion: { include: { pelicula: true } } } },
-          detalleDulceria: { include: { producto: true, combo: true } },
+      },
+      select: {
+        butacaId: true,
+        butaca: {
+          select: { salaId: true },
         },
-      }),
-      prisma.boleto.findMany({
-        where: {
-          compra: {
-            estado: "CONFIRMADA",
-            fechaCompra: { gte: inicio, lte: fin },
+      },
+    }),
+    prisma.calificacion.findMany(),
+    obtenerConversacionesImpacto(5),
+    // Funciones cuyo horario cae en el periodo: base para medir ocupación.
+    prisma.funcion.findMany({
+      where: {
+        estado: { not: "ELIMINADO" },
+        fechaHora: { gte: inicio, lte: fin },
+      },
+      include: { sala: { select: { filas: true, columnas: true } } },
+    }),
+    // Boletos confirmados agrupados por función (asientos efectivamente vendidos).
+    prisma.boleto.groupBy({
+      by: ["funcionId"],
+      where: {
+        compra: { estado: "CONFIRMADA" },
+        funcion: { fechaHora: { gte: inicio, lte: fin } },
+      },
+      _count: { _all: true },
+    }),
+    prisma.productoDulceria.findMany({
+      where: { estado: "ACTIVO" },
+      orderBy: { stock: "asc" },
+      select: { id: true, nombre: true, categoria: true, stock: true },
+    }),
+    prisma.sala.findMany({
+      where: { estado: { not: "ELIMINADO" } },
+      orderBy: { nombre: "asc" },
+      include: {
+        butacas: {
+          orderBy: [{ fila: "asc" }, { numero: "asc" }],
+          select: {
+            id: true,
+            fila: true,
+            numero: true,
+            estado: true,
           },
         },
-        include: { butaca: true },
-      }),
-      prisma.calificacion.findMany(),
-      obtenerConversacionesImpacto(5),
-    ]);
+      },
+    }),
+  ]);
 
   const ingresosBoletos = comprasRango.reduce(
     (s, c) =>
@@ -167,7 +294,7 @@ export async function obtenerAnalyticsAdmin(
   }
 
   for (const compra of comprasRango) {
-    const key = formatDateKey(compra.fechaCompra);
+    const key = claveDeFecha(compra.fechaCompra, granularidad);
     if (!ventasPorDia[key]) {
       ventasPorDia[key] = { ingresos: 0, boletos: 0, dulceria: 0 };
     }
@@ -186,7 +313,7 @@ export async function obtenerAnalyticsAdmin(
 
   const ventasSerie = claves.map((fecha) => ({
     fecha,
-    label: fecha.slice(5).replace("-", "/"),
+    label: etiquetaSerie(fecha, granularidad),
     ingresos: ventasPorDia[fecha]?.ingresos ?? 0,
     boletos: ventasPorDia[fecha]?.boletos ?? 0,
     dulceria: ventasPorDia[fecha]?.dulceria ?? 0,
@@ -197,11 +324,15 @@ export async function obtenerAnalyticsAdmin(
   );
   const boletosHoy = comprasHoy.reduce((s, c) => s + c.boletos.length, 0);
 
-  const diasConVentas =
-    ventasSerie.filter((d) => d.boletos > 0).length || 1;
-  const totalBoletosPeriodo = ventasSerie.reduce((s, d) => s + d.boletos, 0);
+  // Promedio por día real del periodo (la serie puede estar agregada por mes).
+  const MS_POR_DIA = 86_400_000;
+  const finEfectivo = fin < ahora ? fin : ahora;
+  const diasPeriodo = Math.max(
+    1,
+    Math.floor((finEfectivo.getTime() - inicio.getTime()) / MS_POR_DIA) + 1
+  );
   const promedioDiario =
-    Math.round((totalBoletosPeriodo / diasConVentas) * 10) / 10;
+    Math.round((boletosVendidos / diasPeriodo) * 10) / 10;
   const porcentajeVsPromedio =
     promedioDiario > 0
       ? Math.round((boletosHoy / promedioDiario) * 100)
@@ -209,31 +340,13 @@ export async function obtenerAnalyticsAdmin(
         ? 100
         : 0;
 
-  const butacaMap: Record<
-    string,
-    { fila: string; numero: number; ventas: number }
-  > = {};
-  for (const b of boletosConButaca) {
-    const key = `${b.butaca.fila}-${b.butaca.numero}`;
-    if (!butacaMap[key]) {
-      butacaMap[key] = {
-        fila: b.butaca.fila,
-        numero: b.butaca.numero,
-        ventas: 0,
-      };
-    }
-    butacaMap[key].ventas += 1;
-  }
-
-  const mapaButacas = Object.values(butacaMap)
-    .map((b) => ({
-      etiqueta: `${b.fila}${b.numero}`,
-      fila: b.fila,
-      numero: b.numero,
-      ventas: b.ventas,
+  const mapasButacas = construirMapasButacas(
+    salasConButacas,
+    boletosConButaca.map((boleto) => ({
+      butacaId: boleto.butacaId,
+      salaId: boleto.butaca.salaId,
     }))
-    .sort((a, b) => b.ventas - a.ventas)
-    .slice(0, 12);
+  );
 
   const distribucionMap: Record<number, number> = {
     1: 0,
@@ -254,6 +367,73 @@ export async function obtenerAnalyticsAdmin(
       ? Math.round((suma / totalCalificaciones) * 10) / 10
       : 0;
 
+  // --- Ocupación de salas ---
+  const vendidosPorFuncion: Record<number, number> = {};
+  for (const grupo of boletosPorFuncion) {
+    vendidosPorFuncion[grupo.funcionId] = grupo._count._all;
+  }
+
+  const franjaAcum: Record<string, { vendidos: number; capacidad: number }> = {};
+  let asientosVendidos = 0;
+  let asientosDisponibles = 0;
+  for (const funcion of funcionesRango) {
+    const capacidad = funcion.sala.filas * funcion.sala.columnas;
+    const vendidos = vendidosPorFuncion[funcion.id] ?? 0;
+    asientosVendidos += vendidos;
+    asientosDisponibles += capacidad;
+
+    const franja = franjaHoraria(funcion.fechaHora);
+    if (!franjaAcum[franja]) {
+      franjaAcum[franja] = { vendidos: 0, capacidad: 0 };
+    }
+    franjaAcum[franja].vendidos += vendidos;
+    franjaAcum[franja].capacidad += capacidad;
+  }
+
+  const porcentaje = (vendidos: number, capacidad: number) =>
+    capacidad > 0 ? Math.round((vendidos / capacidad) * 100) : 0;
+
+  const ocupacion = {
+    porcentajeGlobal: porcentaje(asientosVendidos, asientosDisponibles),
+    asientosVendidos,
+    asientosDisponibles,
+    funcionesContadas: funcionesRango.length,
+    porFranja: ORDEN_FRANJAS.filter((f) => franjaAcum[f]).map((franja) => ({
+      franja,
+      vendidos: franjaAcum[franja].vendidos,
+      capacidad: franjaAcum[franja].capacidad,
+      porcentaje: porcentaje(
+        franjaAcum[franja].vendidos,
+        franjaAcum[franja].capacidad
+      ),
+    })),
+  };
+
+  // --- Métricas de dulcería ---
+  const totalCompras = comprasRango.length;
+  const ticketPromedio = calcularTicketPromedio(ingresosTotales, totalCompras);
+  const comprasConDulceria = comprasRango.filter(
+    (c) => c.detalleDulceria.length > 0
+  ).length;
+  const dulceriaMetrics = {
+    attachRate:
+      totalCompras > 0
+        ? Math.round((comprasConDulceria / totalCompras) * 100)
+        : 0,
+    comprasConDulceria,
+    gastoPromedioDulceria:
+      comprasConDulceria > 0
+        ? Math.round((ingresosDulceria / comprasConDulceria) * 100) / 100
+        : 0,
+  };
+
+  // --- Inventario de dulcería (alertas de stock) ---
+  const inventario = {
+    umbral: UMBRAL_STOCK_BAJO,
+    agotados: productosStock.filter((p) => p.stock === 0).length,
+    stockBajo: productosStock.filter((p) => p.stock <= UMBRAL_STOCK_BAJO),
+  };
+
   return {
     rango,
     ingresosTotales,
@@ -261,7 +441,7 @@ export async function obtenerAnalyticsAdmin(
     ingresosDulceria,
     boletosVendidos,
     ventasDulceria: ingresosDulceria,
-    totalCompras: comprasRango.length,
+    totalCompras,
     porPelicula: Object.values(porPelicula),
     productosTop: Object.entries(productosMap)
       .map(([nombre, cantidad]) => ({ nombre, cantidad }))
@@ -274,7 +454,8 @@ export async function obtenerAnalyticsAdmin(
       promedioDiario,
       porcentajeVsPromedio,
     },
-    mapaButacas,
+    ticketPromedio,
+    mapasButacas,
     satisfaccion: {
       promedio,
       totalCalificaciones,
@@ -283,5 +464,8 @@ export async function obtenerAnalyticsAdmin(
         cantidad: distribucionMap[estrellas] ?? 0,
       })),
     },
+    ocupacion,
+    dulceriaMetrics,
+    inventario,
   };
 }

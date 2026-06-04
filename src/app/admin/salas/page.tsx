@@ -72,7 +72,7 @@ export default async function AdminSalasPage({
               </tr>
             ) : (
               salas.map((s) => (
-                <tr key={s.id} className="border-b border-navy/5 last:border-0">
+                <tr key={s.id} className="border-b border-navy/5 transition-colors last:border-0 hover:bg-cream/60">
                   <td className="px-4 py-3 font-medium text-navy">{s.nombre}</td>
                   <td className="px-4 py-3 text-navy/70">
                     {s.filas} × {s.columnas}

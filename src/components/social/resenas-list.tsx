@@ -83,16 +83,7 @@ function ResenaCard({
   const mostrarEstrellas = typeof resena.puntuacion === "number" && resena.puntuacion > 0;
 
   return (
-    <div
-      className={depth > 0 ? "relative ml-6 mt-3 pl-4" : ""}
-      style={
-        depth > 0
-          ? {
-              borderLeft: "2px solid rgba(26, 43, 74, 0.25)",
-            }
-          : undefined
-      }
-    >
+    <div className={depth > 0 ? "relative ml-6 mt-3 border-l border-navy/15 pl-4" : ""}>
       <div className="flex gap-3">
         <UserAvatar
           usuarioId={resena.usuario.id}
@@ -121,7 +112,7 @@ function ResenaCard({
                   key={n}
                   className={
                     n <= (resena.puntuacion ?? 0)
-                      ? "h-3.5 w-3.5 fill-yellow-400 text-yellow-500"
+                      ? "h-3.5 w-3.5 fill-paliacate text-paliacate"
                       : "h-3.5 w-3.5 text-navy/20"
                   }
                   aria-hidden

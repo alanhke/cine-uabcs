@@ -43,12 +43,10 @@ export async function POST(req: Request) {
     }
 
     if (replacePath) {
-      deleteUploadFromDisk(replacePath);
+      await deleteUploadFromDisk(replacePath);
     }
 
     const publicPath = await saveWebFileToUploads(file, prefix);
-
-    console.log("[API_UPLOAD_OK]", publicPath);
 
     return NextResponse.json({ path: publicPath }, { status: 201 });
   } catch (error) {
