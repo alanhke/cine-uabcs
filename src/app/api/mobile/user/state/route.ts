@@ -157,18 +157,23 @@ export async function GET(req: Request) {
         const qrIndividual = firstTicket?.qrBoletos.find(
           (qr) => qr.tipoQR === "INDIVIDUAL" && qr.activo
         );
+        const funcionFecha = firstTicket?.funcion.fechaHora;
+        const qrExpiresAtMillis = funcionFecha
+          ? funcionFecha.getTime() + 60 * 60 * 1000
+          : null;
         return {
           folio: compra.folio,
           email: compra.correoComprador,
           movieId: firstTicket ? String(firstTicket.funcion.peliculaId) : "",
-          date: shortDate(compra.fechaCompra),
-          time: firstTicket ? shortTime(firstTicket.funcion.fechaHora) : "",
+          date: funcionFecha ? shortDate(funcionFecha) : shortDate(compra.fechaCompra),
+          time: funcionFecha ? shortTime(funcionFecha) : "",
           room: firstTicket?.funcion.sala.nombre ?? "Dulceria",
           seats: compra.boletos.map((boleto) => `${boleto.butaca.fila}${boleto.butaca.numero}`),
           status: compra.estado === "CONFIRMADA" ? "Activa" : String(compra.estado),
           ticketTotal,
           concessionsTotal,
           qrCode: qrGrupalPorCompraId.get(compra.id) ?? qrIndividual?.codigo ?? compra.folio,
+          qrExpiresAtMillis,
         };
       }),
       reviews: resenas.map((resena) => ({
