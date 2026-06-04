@@ -56,6 +56,7 @@ export async function GET(req: Request) {
             include: {
               boletos: {
                 include: {
+                  qrBoletos: true,
                   funcion: { include: { pelicula: true, sala: true } },
                   butaca: true,
                 },
@@ -89,6 +90,14 @@ export async function GET(req: Request) {
     const ratingsByUserAndMovie = new Map(
       calificaciones.map((c) => [`${c.usuarioId}:${c.peliculaId}`, c.puntuacion])
     );
+    const qrsPorCompra = await prisma.qRBoleto.findMany({
+      where: {
+        compraId: { in: compras.map((compra) => compra.id) },
+        tipoQR: "GRUPAL",
+        activo: true,
+      },
+    });
+    const qrGrupalPorCompraId = new Map(qrsPorCompra.map((qr) => [qr.compraId, qr.codigo]));
 
     return Response.json({
       profile: {
@@ -145,6 +154,9 @@ export async function GET(req: Request) {
           (sum, detalle) => sum + Number(detalle.subtotal),
           0
         );
+        const qrIndividual = firstTicket?.qrBoletos.find(
+          (qr) => qr.tipoQR === "INDIVIDUAL" && qr.activo
+        );
         return {
           folio: compra.folio,
           email: compra.correoComprador,
@@ -156,6 +168,7 @@ export async function GET(req: Request) {
           status: compra.estado === "CONFIRMADA" ? "Activa" : String(compra.estado),
           ticketTotal,
           concessionsTotal,
+          qrCode: qrGrupalPorCompraId.get(compra.id) ?? qrIndividual?.codigo ?? compra.folio,
         };
       }),
       reviews: resenas.map((resena) => ({
