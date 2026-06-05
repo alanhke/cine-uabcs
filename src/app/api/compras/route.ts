@@ -11,6 +11,42 @@ import {
 } from "@/lib/validations/schemas";
 import { z } from "zod";
 
+const vencimientoTarjetaSchema = z
+  .string()
+  .regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Usa el formato MM/AA");
+
+function tarjetaNoVencida(value: string) {
+  const [monthRaw, yearRaw] = value.split("/");
+  const month = Number(monthRaw);
+  const year = 2000 + Number(yearRaw);
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  return year > currentYear || (year === currentYear && month >= currentMonth);
+}
+
+const pagoSchema = z.discriminatedUnion("metodo", [
+  z.object({
+    metodo: z.literal("tarjeta"),
+    numeroTarjeta: z
+      .string()
+      .transform((value) => value.replace(/\s/g, ""))
+      .pipe(z.string().regex(/^\d{13,19}$/, "Ingresa un número de tarjeta válido")),
+    vencimientoTarjeta: vencimientoTarjetaSchema.refine(
+      tarjetaNoVencida,
+      "La tarjeta está vencida"
+    ),
+    cvvTarjeta: z.string().regex(/^\d{3,4}$/, "Ingresa un CVV válido"),
+    titularTarjeta: z.string().trim().min(3, "Ingresa el titular de la tarjeta"),
+  }),
+  z.object({
+    metodo: z.literal("paypal"),
+    paypalCorreo: z.string().email("Ingresa el correo de PayPal"),
+    paypalPassword: z.string().min(6, "Ingresa la contraseña de PayPal simulada"),
+  }),
+]);
+
 const compraBodySchema = z
   .object({
     nombreComprador: z.string(),
@@ -37,6 +73,7 @@ const compraBodySchema = z
         })
       )
       .optional(),
+    pago: pagoSchema,
   })
   .superRefine((data, ctx) => {
     const boletos = data.boletos ?? [];
@@ -85,6 +122,16 @@ export async function POST(req: Request) {
       esInvitado,
       boletos: baseParsed.data.boletos ?? [],
       dulceria: baseParsed.data.dulceria ?? [],
+      pago:
+        baseParsed.data.pago.metodo === "tarjeta"
+          ? {
+              metodo: "tarjeta",
+              numeroTarjeta: baseParsed.data.pago.numeroTarjeta,
+            }
+          : {
+              metodo: "paypal",
+              paypalCorreo: baseParsed.data.pago.paypalCorreo,
+            },
     });
 
     await revalidarDashboardTrasCompra();

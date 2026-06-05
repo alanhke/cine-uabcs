@@ -26,6 +26,30 @@ interface CheckoutForm {
   correoComprador: string;
   telefonoComprador: string;
   esInvitado?: boolean;
+  metodoPago: "tarjeta" | "paypal";
+  numeroTarjeta: string;
+  vencimientoTarjeta: string;
+  cvvTarjeta: string;
+  titularTarjeta: string;
+  paypalCorreo: string;
+  paypalPassword: string;
+}
+
+function validarVencimientoTarjeta(value: string) {
+  const match = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(value);
+  if (!match) return "Usa el formato MM/AA";
+
+  const month = Number(match[1]);
+  const year = 2000 + Number(match[2]);
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  if (year < currentYear || (year === currentYear && month < currentMonth)) {
+    return "La tarjeta está vencida";
+  }
+
+  return null;
 }
 
 export default function CheckoutPage() {
@@ -58,10 +82,18 @@ export default function CheckoutPage() {
       correoComprador: session?.user?.email ?? "",
       telefonoComprador: "",
       esInvitado: !session,
+      metodoPago: "tarjeta",
+      numeroTarjeta: "",
+      vencimientoTarjeta: "",
+      cvvTarjeta: "",
+      titularTarjeta: "",
+      paypalCorreo: "",
+      paypalPassword: "",
     },
   });
 
   const esInvitado = watch("esInvitado") ?? !session;
+  const metodoPago = watch("metodoPago");
   const requiereInvitado = esInvitado || !session;
   const total = subtotalBoletos + subtotalDulceria;
 
@@ -129,6 +161,38 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (data.metodoPago === "tarjeta") {
+      const numeroTarjeta = data.numeroTarjeta.replace(/\s/g, "");
+      const vencimientoError = validarVencimientoTarjeta(data.vencimientoTarjeta);
+      if (!/^\d{13,19}$/.test(numeroTarjeta)) {
+        setError("root", { message: "Ingresa un número de tarjeta válido" });
+        return;
+      }
+      if (vencimientoError) {
+        setError("root", { message: vencimientoError });
+        return;
+      }
+      if (!/^\d{3,4}$/.test(data.cvvTarjeta)) {
+        setError("root", { message: "Ingresa un CVV válido" });
+        return;
+      }
+      if (data.titularTarjeta.trim().length < 3) {
+        setError("root", { message: "Ingresa el titular de la tarjeta" });
+        return;
+      }
+    }
+
+    if (data.metodoPago === "paypal") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.paypalCorreo)) {
+        setError("root", { message: "Ingresa el correo de PayPal" });
+        return;
+      }
+      if (data.paypalPassword.length < 6) {
+        setError("root", { message: "Ingresa la contraseña de PayPal simulada" });
+        return;
+      }
+    }
+
     const dulceriaRaw = sessionStorage.getItem(COMPRA_DULCERIA_KEY);
     const dulceriaCart = dulceriaRaw ? JSON.parse(dulceriaRaw) : [];
 
@@ -140,6 +204,20 @@ export default function CheckoutPage() {
         esInvitado: requiereInvitado,
         boletos: boletosPayload,
         dulceria: dulceriaCart,
+        pago:
+          data.metodoPago === "tarjeta"
+            ? {
+                metodo: "tarjeta",
+                numeroTarjeta: data.numeroTarjeta.replace(/\s/g, ""),
+                vencimientoTarjeta: data.vencimientoTarjeta,
+                cvvTarjeta: data.cvvTarjeta,
+                titularTarjeta: data.titularTarjeta,
+              }
+            : {
+                metodo: "paypal",
+                paypalCorreo: data.paypalCorreo,
+                paypalPassword: data.paypalPassword,
+              },
       }),
     });
 
@@ -236,6 +314,97 @@ export default function CheckoutPage() {
               })}
             />
           </div>
+
+          <div className="space-y-3 rounded-lg border border-navy/10 bg-cream/40 p-3">
+            <Label>Método de pago simulado</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                <input
+                  type="radio"
+                  value="tarjeta"
+                  className="h-4 w-4 accent-primary"
+                  {...register("metodoPago")}
+                />
+                Tarjeta
+              </label>
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                <input
+                  type="radio"
+                  value="paypal"
+                  className="h-4 w-4 accent-primary"
+                  {...register("metodoPago")}
+                />
+                PayPal
+              </label>
+            </div>
+          </div>
+
+          {metodoPago === "tarjeta" ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Número de tarjeta</Label>
+                <Input
+                  inputMode="numeric"
+                  autoComplete="cc-number"
+                  maxLength={23}
+                  {...register("numeroTarjeta", {
+                    onChange: (e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 19);
+                      e.target.value = digits.replace(/(.{4})/g, "$1 ").trim();
+                    },
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Vencimiento (MM/AA)</Label>
+                <Input
+                  inputMode="numeric"
+                  autoComplete="cc-exp"
+                  placeholder="08/28"
+                  maxLength={5}
+                  {...register("vencimientoTarjeta", {
+                    onChange: (e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      e.target.value =
+                        digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+                    },
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>CVV</Label>
+                <Input
+                  inputMode="numeric"
+                  autoComplete="cc-csc"
+                  maxLength={4}
+                  {...register("cvvTarjeta", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    },
+                  })}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Titular de la tarjeta</Label>
+                <Input autoComplete="cc-name" {...register("titularTarjeta")} />
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label>Correo de PayPal</Label>
+                <Input type="email" autoComplete="email" {...register("paypalCorreo")} />
+              </div>
+              <div className="space-y-2">
+                <Label>Contraseña de PayPal</Label>
+                <Input
+                  type="password"
+                  autoComplete="current-password"
+                  {...register("paypalPassword")}
+                />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

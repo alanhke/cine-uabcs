@@ -34,6 +34,11 @@ export function DulceriaCartClient({
     id: number;
     nombre: string;
     precio: string;
+    detalles: Array<{
+      productoId: number;
+      nombre: string;
+      cantidad: number;
+    }>;
   }>;
 }) {
   const router = useRouter();
@@ -181,6 +186,14 @@ export function DulceriaCartClient({
                     <p className="mt-1 text-lg font-semibold text-primary">
                       {formatCurrency(Number(c.precio))}
                     </p>
+                    {c.detalles.length > 0 ? (
+                      <p className="mt-1 text-xs leading-relaxed text-navy/55">
+                        Incluye{" "}
+                        {c.detalles
+                          .map((detalle) => `${detalle.cantidad} ${detalle.nombre}`)
+                          .join(", ")}
+                      </p>
+                    ) : null}
                   </div>
                   <Button size="icon" onClick={() => addCombo(c)} aria-label={`Agregar ${c.nombre}`}>
                     <Plus className="h-4 w-4" />

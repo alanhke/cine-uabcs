@@ -17,6 +17,10 @@ export interface DulceriaInput {
   precioUnitario: number;
 }
 
+export type PagoInput =
+  | { metodo: "tarjeta"; numeroTarjeta: string }
+  | { metodo: "paypal"; paypalCorreo: string };
+
 export interface CompraInput {
   clienteId?: number;
   nombreComprador: string;
@@ -25,6 +29,18 @@ export interface CompraInput {
   esInvitado: boolean;
   boletos: BoletoInput[];
   dulceria: DulceriaInput[];
+  pago?: PagoInput;
+}
+
+function maskedPaymentReference(folio: string, pago?: PagoInput) {
+  if (!pago) return `PAY-${folio}`;
+
+  if (pago.metodo === "tarjeta") {
+    const last4 = pago.numeroTarjeta.replace(/\D/g, "").slice(-4).padStart(4, "0");
+    return `CARD-${last4}-${folio}`;
+  }
+
+  return `PAYPAL-${pago.paypalCorreo.toLowerCase().trim()}-${folio}`;
 }
 
 export async function crearCompra(input: CompraInput) {
@@ -47,14 +63,41 @@ export async function crearCompra(input: CompraInput) {
       }
     }
 
+    const stockRequerido = new Map<number, number>();
     for (const d of input.dulceria) {
+      if (d.cantidad < 1) continue;
+
       if (d.productoId) {
-        const producto = await tx.productoDulceria.findUnique({
-          where: { id: d.productoId },
+        stockRequerido.set(
+          d.productoId,
+          (stockRequerido.get(d.productoId) ?? 0) + d.cantidad
+        );
+      }
+
+      if (d.comboId) {
+        const combo = await tx.combo.findUnique({
+          where: { id: d.comboId },
+          include: { detalles: true },
         });
-        if (!producto || producto.stock < d.cantidad) {
-          throw new Error(`Stock insuficiente para producto #${d.productoId}`);
+        if (!combo || combo.estado !== "ACTIVO") {
+          throw new Error(`Combo #${d.comboId} no disponible`);
         }
+
+        for (const detalle of combo.detalles) {
+          stockRequerido.set(
+            detalle.productoId,
+            (stockRequerido.get(detalle.productoId) ?? 0) + detalle.cantidad * d.cantidad
+          );
+        }
+      }
+    }
+
+    for (const [productoId, cantidad] of Array.from(stockRequerido.entries())) {
+      const producto = await tx.productoDulceria.findUnique({
+        where: { id: productoId },
+      });
+      if (!producto || producto.estado !== "ACTIVO" || producto.stock < cantidad) {
+        throw new Error(`Stock insuficiente para producto #${productoId}`);
       }
     }
 
@@ -98,18 +141,19 @@ export async function crearCompra(input: CompraInput) {
           subtotal: new Prisma.Decimal(subtotal),
         },
       });
-      if (d.productoId) {
-        await tx.productoDulceria.update({
-          where: { id: d.productoId },
-          data: { stock: { decrement: d.cantidad } },
-        });
-      }
+    }
+
+    for (const [productoId, cantidad] of Array.from(stockRequerido.entries())) {
+      await tx.productoDulceria.update({
+        where: { id: productoId },
+        data: { stock: { decrement: cantidad } },
+      });
     }
 
     await tx.pagoSimulado.create({
       data: {
         compraId: compra.id,
-        referencia: `PAY-${folio}`,
+        referencia: maskedPaymentReference(folio, input.pago),
         monto: new Prisma.Decimal(total),
         estado: "CONFIRMADA",
         fechaPago: ahora,

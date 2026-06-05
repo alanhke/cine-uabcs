@@ -26,6 +26,11 @@ export default async function DulceriaCatalogoPage() {
     id: c.id,
     nombre: c.nombre,
     precio: String(c.precio),
+    detalles: c.detalles.map((detalle) => ({
+      productoId: detalle.productoId,
+      nombre: detalle.producto.nombre,
+      cantidad: detalle.cantidad,
+    })),
   }));
 
   return (
