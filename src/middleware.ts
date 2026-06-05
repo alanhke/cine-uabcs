@@ -1,26 +1,19 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { getProtectedRouteRedirect } from "@/lib/access-control";
 
 export default withAuth(
   function middleware(req) {
     const role = req.nextauth.token?.role;
     const path = req.nextUrl.pathname;
+    const redirectPath = getProtectedRouteRedirect(
+      path,
+      role === "CLIENTE" || role === "ADMINISTRADOR" ? role : undefined
+    );
+    if (redirectPath) {
+      return NextResponse.redirect(new URL(redirectPath, req.url));
+    }
 
-    if (path.startsWith("/admin") && role !== "ADMINISTRADOR") {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
-    }
-    if (path.startsWith("/social") && role !== "CLIENTE") {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
-    }
-    if (path.startsWith("/historial") && role !== "CLIENTE") {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
-    }
-    if (path.startsWith("/perfil") && role !== "CLIENTE") {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
-    }
-    if (path.startsWith("/wrapped") && role !== "CLIENTE") {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
-    }
     return NextResponse.next();
   },
   {

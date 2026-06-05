@@ -6,13 +6,23 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { redirect } from "next/navigation";
+import { getLoginRedirect, getProtectedRouteRedirect } from "@/lib/access-control";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default async function HistorialPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.clienteId) return null;
+  if (!session?.user?.id) {
+    redirect(getLoginRedirect("/historial"));
+  }
+  if (session.user.role !== "CLIENTE") {
+    redirect(getProtectedRouteRedirect("/historial", "ADMINISTRADOR") ?? "/");
+  }
+  if (!session.user.clienteId) {
+    redirect("/");
+  }
 
   const compras = await prisma.compra.findMany({
     where: { clienteId: session.user.clienteId },

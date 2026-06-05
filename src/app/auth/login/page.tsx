@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { getPostLoginRedirect } from "@/lib/access-control";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,7 +35,11 @@ export default function LoginPage() {
         setError("No se pudo iniciar sesión. Intenta nuevamente.");
         return;
       }
-      router.push("/");
+      const session = await getSession();
+      const role =
+        session?.user?.role === "ADMINISTRADOR" ? "ADMINISTRADOR" : "CLIENTE";
+      const callbackUrl = searchParams.get("callbackUrl");
+      router.push(getPostLoginRedirect(callbackUrl, role));
       router.refresh();
     } catch (error) {
       console.error("[LOGIN_SUBMIT_ERROR]", error);

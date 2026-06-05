@@ -10,6 +10,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PerfilForm } from "@/components/perfil/perfil-form";
+import { getLoginRedirect } from "@/lib/access-control";
 
 export default function PerfilAjustesPage() {
   const { data: session, status } = useSession();
@@ -19,7 +20,7 @@ export default function PerfilAjustesPage() {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/auth/login?callbackUrl=/perfil/ajustes");
+    if (status === "unauthenticated") router.push(getLoginRedirect("/perfil/ajustes"));
   }, [status, router]);
 
   useEffect(() => {
