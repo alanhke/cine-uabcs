@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -13,7 +12,6 @@ import { getPostLoginRedirect } from "@/lib/access-control";
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -38,7 +36,10 @@ export default function LoginPage() {
       const session = await getSession();
       const role =
         session?.user?.role === "ADMINISTRADOR" ? "ADMINISTRADOR" : "CLIENTE";
-      const callbackUrl = searchParams.get("callbackUrl");
+      const callbackUrl =
+        typeof window === "undefined"
+          ? null
+          : new URLSearchParams(window.location.search).get("callbackUrl");
       router.push(getPostLoginRedirect(callbackUrl, role));
       router.refresh();
     } catch (error) {
