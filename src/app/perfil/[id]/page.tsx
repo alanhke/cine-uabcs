@@ -8,6 +8,7 @@ import {
   PerfilPublicoView,
   type PerfilPublicoViewData,
 } from "@/components/perfil/perfil-publico-view";
+import { ClientRoleGate } from "@/components/auth/client-role-gate";
 import type { PerfilRelacion } from "@/lib/perfil-publico";
 
 export default function PerfilPublicoPage() {
@@ -58,9 +59,11 @@ export default function PerfilPublicoPage() {
   }
 
   return (
-    <PerfilPublicoView
-      perfil={perfil}
-      onRelacionChange={handleRelacionChange}
-    />
+    <ClientRoleGate requiredRole="CLIENTE">
+      <PerfilPublicoView
+        perfil={perfil}
+        onRelacionChange={handleRelacionChange}
+      />
+    </ClientRoleGate>
   );
 }

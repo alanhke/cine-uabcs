@@ -36,11 +36,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: [
-    "/admin/:path*",
-    "/social/:path*",
-    "/historial/:path*",
-    "/perfil/:path*",
-    "/wrapped/:path*",
-  ],
+  matcher: ["/admin/:path*"],
 };
