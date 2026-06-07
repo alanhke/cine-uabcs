@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
 
 export async function getMobileCatalog() {
   const [peliculas, productos, combos, salas] = await Promise.all([
@@ -9,7 +10,13 @@ export async function getMobileCatalog() {
         funciones: {
           where: { estado: "ACTIVO" },
           orderBy: { fechaHora: "asc" },
-          include: { sala: true },
+          include: {
+            sala: true,
+            boletos: {
+              where: { compra: { estado: { not: "CANCELADA" } } },
+              include: { butaca: { select: { fila: true, numero: true } } },
+            },
+          },
         },
       },
     }),
@@ -53,10 +60,12 @@ export async function getMobileCatalog() {
         salaId: String(funcion.salaId),
         sala: funcion.sala.nombre,
         tipoSala: "Tradicional",
-        formato: "2D · Dob.",
+        formato: `2D · ${getIdiomaFuncionLabel(funcion.idioma)}`,
+        idioma: funcion.idioma,
         fechaHora: funcion.fechaHora.toISOString(),
         precioBase: Number(funcion.precioBase),
         butacasDisponibles: funcion.sala.filas * funcion.sala.columnas,
+        takenSeats: funcion.boletos.map((b) => `${b.butaca.fila}${b.butaca.numero}`),
       })),
     })),
     productos: productos.map((producto) => ({
