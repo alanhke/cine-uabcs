@@ -81,6 +81,18 @@ export function filtroFuncionesFuturas() {
   return { fechaHora: { gt: serverNow() } };
 }
 
+export function finDeFuncion(fechaHora: Date, duracionMin: number): Date {
+  return new Date(fechaHora.getTime() + duracionMin * 60_000);
+}
+
+export function funcionSigueDisponible(
+  fechaHora: Date,
+  duracionMin: number,
+  now: Date = serverNow()
+) {
+  return finDeFuncion(fechaHora, duracionMin) > now;
+}
+
 /** Clave YYYY-MM-DD en hora de La Paz (evita desfase UTC). */
 export function formatDateKey(date: Date): string {
   const f = lpFields(date);

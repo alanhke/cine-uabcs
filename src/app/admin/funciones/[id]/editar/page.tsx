@@ -7,7 +7,6 @@ import { AdminFormShell } from "@/components/admin/admin-form-shell";
 import { AdminSubmitForm } from "@/components/admin/admin-submit-form";
 import { FuncionFields } from "@/components/admin/funcion-fields";
 import { actualizarFuncion } from "@/app/actions/admin/funciones";
-import { calcularPrecioTradicional } from "@/lib/tipo-funcion";
 
 export default async function EditarFuncionPage({
   params,
@@ -51,11 +50,8 @@ export default async function EditarFuncionPage({
                 peliculaId: funcion.peliculaId,
                 salaId: funcion.salaId,
                 fechaHora: funcion.fechaHora,
-                precioBase: calcularPrecioTradicional(
-                  Number(funcion.precioBase),
-                  funcion.tipoFuncion
-                ),
-                tipoFuncion: funcion.tipoFuncion,
+                idioma: funcion.idioma,
+                precioBase: Number(funcion.precioBase),
                 estado: funcion.estado,
               }}
             />

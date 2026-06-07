@@ -454,6 +454,7 @@ async function main() {
             peliculaId: pelicula.id,
             salaId: sala.id,
             fechaHora,
+            idioma: horario.label === "noche" ? "SUBTITULADA" : "ESPANOL",
             precioBase,
           },
         });

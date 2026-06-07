@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { handleMobileError, requireMobileUser } from "@/lib/mobile-auth";
+import {
+  mapConcessionPackages,
+  mapTicketPackages,
+  mobileQrsCompraInclude,
+  type MobileQrCompra,
+} from "@/lib/mobile-purchase";
 
 export const dynamic = "force-dynamic";
 
@@ -56,17 +62,17 @@ export async function GET(req: Request) {
             include: {
               boletos: {
                 include: {
-                  qrBoletos: true,
                   funcion: { include: { pelicula: true, sala: true } },
                   butaca: true,
                 },
               },
               detalleDulceria: true,
+              qrsCompra: mobileQrsCompraInclude,
             },
           })
         : Promise.resolve([]),
       prisma.resena.findMany({
-        where: { estado: "ACTIVO" },
+        where: { estado: "ACTIVO", parentResenaId: null },
         orderBy: { createdAt: "desc" },
         include: {
           usuario: {
@@ -90,14 +96,6 @@ export async function GET(req: Request) {
     const ratingsByUserAndMovie = new Map(
       calificaciones.map((c) => [`${c.usuarioId}:${c.peliculaId}`, c.puntuacion])
     );
-    const qrsPorCompra = await prisma.qRBoleto.findMany({
-      where: {
-        compraId: { in: compras.map((compra) => compra.id) },
-        tipoQR: "GRUPAL",
-        activo: true,
-      },
-    });
-    const qrGrupalPorCompraId = new Map(qrsPorCompra.map((qr) => [qr.compraId, qr.codigo]));
 
     return Response.json({
       profile: {
@@ -119,6 +117,7 @@ export async function GET(req: Request) {
           ? `Codigo de amigo: ${u.cliente.codigoAmigo}`
           : "Usuario de Cine UABCS",
         isOnline: false,
+        friendCode: u.cliente?.codigoAmigo ?? "",
       })),
       friendIds,
       incomingRequestIds,
@@ -154,26 +153,19 @@ export async function GET(req: Request) {
           (sum, detalle) => sum + Number(detalle.subtotal),
           0
         );
-        const qrIndividual = firstTicket?.qrBoletos.find(
-          (qr) => qr.tipoQR === "INDIVIDUAL" && qr.activo
-        );
-        const funcionFecha = firstTicket?.funcion.fechaHora;
-        const qrExpiresAtMillis = funcionFecha
-          ? funcionFecha.getTime() + 60 * 60 * 1000
-          : null;
         return {
           folio: compra.folio,
           email: compra.correoComprador,
           movieId: firstTicket ? String(firstTicket.funcion.peliculaId) : "",
-          date: funcionFecha ? shortDate(funcionFecha) : shortDate(compra.fechaCompra),
-          time: funcionFecha ? shortTime(funcionFecha) : "",
+          date: shortDate(compra.fechaCompra),
+          time: firstTicket ? shortTime(firstTicket.funcion.fechaHora) : "",
           room: firstTicket?.funcion.sala.nombre ?? "Dulceria",
           seats: compra.boletos.map((boleto) => `${boleto.butaca.fila}${boleto.butaca.numero}`),
           status: compra.estado === "CONFIRMADA" ? "Activa" : String(compra.estado),
           ticketTotal,
           concessionsTotal,
-          qrCode: qrGrupalPorCompraId.get(compra.id) ?? qrIndividual?.codigo ?? compra.folio,
-          qrExpiresAtMillis,
+          ticketPackages: mapTicketPackages(compra.qrsCompra as MobileQrCompra[]),
+          concessionPackages: mapConcessionPackages(compra.qrsCompra as MobileQrCompra[]),
         };
       }),
       reviews: resenas.map((resena) => ({
@@ -211,6 +203,7 @@ function shortDate(date: Date) {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: "America/Mazatlan",
   }).format(date);
 }
 
@@ -226,5 +219,6 @@ function shortTime(date: Date) {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: "America/Mazatlan",
   }).format(date);
 }

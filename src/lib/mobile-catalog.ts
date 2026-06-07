@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { tipoFuncionLabel } from "@/lib/tipo-funcion";
+import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
 
 export async function getMobileCatalog() {
-  const [peliculas, productos, combos, salas] = await Promise.all([
+  const [peliculas, productos, combos, salas, calificaciones] = await Promise.all([
     prisma.pelicula.findMany({
       where: { estado: "ACTIVO" },
       orderBy: { updatedAt: "desc" },
@@ -10,7 +10,13 @@ export async function getMobileCatalog() {
         funciones: {
           where: { estado: "ACTIVO" },
           orderBy: { fechaHora: "asc" },
-          include: { sala: true },
+          include: {
+            sala: true,
+            boletos: {
+              where: { compra: { estado: { not: "CANCELADA" } } },
+              include: { butaca: { select: { fila: true, numero: true } } },
+            },
+          },
         },
       },
     }),
@@ -33,7 +39,15 @@ export async function getMobileCatalog() {
         },
       },
     }),
+    prisma.calificacion.groupBy({
+      by: ["peliculaId"],
+      _avg: { puntuacion: true },
+    }),
   ]);
+
+  const ratingPorPelicula = new Map(
+    calificaciones.map((c) => [c.peliculaId, c._avg.puntuacion ?? 0])
+  );
 
   return {
     peliculas: peliculas.map((pelicula, index) => ({
@@ -43,7 +57,7 @@ export async function getMobileCatalog() {
       clasificacion: pelicula.clasificacion,
       duracionMin: pelicula.duracionMin,
       genero: "Cartelera",
-      rating: "4.0",
+      rating: (ratingPorPelicula.get(pelicula.id) ?? 0).toFixed(1),
       anio: String(pelicula.createdAt.getFullYear()),
       posterUrl: pelicula.posterUrl,
       destacada: index === 0,
@@ -53,11 +67,14 @@ export async function getMobileCatalog() {
         peliculaId: String(funcion.peliculaId),
         salaId: String(funcion.salaId),
         sala: funcion.sala.nombre,
-        tipoSala: tipoFuncionLabel(funcion.tipoFuncion),
-        formato: tipoFuncionLabel(funcion.tipoFuncion),
+        tipoSala: "Tradicional",
+        formato: `2D · ${getIdiomaFuncionLabel(funcion.idioma)}`,
+        idioma: funcion.idioma,
         fechaHora: funcion.fechaHora.toISOString(),
         precioBase: Number(funcion.precioBase),
-        butacasDisponibles: funcion.sala.filas * funcion.sala.columnas,
+        butacasDisponibles:
+          funcion.sala.filas * funcion.sala.columnas - funcion.boletos.length,
+        takenSeats: funcion.boletos.map((b) => `${b.butaca.fila}${b.butaca.numero}`),
       })),
     })),
     productos: productos.map((producto) => ({
@@ -65,7 +82,6 @@ export async function getMobileCatalog() {
       nombre: producto.nombre,
       descripcion: producto.categoria,
       categoria: producto.categoria,
-      costo: Number(producto.costo),
       precio: Number(producto.precio),
       stock: producto.stock,
     })),

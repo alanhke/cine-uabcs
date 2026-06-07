@@ -1,7 +1,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toDatetimeLocalValue } from "@/lib/datetime";
-import { TIPOS_FUNCION } from "@/lib/tipo-funcion";
+import { IDIOMA_FUNCION_OPTIONS } from "@/lib/funcion-idioma";
+import type { IdiomaFuncion } from "@prisma/client";
 
 interface Opcion {
   id: number;
@@ -19,8 +20,8 @@ export function FuncionFields({
     peliculaId: number;
     salaId: number;
     fechaHora: Date | string;
+    idioma: IdiomaFuncion;
     precioBase: number;
-    tipoFuncion?: string;
     estado: string;
   };
 }) {
@@ -73,32 +74,33 @@ export function FuncionFields({
         <p className="text-xs text-navy/50">Debe ser una fecha futura</p>
       </div>
       <div className="space-y-1">
-        <Label>Tipo de función</Label>
+        <Label>Idioma</Label>
         <select
-          name="tipoFuncion"
-          defaultValue={defaults?.tipoFuncion ?? "TRADICIONAL"}
+          name="idioma"
+          defaultValue={defaults?.idioma ?? "ESPANOL"}
+          required
           className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"
         >
-          {TIPOS_FUNCION.map((tipo) => (
-            <option key={tipo.value} value={tipo.value}>
-              {tipo.label}
+          {IDIOMA_FUNCION_OPTIONS.map((idioma) => (
+            <option key={idioma.value} value={idioma.value}>
+              {idioma.label}
             </option>
           ))}
         </select>
       </div>
       <div className="space-y-1">
-        <Label>Precio tradicional (adulto)</Label>
+        <Label>Precio base (adulto)</Label>
         <Input
           name="precioBase"
           type="number"
           step="0.01"
           min={0.01}
-          defaultValue={defaults?.precioBase ?? 85}
+          defaultValue={defaults?.precioBase ?? 120}
           required
         />
         {defaults?.precioBase && (
           <p className="text-xs text-navy/50">
-            El precio final se ajusta automáticamente: 3D +30%, 4D +50%
+            Tipos de boleto se recalculan al guardar
           </p>
         )}
       </div>

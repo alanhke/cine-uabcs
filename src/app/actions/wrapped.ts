@@ -46,6 +46,62 @@ function parseActores(actores: string | null | undefined): string[] {
     .filter(Boolean);
 }
 
+function acumularFuncionesUnicas(
+  compras: Array<{
+    boletos: Array<{
+      funcion: {
+        id: number;
+        pelicula: {
+          id: number;
+          duracionMin: number;
+          titulo?: string | null;
+          posterUrl?: string | null;
+          actores?: string | null;
+        };
+      };
+    }>;
+  }>
+) {
+  const funcionesContadas = new Set<number>();
+  const peliculasVistas = new Set<number>();
+  const conteoPeliculas = new Map<
+    number,
+    { titulo: string; veces: number; posterUrl: string | null; duracionMin: number }
+  >();
+  const conteoActores = new Map<string, number>();
+  let minutosPantalla = 0;
+
+  for (const compra of compras) {
+    for (const boleto of compra.boletos) {
+      const funcionId = boleto.funcion.id;
+      if (funcionesContadas.has(funcionId)) continue;
+      funcionesContadas.add(funcionId);
+
+      const pel = boleto.funcion.pelicula;
+      minutosPantalla += pel.duracionMin;
+      peliculasVistas.add(pel.id);
+
+      const prev = conteoPeliculas.get(pel.id);
+      if (prev) {
+        prev.veces += 1;
+      } else {
+        conteoPeliculas.set(pel.id, {
+          titulo: pel.titulo ?? "Película",
+          veces: 1,
+          posterUrl: pel.posterUrl ?? null,
+          duracionMin: pel.duracionMin,
+        });
+      }
+
+      for (const actor of parseActores(pel.actores)) {
+        conteoActores.set(actor, (conteoActores.get(actor) ?? 0) + 1);
+      }
+    }
+  }
+
+  return { funcionesContadas, peliculasVistas, conteoPeliculas, conteoActores, minutosPantalla };
+}
+
 export type PerfilEstadisticas = {
   horasPantalla: number;
   peliculasTotales: number;
@@ -112,20 +168,12 @@ export async function getEstadisticasUsuario(
     }),
   ]);
 
-  const peliculasVistas = new Set<number>();
-  let minutosPantalla = 0;
   let gastoDulceria = 0;
 
   for (const compra of compras) {
-    for (const det of compra.detalleDulceria) {
-      gastoDulceria += Number(det.subtotal);
-    }
-    for (const boleto of compra.boletos) {
-      const pel = boleto.funcion.pelicula;
-      minutosPantalla += pel.duracionMin;
-      peliculasVistas.add(pel.id);
-    }
+    for (const det of compra.detalleDulceria) gastoDulceria += Number(det.subtotal);
   }
+  const { peliculasVistas, minutosPantalla } = acumularFuncionesUnicas(compras);
 
   const horasPantalla = Math.round((minutosPantalla / 60) * 10) / 10;
 
@@ -192,37 +240,12 @@ export async function getWrappedData(): Promise<WrappedData | null> {
     }),
   ]);
 
-  const conteoPeliculas = new Map<
-    number,
-    { titulo: string; veces: number; posterUrl: string | null; duracionMin: number }
-  >();
-  const conteoActores = new Map<string, number>();
-  let minutosPantalla = 0;
   let gastoDulceria = 0;
 
   for (const compra of compras) {
-    for (const det of compra.detalleDulceria) {
-      gastoDulceria += Number(det.subtotal);
-    }
-    for (const boleto of compra.boletos) {
-      const pel = boleto.funcion.pelicula;
-      minutosPantalla += pel.duracionMin;
-      const prev = conteoPeliculas.get(pel.id);
-      if (prev) {
-        prev.veces += 1;
-      } else {
-        conteoPeliculas.set(pel.id, {
-          titulo: pel.titulo,
-          veces: 1,
-          posterUrl: pel.posterUrl,
-          duracionMin: pel.duracionMin,
-        });
-      }
-      for (const actor of parseActores(pel.actores)) {
-        conteoActores.set(actor, (conteoActores.get(actor) ?? 0) + 1);
-      }
-    }
+    for (const det of compra.detalleDulceria) gastoDulceria += Number(det.subtotal);
   }
+  const { conteoPeliculas, conteoActores, minutosPantalla } = acumularFuncionesUnicas(compras);
 
   const topPeliculas: WrappedPeliculaStat[] = Array.from(conteoPeliculas.entries())
     .map(([peliculaId, p]) => ({

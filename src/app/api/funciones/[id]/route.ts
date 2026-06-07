@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { tipoFuncionLabel } from "@/lib/tipo-funcion";
+import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
 
 export async function GET(
   _req: Request,
@@ -46,9 +46,9 @@ export async function GET(
   return NextResponse.json({
     id: funcion.id,
     precioBase,
-    tipoFuncion: funcion.tipoFuncion,
-    tipoFuncionLabel: tipoFuncionLabel(funcion.tipoFuncion),
     fechaHora: funcion.fechaHora,
+    idioma: funcion.idioma,
+    idiomaLabel: getIdiomaFuncionLabel(funcion.idioma),
     peliculaId: funcion.pelicula.id,
     peliculaTitulo: funcion.pelicula.titulo,
     salaNombre: funcion.sala.nombre,

@@ -26,6 +26,41 @@ interface CheckoutForm {
   correoComprador: string;
   telefonoComprador: string;
   esInvitado?: boolean;
+  metodoPago: "tarjeta" | "paypal";
+  numeroTarjeta: string;
+  vencimientoTarjeta: string;
+  cvvTarjeta: string;
+  titularTarjeta: string;
+  paypalCorreo: string;
+  paypalPassword: string;
+}
+
+type SavedPaymentMethod = {
+  id: number;
+  tipo: "tarjeta" | "paypal";
+  titulo: string;
+  detalle: string;
+  ultimos4Tarjeta: string | null;
+  titularTarjeta: string | null;
+  vencimientoTarjeta: string | null;
+  paypalCorreo: string | null;
+};
+
+function validarVencimientoTarjeta(value: string) {
+  const match = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(value);
+  if (!match) return "Usa el formato MM/AA";
+
+  const month = Number(match[1]);
+  const year = 2000 + Number(match[2]);
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  if (year < currentYear || (year === currentYear && month < currentMonth)) {
+    return "La tarjeta está vencida";
+  }
+
+  return null;
 }
 
 export default function CheckoutPage() {
@@ -37,6 +72,9 @@ export default function CheckoutPage() {
   const [subtotalBoletos, setSubtotalBoletos] = useState(0);
   const [subtotalDulceria, setSubtotalDulceria] = useState(0);
   const [tieneDulceria, setTieneDulceria] = useState(false);
+  const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[]>([]);
+  const [selectedSavedMethodId, setSelectedSavedMethodId] = useState<number | null>(null);
+  const [guardarMetodoPago, setGuardarMetodoPago] = useState(false);
   const [boletosPayload, setBoletosPayload] = useState<
     Array<{
       funcionId: number;
@@ -51,6 +89,7 @@ export default function CheckoutPage() {
     handleSubmit,
     watch,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutForm>({
     defaultValues: {
@@ -58,10 +97,18 @@ export default function CheckoutPage() {
       correoComprador: session?.user?.email ?? "",
       telefonoComprador: "",
       esInvitado: !session,
+      metodoPago: "tarjeta",
+      numeroTarjeta: "",
+      vencimientoTarjeta: "",
+      cvvTarjeta: "",
+      titularTarjeta: "",
+      paypalCorreo: "",
+      paypalPassword: "",
     },
   });
 
   const esInvitado = watch("esInvitado") ?? !session;
+  const metodoPago = watch("metodoPago");
   const requiereInvitado = esInvitado || !session;
   const total = subtotalBoletos + subtotalDulceria;
 
@@ -116,6 +163,35 @@ export default function CheckoutPage() {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (!session?.user?.clienteId) {
+      setSavedMethods([]);
+      setSelectedSavedMethodId(null);
+      setGuardarMetodoPago(false);
+      return;
+    }
+    fetch("/api/perfil/metodos-pago")
+      .then((response) => response.json())
+      .then((data) => {
+        setSavedMethods(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        setSavedMethods([]);
+      });
+  }, [session?.user?.clienteId]);
+
+  function selectSavedMethod(method: SavedPaymentMethod) {
+    setSelectedSavedMethodId(method.id);
+    if (method.tipo === "tarjeta") {
+      setValue("metodoPago", "tarjeta");
+      setValue("titularTarjeta", method.titularTarjeta ?? "");
+      setValue("vencimientoTarjeta", method.vencimientoTarjeta ?? "");
+      return;
+    }
+    setValue("metodoPago", "paypal");
+    setValue("paypalCorreo", method.paypalCorreo ?? "");
+  }
+
   async function onSubmit(data: CheckoutForm) {
     const schema = requiereInvitado ? checkoutInvitadoSchema : checkoutRegistradoSchema;
     const parsed = schema.safeParse(data);
@@ -129,6 +205,38 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (data.metodoPago === "tarjeta") {
+      const numeroTarjeta = data.numeroTarjeta.replace(/\s/g, "");
+      const vencimientoError = validarVencimientoTarjeta(data.vencimientoTarjeta);
+      if (!/^\d{13,19}$/.test(numeroTarjeta)) {
+        setError("root", { message: "Ingresa un número de tarjeta válido" });
+        return;
+      }
+      if (vencimientoError) {
+        setError("root", { message: vencimientoError });
+        return;
+      }
+      if (!/^\d{3,4}$/.test(data.cvvTarjeta)) {
+        setError("root", { message: "Ingresa un CVV válido" });
+        return;
+      }
+      if (data.titularTarjeta.trim().length < 3) {
+        setError("root", { message: "Ingresa el titular de la tarjeta" });
+        return;
+      }
+    }
+
+    if (data.metodoPago === "paypal") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.paypalCorreo)) {
+        setError("root", { message: "Ingresa el correo de PayPal" });
+        return;
+      }
+      if (data.paypalPassword.length < 6) {
+        setError("root", { message: "Ingresa la contraseña de PayPal simulada" });
+        return;
+      }
+    }
+
     const dulceriaRaw = sessionStorage.getItem(COMPRA_DULCERIA_KEY);
     const dulceriaCart = dulceriaRaw ? JSON.parse(dulceriaRaw) : [];
 
@@ -138,8 +246,23 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         ...parsed.data,
         esInvitado: requiereInvitado,
+        guardarMetodoPago: guardarMetodoPago && Boolean(session?.user?.clienteId),
         boletos: boletosPayload,
         dulceria: dulceriaCart,
+        pago:
+          data.metodoPago === "tarjeta"
+            ? {
+                metodo: "tarjeta",
+                numeroTarjeta: data.numeroTarjeta.replace(/\s/g, ""),
+                vencimientoTarjeta: data.vencimientoTarjeta,
+                cvvTarjeta: data.cvvTarjeta,
+                titularTarjeta: data.titularTarjeta,
+              }
+            : {
+                metodo: "paypal",
+                paypalCorreo: data.paypalCorreo,
+                paypalPassword: data.paypalPassword,
+              },
       }),
     });
 
@@ -155,7 +278,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="space-y-6 px-4 py-6 pb-8">
+    <div className="min-h-[calc(100dvh-4rem)] bg-cream px-4 py-6 pb-8">
       <PageHeaderConVolver
         href={tieneDulceria && resumenBoletos.length === 0 ? "/dulceria" : "/compra/dulceria"}
         label="Dulcería"
@@ -163,9 +286,10 @@ export default function CheckoutPage() {
         subtitle="Pago simulado — sin cargo real"
       />
 
-      <Card className="border-paliacate/30 bg-paliacate/10">
+      <div className="mx-auto max-w-5xl space-y-6">
+      <Card className="border-navy/10 bg-white text-navy shadow-matinee">
         <CardContent className="space-y-2 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/55">
             Resumen
           </p>
           {resumenBoletos.map((r) => (
@@ -176,20 +300,20 @@ export default function CheckoutPage() {
             </div>
           ))}
           <div className="flex justify-between border-t border-navy/10 pt-2 text-sm">
-            <span className="text-navy/70">Boletos</span>
+            <span className="text-navy/60">Boletos</span>
             <span className="font-semibold text-navy">
               {formatCurrency(subtotalBoletos)}
             </span>
           </div>
           {subtotalDulceria > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-navy/70">Dulcería</span>
+              <span className="text-navy/60">Dulcería</span>
               <span className="font-semibold text-navy">
                 {formatCurrency(subtotalDulceria)}
               </span>
             </div>
           )}
-          <div className="flex justify-between border-t border-navy/15 pt-2">
+          <div className="flex justify-between border-t border-navy/10 pt-2">
             <span className="font-display font-bold text-navy">Total</span>
             <span className="font-display text-xl font-bold text-navy">
               {formatCurrency(total)}
@@ -198,10 +322,10 @@ export default function CheckoutPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-navy/10 bg-white shadow-matinee">
         <CardContent className="space-y-4 py-5">
           {!session && (
-            <label className="flex items-center gap-2 text-sm text-navy">
+            <label className="flex items-center gap-2 text-sm text-navy/70">
               <input
                 type="checkbox"
                 className="h-4 w-4 rounded border-navy/30 accent-primary"
@@ -233,10 +357,139 @@ export default function CheckoutPage() {
               })}
             />
           </div>
+
+          <div className="space-y-3 rounded-2xl border border-navy/10 bg-cream p-3">
+            <Label>Método de pago simulado</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                <input
+                  type="radio"
+                  value="tarjeta"
+                  className="h-4 w-4 accent-primary"
+                  onClick={() => setSelectedSavedMethodId(null)}
+                  {...register("metodoPago")}
+                />
+                Tarjeta
+              </label>
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                <input
+                  type="radio"
+                  value="paypal"
+                  className="h-4 w-4 accent-primary"
+                  onClick={() => setSelectedSavedMethodId(null)}
+                  {...register("metodoPago")}
+                />
+                PayPal
+              </label>
+            </div>
+          </div>
+
+          {savedMethods.filter((method) => method.tipo === metodoPago).length > 0 ? (
+            <div className="space-y-2">
+              <Label>Métodos guardados</Label>
+              <div className="grid gap-2">
+                {savedMethods
+                  .filter((method) => method.tipo === metodoPago)
+                  .map((method) => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => selectSavedMethod(method)}
+                      className={`rounded-2xl border px-4 py-3 text-left transition ${
+                        selectedSavedMethodId === method.id
+                          ? "border-primary bg-primary/10"
+                          : "border-navy/10 bg-cream"
+                      }`}
+                    >
+                      <p className="font-semibold text-navy">{method.titulo}</p>
+                      <p className="text-sm text-navy/60">{method.detalle}</p>
+                    </button>
+                  ))}
+              </div>
+            </div>
+          ) : null}
+
+          {metodoPago === "tarjeta" ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Número de tarjeta</Label>
+                <Input
+                  inputMode="numeric"
+                  autoComplete="cc-number"
+                  maxLength={23}
+                  {...register("numeroTarjeta", {
+                    onChange: (e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 19);
+                      e.target.value = digits.replace(/(.{4})/g, "$1 ").trim();
+                    },
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Vencimiento (MM/AA)</Label>
+                <Input
+                  inputMode="numeric"
+                  autoComplete="cc-exp"
+                  placeholder="08/28"
+                  maxLength={5}
+                  {...register("vencimientoTarjeta", {
+                    onChange: (e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      e.target.value =
+                        digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+                    },
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>CVV</Label>
+                <Input
+                  inputMode="numeric"
+                  autoComplete="cc-csc"
+                  maxLength={4}
+                  {...register("cvvTarjeta", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    },
+                  })}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Titular de la tarjeta</Label>
+                <Input autoComplete="cc-name" {...register("titularTarjeta")} />
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label>Correo de PayPal</Label>
+                <Input type="email" autoComplete="email" {...register("paypalCorreo")} />
+              </div>
+              <div className="space-y-2">
+                <Label>Contraseña de PayPal</Label>
+                <Input
+                  type="password"
+                  autoComplete="current-password"
+                  {...register("paypalPassword")}
+                />
+              </div>
+            </div>
+          )}
+          {session?.user?.clienteId ? (
+            <label className="flex items-start gap-2 rounded-2xl border border-navy/10 bg-cream px-3 py-3 text-sm text-navy/70">
+              <input
+                type="checkbox"
+                checked={guardarMetodoPago}
+                onChange={(event) => setGuardarMetodoPago(event.target.checked)}
+                className="mt-1"
+              />
+              <span>Guardar método de pago para futuras compras</span>
+            </label>
+          ) : null}
         </CardContent>
       </Card>
 
-      <FormError message={errors.root?.message} variant="navy" />
+      <FormError message={errors.root?.message} variant="paliacate" />
 
       <Button
         size="pill"
@@ -246,6 +499,7 @@ export default function CheckoutPage() {
       >
         {isSubmitting ? "Procesando..." : "Pagar (simulado)"}
       </Button>
+      </div>
     </div>
   );
 }

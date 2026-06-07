@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidarDashboardTrasCompra } from "@/app/actions/compras";
 import { crearCompra } from "@/services/compras";
+import { guardarMetodoPagoCliente } from "@/lib/payment-methods";
 import {
   checkoutInvitadoSchema,
   checkoutRegistradoSchema,
@@ -17,6 +18,7 @@ const compraBodySchema = z
     correoComprador: z.string(),
     telefonoComprador: z.string().optional(),
     esInvitado: z.boolean().optional(),
+    guardarMetodoPago: z.boolean().optional(),
     boletos: z
       .array(
         z.object({
@@ -86,6 +88,27 @@ export async function POST(req: Request) {
       boletos: baseParsed.data.boletos ?? [],
       dulceria: baseParsed.data.dulceria ?? [],
     });
+
+    if (
+      !esInvitado &&
+      session?.user?.clienteId &&
+      baseParsed.data.guardarMetodoPago
+    ) {
+      await guardarMetodoPagoCliente(
+        session.user.clienteId,
+        baseParsed.data.pago.metodo === "tarjeta"
+          ? {
+              tipo: "tarjeta",
+              titularTarjeta: baseParsed.data.pago.titularTarjeta,
+              numeroTarjeta: baseParsed.data.pago.numeroTarjeta,
+              vencimientoTarjeta: baseParsed.data.pago.vencimientoTarjeta,
+            }
+          : {
+              tipo: "paypal",
+              paypalCorreo: baseParsed.data.pago.paypalCorreo,
+            }
+      );
+    }
 
     await revalidarDashboardTrasCompra();
 

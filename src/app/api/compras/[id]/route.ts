@@ -15,7 +15,45 @@ export async function GET(
           qrBoletos: true,
         },
       },
-      detalleDulceria: { include: { producto: true, combo: true } },
+      detalleDulceria: {
+        include: {
+          producto: true,
+          combo: true,
+          qrBoletos: true,
+          qrSeparaciones: { include: { qrBoleto: true } },
+        },
+      },
+      qrsCompra: {
+        where: { tipoQR: "INDIVIDUAL", activo: true },
+        include: {
+          boleto: {
+            include: {
+              butaca: true,
+              funcion: { include: { pelicula: true } },
+              tipoBoleto: true,
+            },
+          },
+          detalleDulceriaCompra: {
+            include: { producto: true, combo: true },
+          },
+          boletosSeparados: {
+            include: {
+              boleto: {
+                include: {
+                  butaca: true,
+                  funcion: { include: { pelicula: true } },
+                  tipoBoleto: true,
+                },
+              },
+            },
+          },
+          dulceriaSeparada: {
+            include: {
+              detalleDulceriaCompra: { include: { producto: true, combo: true } },
+            },
+          },
+        },
+      },
       pago: true,
     },
   });

@@ -121,9 +121,9 @@ export default async function ConfirmacionPage({
       )}
 
       <div className="flex flex-col gap-3">
-        {!soloDulceria ? (
+        {!soloDulceria || compra.detalleDulceria.length > 0 ? (
           <Link href={`/compra/${compra.id}/boletos`}>
-            <Button className="w-full">Ver y separar boletos</Button>
+            <Button className="w-full">Ver y separar QR individuales</Button>
           </Link>
         ) : null}
         <Link href="/recuperar">

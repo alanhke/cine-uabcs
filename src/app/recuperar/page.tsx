@@ -65,7 +65,7 @@ export default function RecuperarPage() {
             Recuperar compra
           </h1>
           <p className="mt-1 text-sm text-navy/60">
-            Ingresa el correo y folio que usaste al comprar como invitado.
+            Ingresa el correo y folio que usaste al hacer la compra.
           </p>
         </div>
       </header>

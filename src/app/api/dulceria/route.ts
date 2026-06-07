@@ -8,5 +8,16 @@ export async function GET() {
     prisma.productoDulceria.findMany({ where: { estado: "ACTIVO" } }),
     prisma.combo.findMany({ where: { estado: "ACTIVO" }, include: { detalles: true } }),
   ]);
-  return NextResponse.json({ productos, combos });
+  return NextResponse.json({
+    productos,
+    combos: combos.map((combo) => ({
+      ...combo,
+      detalles: combo.detalles.map((detalle) => ({
+        id: detalle.id,
+        productoId: detalle.productoId,
+        cantidad: detalle.cantidad,
+        nombre: detalle.producto.nombre,
+      })),
+    })),
+  });
 }

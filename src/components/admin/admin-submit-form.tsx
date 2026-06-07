@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/ui/form-error";
+import { useToast } from "@/components/ui/toast-provider";
 import type { ActionResult } from "@/app/actions/admin/peliculas";
 
 function SubmitButton({ label }: { label: string }) {
@@ -31,14 +32,20 @@ export function AdminSubmitForm({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [state, formAction] = useFormState(action, null);
 
   useEffect(() => {
     if (state?.ok) {
+      toast("Imagen y cambios guardados con éxito");
       router.push(redirectTo);
       router.refresh();
+      return;
     }
-  }, [state, redirectTo, router]);
+    if (state && !state.ok) {
+      toast(state.error, "error");
+    }
+  }, [state, redirectTo, router, toast]);
 
   return (
     <form action={formAction} className="space-y-4">

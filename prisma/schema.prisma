@@ -46,6 +46,11 @@ enum TipoMensaje {
   RECOMENDACION
 }
 
+enum MetodoPagoGuardadoTipo {
+  TARJETA
+  PAYPAL
+}
+
 enum TipoButaca {
   NORMAL
   MOVILIDAD
@@ -55,6 +60,11 @@ enum TipoFuncion {
   TRADICIONAL
   TRES_D
   CUATRO_D
+}
+
+enum IdiomaFuncion {
+  ESPANOL
+  SUBTITULADA
 }
 
 model Usuario {
@@ -98,8 +108,25 @@ model Cliente {
 
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   compras Compra[]
+  metodosPago MetodoPagoGuardado[]
 
   @@map("clientes")
+}
+
+model MetodoPagoGuardado {
+  id                    Int                    @id @default(autoincrement())
+  clienteId             Int                    @map("cliente_id")
+  tipo                  MetodoPagoGuardadoTipo
+  alias                 String?
+  titularTarjeta        String?                @map("titular_tarjeta")
+  ultimos4Tarjeta       String?                @map("ultimos4_tarjeta")
+  vencimientoTarjeta    String?                @map("vencimiento_tarjeta")
+  paypalCorreo          String?                @map("paypal_correo")
+  createdAt             DateTime               @default(now()) @map("created_at")
+
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@map("metodos_pago_guardados")
 }
 
 model Administrador {
@@ -184,6 +211,7 @@ model Funcion {
   salaId      Int           @map("sala_id")
   fechaHora   DateTime      @map("fecha_hora")
   tipoFuncion TipoFuncion   @default(TRADICIONAL) @map("tipo_funcion")
+  idioma      IdiomaFuncion @default(ESPANOL)
   precioBase  Decimal       @map("precio_base") @db.Decimal(10, 2)
   estado      EstadoEntidad @default(ACTIVO)
   createdAt   DateTime      @default(now()) @map("created_at")
@@ -236,10 +264,11 @@ model Compra {
   esInvitado       Boolean      @default(false) @map("es_invitado")
   createdAt        DateTime     @default(now()) @map("created_at")
 
-  cliente       Cliente?              @relation(fields: [clienteId], references: [id])
-  boletos       Boleto[]
+  cliente         Cliente?                @relation(fields: [clienteId], references: [id])
+  boletos         Boleto[]
   detalleDulceria DetalleDulceriaCompra[]
-  pago          PagoSimulado?
+  qrsCompra       QRBoleto[]
+  pago            PagoSimulado?
 
   @@index([correoComprador, folio])
   @@map("compras")
@@ -260,21 +289,27 @@ model Boleto {
   butaca     Butaca     @relation(fields: [butacaId], references: [id])
   tipoBoleto TipoBoleto @relation(fields: [tipoBoletoId], references: [id])
   qrBoletos  QRBoleto[]
+  qrSeparaciones QRBoletoBoleto[]
 
   @@unique([funcionId, butacaId])
   @@map("boletos")
 }
 
 model QRBoleto {
-  id        Int     @id @default(autoincrement())
-  boletoId  Int?    @map("boleto_id")
-  compraId  Int?    @map("compra_id")
-  codigo    String  @unique
-  tipoQR    TipoQR  @map("tipo_qr")
-  activo    Boolean  @default(true)
-  createdAt DateTime @default(now()) @map("created_at")
+  id                      Int      @id @default(autoincrement())
+  boletoId                Int?     @map("boleto_id")
+  compraId                Int?     @map("compra_id")
+  detalleDulceriaCompraId Int?     @map("detalle_dulceria_compra_id")
+  codigo                  String   @unique
+  tipoQR                  TipoQR   @map("tipo_qr")
+  activo                  Boolean  @default(true)
+  createdAt               DateTime @default(now()) @map("created_at")
 
-  boleto Boleto? @relation(fields: [boletoId], references: [id], onDelete: Cascade)
+  boleto                Boleto?                @relation(fields: [boletoId], references: [id], onDelete: Cascade)
+  detalleDulceriaCompra DetalleDulceriaCompra? @relation(fields: [detalleDulceriaCompraId], references: [id], onDelete: Cascade)
+  compra                Compra?                @relation(fields: [compraId], references: [id], onDelete: Cascade)
+  boletosSeparados      QRBoletoBoleto[]
+  dulceriaSeparada      QRBoletoDulceria[]
 
   @@map("qr_boletos")
 }
@@ -283,8 +318,8 @@ model ProductoDulceria {
   id        Int           @id @default(autoincrement())
   nombre    String
   categoria String
-  costo     Decimal       @default(0) @db.Decimal(10, 2)
   precio    Decimal       @db.Decimal(10, 2)
+  costo     Decimal       @default(0) @db.Decimal(10, 2)
   stock     Int           @default(0)
   imagenUrl String?       @map("imagen_url")
   estado    EstadoEntidad @default(ACTIVO)
@@ -335,8 +370,37 @@ model DetalleDulceriaCompra {
   compra   Compra            @relation(fields: [compraId], references: [id], onDelete: Cascade)
   producto ProductoDulceria? @relation(fields: [productoId], references: [id])
   combo    Combo?            @relation(fields: [comboId], references: [id])
+  qrBoletos QRBoleto[]
+  qrSeparaciones QRBoletoDulceria[]
 
   @@map("detalle_dulceria_compra")
+}
+
+model QRBoletoBoleto {
+  id         Int      @id @default(autoincrement())
+  qrBoletoId Int      @map("qr_boleto_id")
+  boletoId   Int      @map("boleto_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  qrBoleto QRBoleto @relation(fields: [qrBoletoId], references: [id], onDelete: Cascade)
+  boleto   Boleto   @relation(fields: [boletoId], references: [id], onDelete: Cascade)
+
+  @@unique([qrBoletoId, boletoId])
+  @@map("qr_boleto_boletos")
+}
+
+model QRBoletoDulceria {
+  id                      Int      @id @default(autoincrement())
+  qrBoletoId              Int      @map("qr_boleto_id")
+  detalleDulceriaCompraId Int      @map("detalle_dulceria_compra_id")
+  cantidad                Int
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  qrBoleto              QRBoleto               @relation(fields: [qrBoletoId], references: [id], onDelete: Cascade)
+  detalleDulceriaCompra DetalleDulceriaCompra  @relation(fields: [detalleDulceriaCompraId], references: [id], onDelete: Cascade)
+
+  @@unique([qrBoletoId, detalleDulceriaCompraId])
+  @@map("qr_boleto_dulceria")
 }
 
 model PagoSimulado {

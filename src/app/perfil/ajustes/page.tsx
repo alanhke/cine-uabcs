@@ -10,6 +10,8 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PerfilForm } from "@/components/perfil/perfil-form";
+import { PaymentMethodsManager } from "@/components/perfil/payment-methods-manager";
+import { getLoginRedirect } from "@/lib/access-control";
 
 export default function PerfilAjustesPage() {
   const { data: session, status } = useSession();
@@ -19,7 +21,7 @@ export default function PerfilAjustesPage() {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/auth/login?callbackUrl=/perfil/ajustes");
+    if (status === "unauthenticated") router.push(getLoginRedirect("/perfil/ajustes"));
   }, [status, router]);
 
   useEffect(() => {
@@ -128,9 +130,7 @@ export default function PerfilAjustesPage() {
           <p className="text-sm text-navy/65">
             CineUABCS usa un <strong>pago simulado</strong>.
           </p>
-          <Button variant="outline" disabled className="w-full border-navy/15">
-            Gestionar métodos de pago
-          </Button>
+          <PaymentMethodsManager />
         </CardContent>
       </Card>
     </div>

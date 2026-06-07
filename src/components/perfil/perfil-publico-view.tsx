@@ -31,6 +31,7 @@ export type PerfilPublicoViewData = {
     nombre: string;
     apellidoPaterno: string;
     apellidoMaterno: string | null;
+    correo?: string;
     avatarUrl: string | null;
     createdAt: string;
   };
@@ -151,6 +152,9 @@ export function PerfilPublicoView({
           <p className="mt-2 text-sm text-navy/60">
             Miembro desde {formatDateTime(usuario.createdAt)}
           </p>
+          {perfil.esPropio && usuario.correo ? (
+            <p className="mt-1 text-sm text-navy/60">{usuario.correo}</p>
+          ) : null}
 
           {!perfil.esPropio && (
             <div className="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
