@@ -193,6 +193,7 @@ function shortDate(date: Date) {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: "America/Mazatlan",
   }).format(date);
 }
 
@@ -208,5 +209,6 @@ function shortTime(date: Date) {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: "America/Mazatlan",
   }).format(date);
 }
