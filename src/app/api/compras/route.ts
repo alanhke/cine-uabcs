@@ -39,6 +39,20 @@ const compraBodySchema = z
         })
       )
       .optional(),
+    pago: z
+      .discriminatedUnion("metodo", [
+        z.object({
+          metodo: z.literal("tarjeta"),
+          titularTarjeta: z.string(),
+          numeroTarjeta: z.string(),
+          vencimientoTarjeta: z.string(),
+        }),
+        z.object({
+          metodo: z.literal("paypal"),
+          paypalCorreo: z.string(),
+        }),
+      ])
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const boletos = data.boletos ?? [];
@@ -89,23 +103,25 @@ export async function POST(req: Request) {
       dulceria: baseParsed.data.dulceria ?? [],
     });
 
+    const pago = baseParsed.data.pago;
     if (
       !esInvitado &&
       session?.user?.clienteId &&
-      baseParsed.data.guardarMetodoPago
+      baseParsed.data.guardarMetodoPago &&
+      pago
     ) {
       await guardarMetodoPagoCliente(
         session.user.clienteId,
-        baseParsed.data.pago.metodo === "tarjeta"
+        pago.metodo === "tarjeta"
           ? {
               tipo: "tarjeta",
-              titularTarjeta: baseParsed.data.pago.titularTarjeta,
-              numeroTarjeta: baseParsed.data.pago.numeroTarjeta,
-              vencimientoTarjeta: baseParsed.data.pago.vencimientoTarjeta,
+              titularTarjeta: pago.titularTarjeta,
+              numeroTarjeta: pago.numeroTarjeta,
+              vencimientoTarjeta: pago.vencimientoTarjeta,
             }
           : {
               tipo: "paypal",
-              paypalCorreo: baseParsed.data.pago.paypalCorreo,
+              paypalCorreo: pago.paypalCorreo,
             }
       );
     }

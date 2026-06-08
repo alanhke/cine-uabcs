@@ -137,10 +137,6 @@ export async function POST(req: Request) {
       esInvitado: data.esInvitado ?? !usuario,
       boletos,
       dulceria: data.dulceria ?? [],
-      pago: {
-        metodo: "tarjeta",
-        numeroTarjeta: `000000000000${data.pago.last4}`,
-      },
     });
 
     const firstTicket = compra?.boletos[0];
