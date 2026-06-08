@@ -328,15 +328,10 @@ export default function CheckoutPage() {
       <Card className="shadow-poster">
         <CardContent className="space-y-4 py-5">
           {!session && (
-            <label className="flex items-center gap-2 text-sm text-navy">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-navy/30 accent-primary"
-                {...register("esInvitado")}
-                defaultChecked
-              />
-              Comprar como invitado (recuperar con correo + folio)
-            </label>
+            <p className="rounded-2xl border border-navy/10 bg-cream px-3 py-2 text-sm text-navy/70">
+              Compras como invitado: guarda tu correo y folio para recuperar el
+              boleto más tarde.
+            </p>
           )}
           <div className="space-y-2">
             <Label>Nombre completo</Label>

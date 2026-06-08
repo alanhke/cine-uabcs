@@ -12,6 +12,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  BarChart,
+  Bar,
 } from "recharts";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -126,6 +128,75 @@ export function VentasChart({ data, chartKey = 0 }: DashboardChartsProps) {
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function VentasPorPeliculaChart({ data, chartKey = 0 }: DashboardChartsProps) {
+  const barData = [...data.porPelicula]
+    .sort((a, b) => b.ingresos - a.ingresos)
+    .map((p) => ({
+      titulo: p.titulo,
+      tituloCorto: p.titulo.length > 24 ? `${p.titulo.slice(0, 23)}…` : p.titulo,
+      ingresos: p.ingresos,
+      boletos: p.boletos,
+    }));
+
+  // Altura proporcional al número de películas para que las barras respiren.
+  const alto = Math.max(220, barData.length * 46 + 40);
+
+  return (
+    <Card key={chartKey} className="mt-3">
+      <CardContent className="py-4">
+        <CardTitle className="mb-4 text-base">Ventas por Película</CardTitle>
+        <div
+          className="relative w-full min-w-0 shrink-0"
+          style={{ height: alto, minHeight: alto }}
+        >
+          <ResponsiveContainer width="100%" height={alto} debounce={50}>
+            <BarChart
+              data={barData}
+              layout="vertical"
+              margin={{ top: 0, right: 16, bottom: 0, left: 8 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={`${NAVY}20`} horizontal={false} />
+              <XAxis
+                type="number"
+                tick={{ fill: NAVY, fontSize: 11 }}
+                tickFormatter={(value) => formatCurrency(Number(value ?? 0))}
+              />
+              <YAxis
+                type="category"
+                dataKey="tituloCorto"
+                width={150}
+                tick={{ fill: NAVY, fontSize: 11 }}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: CREAM,
+                  border: `2px solid ${NAVY}`,
+                  borderRadius: 16,
+                }}
+                formatter={(value, _name, item) => [
+                  `${formatCurrency(Number(value ?? 0))} · ${item?.payload?.boletos ?? 0} boletos`,
+                  "Ventas",
+                ]}
+                labelFormatter={(_label, payload) =>
+                  payload?.[0]?.payload?.titulo ?? ""
+                }
+              />
+              <Bar
+                dataKey="ingresos"
+                fill={PALIACATE}
+                radius={[0, 6, 6, 0]}
+                animationDuration={800}
+                animationEasing="ease-out"
+                isAnimationActive
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

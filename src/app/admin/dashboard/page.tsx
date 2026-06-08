@@ -18,6 +18,7 @@ import { formatCurrency } from "@/lib/utils";
 import {
   AsistenciaCard,
   VentasChart,
+  VentasPorPeliculaChart,
   SatisfaccionChart,
 } from "@/components/admin/dashboard-charts";
 import { SeatHeatmap } from "@/components/admin/seat-heatmap";
@@ -191,24 +192,10 @@ export default function AdminDashboardPage() {
             </div>
 
             {stats.porPelicula.length > 0 && (
-              <Card className="mt-3">
-                <CardContent className="py-4">
-                  <CardTitle className="mb-3 text-base">
-                    Por película (periodo)
-                  </CardTitle>
-                  {stats.porPelicula.map((p) => (
-                    <div
-                      key={p.titulo}
-                      className="flex justify-between border-b border-navy/5 py-2 text-sm"
-                    >
-                      <span className="text-navy">{p.titulo}</span>
-                      <span className="font-medium text-navy">
-                        {p.boletos} boletos · {formatCurrency(p.ingresos)}
-                      </span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              <VentasPorPeliculaChart
+                data={stats}
+                chartKey={`${stats.rango}-${stats.totalCompras}`}
+              />
             )}
           </section>
 
