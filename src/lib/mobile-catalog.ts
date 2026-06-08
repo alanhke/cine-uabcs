@@ -19,18 +19,25 @@ function idiomaMovilLabel(idioma: IdiomaFuncion): "Doblada" | "Subtitulada" {
   return idioma === "SUBTITULADA" ? "Subtitulada" : "Doblada";
 }
 
+// Cota superior de la duración de una película. Las funciones que empezaron
+// hace más que esto seguro ya terminaron, así que no hace falta traerlas.
+const MAX_DURACION_MS = 6 * 60 * 60 * 1000;
+
 export async function getMobileCatalog() {
-  // Solo funciones futuras (que aún no empiezan): así no aparecen funciones que
-  // ya pasaron en el día y, de paso, evitamos cargar los boletos de funciones
-  // viejas que hacían explotar la memoria de la función serverless (OOM).
+  // Una función se muestra mientras la película no haya terminado
+  // (fechaHora + duración > ahora). La duración vive en la película, así que en
+  // la consulta traemos una ventana acotada hacia atrás (las funciones que
+  // pudieran seguir en curso) para no recargar los boletos de funciones viejas
+  // —eso causaba el OOM— y luego filtramos con exactitud en JS.
   const ahora = serverNow();
+  const margenInicio = new Date(ahora.getTime() - MAX_DURACION_MS);
   const [peliculas, productos, combos, salas, calificaciones] = await Promise.all([
     prisma.pelicula.findMany({
       where: { estado: "ACTIVO" },
       orderBy: { updatedAt: "desc" },
       include: {
         funciones: {
-          where: { estado: "ACTIVO", fechaHora: { gt: ahora } },
+          where: { estado: "ACTIVO", fechaHora: { gt: margenInicio } },
           orderBy: { fechaHora: "asc" },
           include: {
             sala: true,
@@ -84,7 +91,13 @@ export async function getMobileCatalog() {
       posterUrl: pelicula.posterUrl,
       destacada: index === 0,
       estreno: true,
-      funciones: pelicula.funciones.map((funcion) => ({
+      funciones: pelicula.funciones
+        .filter(
+          (funcion) =>
+            funcion.fechaHora.getTime() + pelicula.duracionMin * 60000 >
+            ahora.getTime()
+        )
+        .map((funcion) => ({
         id: String(funcion.id),
         peliculaId: String(funcion.peliculaId),
         salaId: String(funcion.salaId),
