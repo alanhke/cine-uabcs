@@ -113,6 +113,21 @@ export default async function ConfirmacionPage({
         </div>
       ) : null}
 
+      {!soloDulceria && compra.detalleDulceria.length > 0 ? (
+        <div className="text-left space-y-2">
+          <p className="font-semibold text-navy">
+            Alimentos ({compra.detalleDulceria.length})
+          </p>
+          {compra.detalleDulceria.map((d) => (
+            <p key={d.id} className="text-sm text-navy/70">
+              {d.cantidad} × {d.producto?.nombre ?? d.combo?.nombre ?? "Producto"}
+              {" — "}
+              {formatCurrency(Number(d.subtotal))}
+            </p>
+          ))}
+        </div>
+      ) : null}
+
       {compra.esInvitado && (
         <p className="rounded-2xl bg-paliacate/30 p-4 text-sm text-navy">
           Guarda tu correo <strong>{compra.correoComprador}</strong> y folio{" "}

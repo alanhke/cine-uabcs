@@ -55,7 +55,11 @@ export default async function AdminFuncionesPage({
             ...(selectedSalaId ? { salaId: selectedSalaId } : {}),
             ...(selectedPeliculaId ? { peliculaId: selectedPeliculaId } : {}),
           },
-      include: { pelicula: true, sala: true },
+      include: {
+        pelicula: true,
+        sala: true,
+        _count: { select: { boletos: true } },
+      },
       orderBy: { fechaHora: "asc" },
     }),
     prisma.funcion.count({ where: { estado: "ELIMINADO" } }),
@@ -109,6 +113,7 @@ export default async function AdminFuncionesPage({
               <th className="px-4 py-3">Fecha</th>
               <th className="px-4 py-3">Idioma</th>
               <th className="px-4 py-3">Precio</th>
+              <th className="px-4 py-3">Boletos</th>
               <th className="px-4 py-3">Estado</th>
               <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
@@ -116,7 +121,7 @@ export default async function AdminFuncionesPage({
           <tbody>
             {funciones.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-navy/50">
+                <td colSpan={8} className="px-4 py-8 text-center text-navy/50">
                   {enPapelera
                     ? "No hay funciones en papelera para la fecha seleccionada."
                     : "No hay funciones registradas para los filtros seleccionados."}
@@ -137,6 +142,9 @@ export default async function AdminFuncionesPage({
                   </td>
                   <td className="px-4 py-3 text-navy/70">
                     {formatCurrency(Number(f.precioBase))}
+                  </td>
+                  <td className="px-4 py-3 text-navy/70">
+                    {f._count.boletos} / {f.sala.filas * f.sala.columnas}
                   </td>
                   <td className="px-4 py-3">
                     <AdminEstadoBadge estado={f.estado} />

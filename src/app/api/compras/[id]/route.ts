@@ -11,6 +11,7 @@ export async function GET(
       boletos: {
         include: {
           butaca: true,
+          tipoBoleto: true,
           funcion: { include: { pelicula: true } },
           qrBoletos: true,
         },

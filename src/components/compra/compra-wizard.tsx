@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Minus, Plus, ShoppingCart, Ticket, Popcorn, X } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Ticket, Popcorn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { SelectorAsientos, type Seat } from "@/components/compra/selector-asient
 import { PageHeaderConVolver } from "@/components/navigation/boton-volver";
 import { FormError } from "@/components/ui/form-error";
 import { LoadingCard } from "@/components/ui/loading-card";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { cn, formatCurrency, formatDateTime } from "@/lib/utils";
 import {
   cambiarPasoWizard,
   crearWizardState,
@@ -416,6 +416,19 @@ export function CompraWizard({
     syncWizard(next);
   }
 
+  function setSnackQty(item: DulceriaItemState, cantidad: number) {
+    const key = item.productoId ?? `c-${item.comboId}`;
+    const nextItems = wizard.dulceria
+      .map((current) => {
+        const currentKey = current.productoId ?? `c-${current.comboId}`;
+        if (currentKey !== key) return current;
+        return { ...current, cantidad };
+      })
+      .filter((current) => current.cantidad > 0);
+    const next = guardarDulceriaWizard(nextItems);
+    syncWizard(next);
+  }
+
   function addSnack(item: DulceriaItemState) {
     const key = item.productoId ?? `c-${item.comboId}`;
     const existing = wizard.dulceria.find((current) => {
@@ -598,6 +611,7 @@ export function CompraWizard({
                               {new Intl.DateTimeFormat("es-MX", {
                                 hour: "numeric",
                                 minute: "2-digit",
+                                timeZone: "America/Mazatlan",
                               }).format(new Date(funcion.fechaHora))}
                             </p>
                             <p className="mt-2 text-sm text-navy/60">{funcion.salaNombre}</p>
@@ -615,25 +629,43 @@ export function CompraWizard({
           )}
 
           {wizard.step === "asientos" && (
-            isLoadingFuncionData ? (
+            // Primera carga (aún sin butacas): pantalla completa de carga.
+            // Recargas posteriores (al seleccionar): mantenemos el mapa visible
+            // con un overlay atenuado + spinner para no perder el contexto.
+            seats.length === 0 && isLoadingFuncionData ? (
               <LoadingCard
                 title="Cargando sala"
                 description="Estamos consultando butacas disponibles y tipos de boleto."
               />
             ) : (
-              <SelectorAsientos
-                seats={seats}
-                selectedIds={wizard.butacas.map((butaca) => butaca.id)}
-                onSelect={toggleSeat}
-                onContinue={openTicketModal}
-                continueLabel="Seleccionar boletos"
-                continueDisabled={!wizard.butacas.length}
-                footerNote={
-                  wizard.butacas.length
-                    ? `${wizard.butacas.length} butaca(s) seleccionada(s)`
-                    : "Selecciona al menos una butaca"
-                }
-              />
+              <div className="relative">
+                <div
+                  className={cn(
+                    "transition-opacity",
+                    isLoadingFuncionData && "pointer-events-none opacity-60"
+                  )}
+                  aria-busy={isLoadingFuncionData}
+                >
+                  <SelectorAsientos
+                    seats={seats}
+                    selectedIds={wizard.butacas.map((butaca) => butaca.id)}
+                    onSelect={toggleSeat}
+                    onContinue={openTicketModal}
+                    continueLabel="Seleccionar boletos"
+                    continueDisabled={!wizard.butacas.length}
+                    footerNote={
+                      wizard.butacas.length
+                        ? `${wizard.butacas.length} butaca(s) seleccionada(s)`
+                        : "Selecciona al menos una butaca"
+                    }
+                  />
+                </div>
+                {isLoadingFuncionData && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-navy/20">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+                  </div>
+                )}
+              </div>
             )
           )}
 
@@ -651,7 +683,7 @@ export function CompraWizard({
                   {productos.map((producto) => (
                     <Card key={producto.id} className="border-navy/10 bg-white text-navy shadow-matinee">
                       <CardContent className="flex items-center justify-between gap-3 py-3">
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-semibold text-navy">{producto.nombre}</p>
                           <p className="text-sm text-navy/60">
                             {formatCurrency(Number(producto.precio))}
@@ -659,6 +691,7 @@ export function CompraWizard({
                         </div>
                         <Button
                           size="icon"
+                          className="shrink-0"
                           onClick={() =>
                             addSnack({
                               productoId: producto.id,
@@ -682,7 +715,7 @@ export function CompraWizard({
                   {combos.map((combo) => (
                     <Card key={combo.id} className="border-navy/10 bg-white text-navy shadow-matinee">
                       <CardContent className="flex items-center justify-between gap-3 py-3">
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-semibold text-navy">{combo.nombre}</p>
                           <p className="text-sm text-navy/60">
                             {formatCurrency(Number(combo.precio))}
@@ -695,6 +728,7 @@ export function CompraWizard({
                         </div>
                         <Button
                           size="icon"
+                          className="shrink-0"
                           onClick={() =>
                             addSnack({
                               comboId: combo.id,
@@ -1029,7 +1063,18 @@ export function CompraWizard({
                       >
                         <Minus className="h-3 w-3" />
                       </button>
-                      <span className="w-4 text-center text-sm text-navy">{item.cantidad}</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        aria-label={`Cantidad de ${item.nombre}`}
+                        value={item.cantidad}
+                        onChange={(event) => {
+                          const digits = event.target.value.replace(/\D/g, "");
+                          if (digits === "") return;
+                          setSnackQty(item, Math.min(99, Number(digits)));
+                        }}
+                        className="w-10 rounded-lg border border-navy/15 bg-white py-1 text-center text-sm text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
                       <button
                         type="button"
                         className="rounded-full bg-primary p-2 text-white"
@@ -1064,21 +1109,11 @@ export function CompraWizard({
       <Dialog open={showTicketModal} onOpenChange={setShowTicketModal}>
         <DialogContent className="border-navy/10 bg-cream p-0 sm:max-w-[560px]">
           <DialogHeader className="px-6 pt-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-2">
-                <DialogTitle className="text-2xl text-navy">Boletos</DialogTitle>
-                <DialogDescription className="text-navy/60">
-                  Selecciona cuántos boletos de cada tipo quieres asignar.
-                </DialogDescription>
-              </div>
-              <button
-                type="button"
-                className="rounded-full p-2 text-navy/45 transition hover:bg-white hover:text-navy"
-                onClick={() => setShowTicketModal(false)}
-                aria-label="Cerrar"
-              >
-                <X className="h-4 w-4" />
-              </button>
+            <div className="space-y-2 pr-8">
+              <DialogTitle className="text-2xl text-navy">Boletos</DialogTitle>
+              <DialogDescription className="text-navy/60">
+                Selecciona cuántos boletos de cada tipo quieres asignar.
+              </DialogDescription>
             </div>
           </DialogHeader>
           <div className="space-y-4 px-6 py-4">

@@ -67,14 +67,38 @@ export async function crearCompra(input: CompraInput) {
       }
     }
 
+    // Requerimientos de stock por producto: líneas directas + componentes de combos.
+    // Agregamos para descontar una sola vez (y validar correctamente cuando el
+    // mismo producto aparece suelto y dentro de un combo).
+    const requeridoPorProducto = new Map<number, number>();
     for (const d of input.dulceria) {
       if (d.productoId) {
-        const producto = await tx.productoDulceria.findUnique({
-          where: { id: d.productoId },
+        requeridoPorProducto.set(
+          d.productoId,
+          (requeridoPorProducto.get(d.productoId) ?? 0) + d.cantidad
+        );
+      } else if (d.comboId) {
+        const comboDetalles = await tx.comboDetalle.findMany({
+          where: { comboId: d.comboId },
         });
-        if (!producto || producto.stock < d.cantidad) {
-          throw new Error(`Stock insuficiente para producto #${d.productoId}`);
+        for (const cd of comboDetalles) {
+          requeridoPorProducto.set(
+            cd.productoId,
+            (requeridoPorProducto.get(cd.productoId) ?? 0) + cd.cantidad * d.cantidad
+          );
         }
+      }
+    }
+    for (const [productoId, requerido] of Array.from(
+      requeridoPorProducto.entries()
+    )) {
+      const producto = await tx.productoDulceria.findUnique({
+        where: { id: productoId },
+      });
+      if (!producto || producto.stock < requerido) {
+        throw new Error(
+          `Stock insuficiente para ${producto?.nombre ?? `producto #${productoId}`}`
+        );
       }
     }
 
@@ -117,12 +141,16 @@ export async function crearCompra(input: CompraInput) {
           subtotal: new Prisma.Decimal(subtotal),
         },
       });
-      if (d.productoId) {
-        await tx.productoDulceria.update({
-          where: { id: d.productoId },
-          data: { stock: { decrement: d.cantidad } },
-        });
-      }
+    }
+
+    // Descontar stock agregado (productos sueltos + componentes de combos).
+    for (const [productoId, requerido] of Array.from(
+      requeridoPorProducto.entries()
+    )) {
+      await tx.productoDulceria.update({
+        where: { id: productoId },
+        data: { stock: { decrement: requerido } },
+      });
     }
 
     await tx.pagoSimulado.create({

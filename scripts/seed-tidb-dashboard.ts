@@ -11,6 +11,7 @@ const FIRST_SHOW_HOUR = 11;
 const LAST_SHOW_START_HOUR = 22;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MS_PER_HOUR = 60 * 60 * 1000;
+const LA_PAZ_OFFSET_MIN = -420;
 const FUNCTION_TYPES = [
   { value: "TRADICIONAL", label: "Tradicional" },
   { value: "TRES_D", label: "3D" },
@@ -51,10 +52,22 @@ function generarFolioSimulado(): string {
   return `${generarFolio()}-${folioSequence.toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 4).toUpperCase()}`;
 }
 
+function laPazFields(date: Date) {
+  const shifted = new Date(date.getTime() + LA_PAZ_OFFSET_MIN * 60_000);
+  return {
+    year: shifted.getUTCFullYear(),
+    month: shifted.getUTCMonth(),
+    day: shifted.getUTCDate(),
+  };
+}
+
+function laPazToUtc(year: number, month: number, day: number, hour = 0, minute = 0): Date {
+  return new Date(Date.UTC(year, month, day, hour, minute, 0, 0) - LA_PAZ_OFFSET_MIN * 60_000);
+}
+
 function startOfLocalDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const fields = laPazFields(date);
+  return laPazToUtc(fields.year, fields.month, fields.day);
 }
 
 function addDays(date: Date, days: number): Date {
@@ -62,9 +75,8 @@ function addDays(date: Date, days: number): Date {
 }
 
 function atTime(date: Date, hour: number, minute = 0): Date {
-  const d = new Date(date);
-  d.setHours(hour, minute, 0, 0);
-  return d;
+  const fields = laPazFields(date);
+  return laPazToUtc(fields.year, fields.month, fields.day, hour, minute);
 }
 
 function roundUpToThirtyMinutes(minutes: number): number {

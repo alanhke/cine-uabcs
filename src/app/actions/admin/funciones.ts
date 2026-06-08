@@ -165,12 +165,31 @@ export async function restaurarFuncion(id: number): Promise<ActionResult> {
     await requireAdmin();
     const funcion = await prisma.funcion.findUnique({
       where: { id },
-      select: { estado: true },
+      select: {
+        estado: true,
+        salaId: true,
+        fechaHora: true,
+        pelicula: { select: { duracionMin: true } },
+      },
     });
     if (!funcion) return { ok: false, error: "Función no encontrada" };
 
     const noEnPapelera = errorSiNoEnPapelera(funcion.estado);
     if (noEnPapelera) return { ok: false, error: noEnPapelera };
+
+    const solapa = await existeSolapamientoFuncion(
+      funcion.salaId,
+      funcion.fechaHora,
+      funcion.pelicula.duracionMin,
+      id
+    );
+    if (solapa) {
+      return {
+        ok: false,
+        error:
+          "No se puede restaurar: el horario ahora se solapa con otra función activa en esa sala",
+      };
+    }
 
     await prisma.funcion.update({
       where: { id },

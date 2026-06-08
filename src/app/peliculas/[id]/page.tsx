@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarClock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { funcionSigueDisponible } from "@/lib/datetime";
+import { funcionSigueDisponible, startOfDay } from "@/lib/datetime";
 import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { RatingSummary } from "@/components/peliculas/rating-summary";
@@ -14,12 +14,6 @@ import { PeliculaHeader } from "@/components/peliculas/pelicula-header";
 import { ResenasSection } from "./resenas-section";
 import { RecomendarButton } from "./recomendar-button";
 import { FavoritoButton } from "./favorito-button";
-
-function startOfDay(date: Date) {
-  const next = new Date(date);
-  next.setHours(0, 0, 0, 0);
-  return next;
-}
 
 export default async function PeliculaDetailPage({
   params,
@@ -156,12 +150,14 @@ export default async function PeliculaDetailPage({
                           ? "Hoy"
                           : new Intl.DateTimeFormat("es-MX", {
                               weekday: "long",
+                              timeZone: "America/Mazatlan",
                             }).format(dia.date)}
                       </p>
                       <p className="text-sm text-navy/55">
                         {new Intl.DateTimeFormat("es-MX", {
                           day: "numeric",
                           month: "long",
+                          timeZone: "America/Mazatlan",
                         }).format(dia.date)}
                       </p>
                     </div>
@@ -192,6 +188,7 @@ export default async function PeliculaDetailPage({
                                   {new Intl.DateTimeFormat("es-MX", {
                                     hour: "numeric",
                                     minute: "2-digit",
+                                    timeZone: "America/Mazatlan",
                                   }).format(f.fechaHora)}
                                 </p>
                                 <p className="truncate font-semibold text-navy/80">{f.sala.nombre}</p>

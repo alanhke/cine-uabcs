@@ -85,12 +85,14 @@ export function ImageUploadField({
   const previewSrc = blobPreview ?? (savedPath || null);
 
   const Icon = variant === "avatar" ? User : Clapperboard;
+  // Dimensiones explícitas: SafeImage con `fill` posiciona su contenido en
+  // absolute, así que el contenedor necesita ancho y alto fijos o colapsaría a 0.
   const aspect =
     variant === "avatar"
-      ? "aspect-square max-w-[120px] rounded-full"
+      ? "h-[120px] w-[120px] rounded-full"
       : variant === "product"
-        ? "aspect-square max-w-[120px]"
-        : "aspect-[2/3] max-w-[140px]";
+        ? "h-[120px] w-[120px]"
+        : "h-[210px] w-[140px]";
 
   return (
     <div className="space-y-3">

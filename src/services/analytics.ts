@@ -25,12 +25,12 @@ const UMBRAL_STOCK_BAJO = 10;
 /** Clasifica una función por franja horaria según la hora local de La Paz. */
 function franjaHoraria(fechaHora: Date): string {
   const hora = horaEnLaPaz(fechaHora);
-  if (hora < 14) return "Matinée";
+  if (hora < 14) return "Mediodía";
   if (hora < 18) return "Tarde";
   return "Noche";
 }
 
-const ORDEN_FRANJAS = ["Matinée", "Tarde", "Noche"];
+const ORDEN_FRANJAS = ["Mediodía", "Tarde", "Noche"];
 import { nombreCompleto } from "@/lib/format-relative";
 
 /** Periodos que abarcan varios meses: la serie se agrega por mes, no por día. */
@@ -366,6 +366,25 @@ export async function obtenerAnalyticsAdmin(
       (productosMap[nombre] ?? 0) + (grupo._sum.cantidad ?? 0);
   }
 
+  // Producto y combo más solicitados (por unidades vendidas) en el rango.
+  let productoTop: { nombre: string; cantidad: number } | null = null;
+  let comboTop: { nombre: string; cantidad: number } | null = null;
+  for (const grupo of dulceriaPorProducto) {
+    const cantidad = grupo._sum.cantidad ?? 0;
+    if (cantidad <= 0) continue;
+    if (grupo.productoId !== null) {
+      const nombre = nombreProducto.get(grupo.productoId) ?? "Producto";
+      if (!productoTop || cantidad > productoTop.cantidad) {
+        productoTop = { nombre, cantidad };
+      }
+    } else if (grupo.comboId !== null) {
+      const nombre = nombreCombo.get(grupo.comboId) ?? "Combo";
+      if (!comboTop || cantidad > comboTop.cantidad) {
+        comboTop = { nombre, cantidad };
+      }
+    }
+  }
+
   // Series temporales: combinar los tres GROUP BY por clave de bucket (día/mes).
   const ventasPorDia: Record<
     string,
@@ -505,6 +524,8 @@ export async function obtenerAnalyticsAdmin(
       comprasConDulceria > 0
         ? Math.round((ingresosDulceria / comprasConDulceria) * 100) / 100
         : 0,
+    productoTop,
+    comboTop,
   };
 
   // --- Inventario de dulcería (alertas de stock) ---

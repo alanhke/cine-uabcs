@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { QrDisplay } from "@/components/compra/qr-display";
-import { useToast } from "@/components/ui/toast-provider";
 
 export default function RecuperarPage() {
-  const { toast } = useToast();
   const [correo, setCorreo] = useState("");
   const [folio, setFolio] = useState("");
   const [result, setResult] = useState<{
@@ -132,26 +131,13 @@ export default function RecuperarPage() {
                 ))}
               </div>
             )}
-            {result.compra.boletos.length > 0 ? (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={async () => {
-                  const boleto = result.compra.boletos[0];
-                  if (!boleto) return;
-                  await fetch("/api/compras/separar", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      boletoId: boleto.id,
-                      compraId: result.compra.id,
-                    }),
-                  });
-                  toast("QR individual generado");
-                }}
-              >
-                Separar primer boleto
-              </Button>
+            {result.compra.boletos.length > 0 ||
+            result.compra.detalleDulceria.length > 0 ? (
+              <Link href={`/compra/${result.compra.id}/boletos`} className="block">
+                <Button variant="outline" className="w-full">
+                  Ver y separar QR individuales
+                </Button>
+              </Link>
             ) : null}
           </CardContent>
         </Card>

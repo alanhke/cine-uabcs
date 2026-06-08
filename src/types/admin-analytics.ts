@@ -68,6 +68,8 @@ export interface DulceriaMetrics {
   attachRate: number;
   comprasConDulceria: number;
   gastoPromedioDulceria: number;
+  productoTop: { nombre: string; cantidad: number } | null;
+  comboTop: { nombre: string; cantidad: number } | null;
 }
 
 export interface ProductoStockBajo {

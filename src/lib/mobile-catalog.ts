@@ -1,14 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
+import { startOfDay } from "@/lib/datetime";
 
 export async function getMobileCatalog() {
+  // Solo funciones de hoy en adelante: la app móvil muestra la cartelera desde
+  // el día actual, y cargar los boletos de funciones pasadas hacía explotar la
+  // memoria de la función serverless (OOM en /api/mobile/catalog).
+  const desde = startOfDay();
   const [peliculas, productos, combos, salas, calificaciones] = await Promise.all([
     prisma.pelicula.findMany({
       where: { estado: "ACTIVO" },
       orderBy: { updatedAt: "desc" },
       include: {
         funciones: {
-          where: { estado: "ACTIVO" },
+          where: { estado: "ACTIVO", fechaHora: { gte: desde } },
           orderBy: { fechaHora: "asc" },
           include: {
             sala: true,
