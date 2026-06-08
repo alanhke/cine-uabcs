@@ -68,7 +68,7 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2">
           <div className="rounded-2xl bg-red-50 px-3 py-2 text-red-800">
             <span className="block text-[10px] font-semibold uppercase tracking-wide">
               Más pedida
@@ -78,12 +78,6 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
                 ? sala.butacasMasPedidas.join(", ")
                 : "Sin ventas en el periodo"}
             </strong>
-          </div>
-          <div className="rounded-2xl bg-navy/5 px-3 py-2 text-navy">
-            <span className="block text-[10px] font-semibold uppercase tracking-wide">
-              Concentración central
-            </span>
-            <strong className="text-sm">{sala.concentracionCentral}%</strong>
           </div>
         </div>
       </div>

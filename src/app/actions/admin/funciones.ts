@@ -31,6 +31,7 @@ export async function crearFuncion(
       salaId: formData.get("salaId"),
       fechaHora: formData.get("fechaHora"),
       precioBase: formData.get("precioBase"),
+      idioma: formData.get("idioma"),
       estado: formData.get("estado"),
     });
     if (!parsed.success) {
@@ -61,6 +62,7 @@ export async function crearFuncion(
         salaId: parsed.data.salaId,
         fechaHora,
         precioBase: new Prisma.Decimal(parsed.data.precioBase),
+        idioma: parsed.data.idioma,
         estado: parsed.data.estado,
       },
     });
@@ -85,6 +87,7 @@ export async function actualizarFuncion(
       salaId: formData.get("salaId"),
       fechaHora: formData.get("fechaHora"),
       precioBase: formData.get("precioBase"),
+      idioma: formData.get("idioma"),
       estado: formData.get("estado"),
     });
     if (!parsed.success) {
@@ -121,6 +124,7 @@ export async function actualizarFuncion(
         salaId: parsed.data.salaId,
         fechaHora,
         precioBase: new Prisma.Decimal(parsed.data.precioBase),
+        idioma: parsed.data.idioma,
         estado: parsed.data.estado,
       },
     });

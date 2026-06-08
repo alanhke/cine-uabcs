@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toDatetimeLocalValue } from "@/lib/datetime";
+import { IDIOMAS_FUNCION } from "@/lib/funcion-idioma";
 
 interface Opcion {
   id: number;
@@ -19,6 +20,7 @@ export function FuncionFields({
     salaId: number;
     fechaHora: Date | string;
     precioBase: number;
+    idioma: string;
     estado: string;
   };
 }) {
@@ -85,6 +87,20 @@ export function FuncionFields({
             Tipos de boleto se recalculan al guardar
           </p>
         )}
+      </div>
+      <div className="space-y-1">
+        <Label>Idioma</Label>
+        <select
+          name="idioma"
+          defaultValue={defaults?.idioma ?? "ESPANOL"}
+          className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"
+        >
+          {IDIOMAS_FUNCION.map((i) => (
+            <option key={i.value} value={i.value}>
+              {i.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="space-y-1">
         <Label>Estado</Label>

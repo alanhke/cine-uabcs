@@ -23,10 +23,18 @@ export default async function HomePage() {
       where: { estado: "ACTIVO" },
       take: 4,
       orderBy: { id: "desc" },
-      include: { calificaciones: true },
     }),
     fetchResenasDestacadas(3),
   ]);
+  // Promedio por película vía agregación en BD (no carga las calificaciones).
+  const promediosPorPelicula = await prisma.calificacion.groupBy({
+    by: ["peliculaId"],
+    where: { peliculaId: { in: peliculas.map((p) => p.id) } },
+    _avg: { puntuacion: true },
+  });
+  const promedioMap = new Map(
+    promediosPorPelicula.map((r) => [r.peliculaId, r._avg.puntuacion ?? 0])
+  );
 
   return (
     <div className="space-y-8 px-4 py-6">
@@ -112,11 +120,7 @@ export default async function HomePage() {
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {peliculas.map((p) => {
-            const promedio =
-              p.calificaciones.length > 0
-                ? p.calificaciones.reduce((s, c) => s + c.puntuacion, 0) /
-                  p.calificaciones.length
-                : 0;
+            const promedio = Number(promedioMap.get(p.id) ?? 0);
             return (
               <MovieCard
                 key={p.id}

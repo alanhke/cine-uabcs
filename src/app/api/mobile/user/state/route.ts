@@ -16,7 +16,6 @@ export async function GET(req: Request) {
       recomendaciones,
       compras,
       resenas,
-      calificaciones,
     ] = await Promise.all([
       prisma.usuario.findMany({
         where: { estado: "ACTIVO", rol: "CLIENTE", id: { not: userId } },
@@ -74,8 +73,21 @@ export async function GET(req: Request) {
         },
         take: 80,
       }),
-      prisma.calificacion.findMany(),
     ]);
+
+    // Solo las calificaciones de los autores/películas presentes en las reseñas
+    // mostradas: cargar la tabla completa agota la memoria al crecer los datos.
+    const calificaciones = resenas.length
+      ? await prisma.calificacion.findMany({
+          where: {
+            OR: resenas.map((r) => ({
+              usuarioId: r.usuarioId,
+              peliculaId: r.peliculaId,
+            })),
+          },
+          select: { usuarioId: true, peliculaId: true, puntuacion: true },
+        })
+      : [];
 
     const friendIds = solicitudes
       .filter((s) => s.estado === "ACEPTADA")

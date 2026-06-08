@@ -18,8 +18,8 @@ import {
 import type { RangoVentas } from "@/lib/validations/admin";
 import type { AdminAnalytics, ConversacionImpacto } from "@/types/admin-analytics";
 
-/** Asientos con menos de este stock disparan alerta de reabastecimiento. */
-const UMBRAL_STOCK_BAJO = 10;
+/** Productos con stock menor o igual a este valor disparan alerta de reabastecimiento. */
+const UMBRAL_STOCK_BAJO = 30;
 
 /** Clasifica una función por franja horaria según la hora local de La Paz. */
 function franjaHoraria(fechaHora: Date): string {
@@ -202,7 +202,10 @@ export async function obtenerAnalyticsAdmin(
         },
       },
     }),
-    prisma.calificacion.findMany(),
+    prisma.calificacion.groupBy({
+      by: ["puntuacion"],
+      _count: { _all: true },
+    }),
     obtenerConversacionesImpacto(5),
     // Funciones cuyo horario cae en el periodo: base para medir ocupación.
     prisma.funcion.findMany({
@@ -356,12 +359,14 @@ export async function obtenerAnalyticsAdmin(
     5: 0,
   };
   let suma = 0;
+  let totalCalificaciones = 0;
   for (const c of calificaciones) {
     const estrellas = Math.min(5, Math.max(1, c.puntuacion));
-    distribucionMap[estrellas] = (distribucionMap[estrellas] ?? 0) + 1;
-    suma += c.puntuacion;
+    const cantidad = c._count._all;
+    distribucionMap[estrellas] = (distribucionMap[estrellas] ?? 0) + cantidad;
+    suma += c.puntuacion * cantidad;
+    totalCalificaciones += cantidad;
   }
-  const totalCalificaciones = calificaciones.length;
   const promedio =
     totalCalificaciones > 0
       ? Math.round((suma / totalCalificaciones) * 10) / 10

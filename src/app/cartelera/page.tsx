@@ -7,11 +7,21 @@ import { MovieCard } from "@/components/cinema/movie-card";
 import { Button } from "@/components/ui/button";
 
 export default async function CarteleraPage() {
-  const peliculas = await prisma.pelicula.findMany({
-    where: { estado: "ACTIVO" },
-    include: { calificaciones: true },
-    orderBy: { titulo: "asc" },
-  });
+  const [peliculas, promediosPorPelicula] = await Promise.all([
+    prisma.pelicula.findMany({
+      where: { estado: "ACTIVO" },
+      orderBy: { titulo: "asc" },
+    }),
+    // Promedio por película vía agregación en BD: evita cargar todas las
+    // calificaciones en memoria (no escala al crecer los datos).
+    prisma.calificacion.groupBy({
+      by: ["peliculaId"],
+      _avg: { puntuacion: true },
+    }),
+  ]);
+  const promedioMap = new Map(
+    promediosPorPelicula.map((r) => [r.peliculaId, r._avg.puntuacion ?? 0])
+  );
 
   return (
     <div className="px-4 py-6">
@@ -47,11 +57,7 @@ export default async function CarteleraPage() {
       ) : (
         <div className="reveal-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {peliculas.map((p) => {
-            const promedio =
-              p.calificaciones.length > 0
-                ? p.calificaciones.reduce((s, c) => s + c.puntuacion, 0) /
-                  p.calificaciones.length
-                : 0;
+            const promedio = Number(promedioMap.get(p.id) ?? 0);
             return (
               <MovieCard
                 key={p.id}

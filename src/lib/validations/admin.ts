@@ -36,6 +36,7 @@ export const funcionAdminSchema = z
     salaId: z.coerce.number().int().positive(),
     fechaHora: z.string().min(1, "Fecha y hora requeridas"),
     precioBase: precioPositivo,
+    idioma: z.enum(["ESPANOL", "SUBTITULADA"]),
     estado: z.enum(["ACTIVO", "INACTIVO"]),
   })
   .refine(
@@ -54,6 +55,7 @@ export const funcionAdminUpdateSchema = z.object({
   salaId: z.coerce.number().int().positive(),
   fechaHora: z.string().min(1, "Fecha y hora requeridas"),
   precioBase: precioPositivo,
+  idioma: z.enum(["ESPANOL", "SUBTITULADA"]),
   estado: z.enum(["ACTIVO", "INACTIVO"]),
 });
 
