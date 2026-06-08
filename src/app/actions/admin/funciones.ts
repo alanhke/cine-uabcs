@@ -30,8 +30,8 @@ export async function crearFuncion(
       peliculaId: formData.get("peliculaId"),
       salaId: formData.get("salaId"),
       fechaHora: formData.get("fechaHora"),
-      precioBase: formData.get("precioBase"),
       idioma: formData.get("idioma"),
+      precioBase: formData.get("precioBase"),
       estado: formData.get("estado"),
     });
     if (!parsed.success) {
@@ -61,8 +61,8 @@ export async function crearFuncion(
         peliculaId: parsed.data.peliculaId,
         salaId: parsed.data.salaId,
         fechaHora,
-        precioBase: new Prisma.Decimal(parsed.data.precioBase),
         idioma: parsed.data.idioma,
+        precioBase: new Prisma.Decimal(parsed.data.precioBase),
         estado: parsed.data.estado,
       },
     });
@@ -86,8 +86,8 @@ export async function actualizarFuncion(
       peliculaId: formData.get("peliculaId"),
       salaId: formData.get("salaId"),
       fechaHora: formData.get("fechaHora"),
-      precioBase: formData.get("precioBase"),
       idioma: formData.get("idioma"),
+      precioBase: formData.get("precioBase"),
       estado: formData.get("estado"),
     });
     if (!parsed.success) {
@@ -123,8 +123,8 @@ export async function actualizarFuncion(
         peliculaId: parsed.data.peliculaId,
         salaId: parsed.data.salaId,
         fechaHora,
-        precioBase: new Prisma.Decimal(parsed.data.precioBase),
         idioma: parsed.data.idioma,
+        precioBase: new Prisma.Decimal(parsed.data.precioBase),
         estado: parsed.data.estado,
       },
     });
@@ -165,12 +165,31 @@ export async function restaurarFuncion(id: number): Promise<ActionResult> {
     await requireAdmin();
     const funcion = await prisma.funcion.findUnique({
       where: { id },
-      select: { estado: true },
+      select: {
+        estado: true,
+        salaId: true,
+        fechaHora: true,
+        pelicula: { select: { duracionMin: true } },
+      },
     });
     if (!funcion) return { ok: false, error: "Función no encontrada" };
 
     const noEnPapelera = errorSiNoEnPapelera(funcion.estado);
     if (noEnPapelera) return { ok: false, error: noEnPapelera };
+
+    const solapa = await existeSolapamientoFuncion(
+      funcion.salaId,
+      funcion.fechaHora,
+      funcion.pelicula.duracionMin,
+      id
+    );
+    if (solapa) {
+      return {
+        ok: false,
+        error:
+          "No se puede restaurar: el horario ahora se solapa con otra función activa en esa sala",
+      };
+    }
 
     await prisma.funcion.update({
       where: { id },

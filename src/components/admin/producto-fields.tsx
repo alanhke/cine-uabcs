@@ -10,6 +10,7 @@ export function ProductoFields({
   defaults?: {
     nombre: string;
     categoria: string;
+    costo: number;
     precio: number;
     stock: number;
     imagenUrl: string;
@@ -31,7 +32,18 @@ export function ProductoFields({
           required
         />
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="space-y-1">
+          <Label>Costo</Label>
+          <Input
+            name="costo"
+            type="number"
+            step="0.01"
+            min={0}
+            defaultValue={defaults?.costo ?? 0}
+            required
+          />
+        </div>
         <div className="space-y-1">
           <Label>Precio</Label>
           <Input

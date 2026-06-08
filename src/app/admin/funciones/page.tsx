@@ -3,12 +3,14 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { AdminListHeader } from "@/components/admin/admin-list-header";
+import { FuncionesDayToolbar } from "@/components/admin/funciones-day-toolbar";
 import { AdminListTabsActive } from "@/components/admin/admin-list-tabs";
 import { AdminRecycleButtons } from "@/components/admin/admin-recycle-buttons";
 import { AdminEstadoBadge } from "@/components/admin/admin-estado-badge";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { endOfDay, formatDateKey, parseLaPazLocal, startOfDay } from "@/lib/datetime";
 import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 import {
   eliminarLogicoFuncion,
   eliminarPermanenteFuncion,
@@ -19,19 +21,58 @@ import { Plus, Pencil } from "lucide-react";
 export default async function AdminFuncionesPage({
   searchParams,
 }: {
-  searchParams: { vista?: string };
+  searchParams: { vista?: string; fecha?: string; salaId?: string; peliculaId?: string };
 }) {
   const enPapelera = searchParams.vista === "papelera";
+  const selectedDateKey =
+    typeof searchParams.fecha === "string" && /^\d{4}-\d{2}-\d{2}$/.test(searchParams.fecha)
+      ? searchParams.fecha
+      : formatDateKey(new Date());
+  const selectedDate = parseLaPazLocal(`${selectedDateKey}T12:00`);
+  const rangeStart = startOfDay(selectedDate);
+  const rangeEnd = endOfDay(selectedDate);
+  const selectedSalaId =
+    typeof searchParams.salaId === "string" && /^\d+$/.test(searchParams.salaId)
+      ? Number(searchParams.salaId)
+      : undefined;
+  const selectedPeliculaId =
+    typeof searchParams.peliculaId === "string" && /^\d+$/.test(searchParams.peliculaId)
+      ? Number(searchParams.peliculaId)
+      : undefined;
 
-  const [funciones, papeleraCount] = await Promise.all([
+  const [funciones, papeleraCount, salas, peliculas] = await Promise.all([
     prisma.funcion.findMany({
       where: enPapelera
-        ? { estado: "ELIMINADO" }
-        : { estado: { not: "ELIMINADO" } },
-      include: { pelicula: true, sala: true },
+        ? {
+            estado: "ELIMINADO",
+            fechaHora: { gte: rangeStart, lte: rangeEnd },
+            ...(selectedSalaId ? { salaId: selectedSalaId } : {}),
+            ...(selectedPeliculaId ? { peliculaId: selectedPeliculaId } : {}),
+          }
+        : {
+            estado: { not: "ELIMINADO" },
+            fechaHora: { gte: rangeStart, lte: rangeEnd },
+            ...(selectedSalaId ? { salaId: selectedSalaId } : {}),
+            ...(selectedPeliculaId ? { peliculaId: selectedPeliculaId } : {}),
+          },
+      include: {
+        pelicula: true,
+        sala: true,
+        _count: { select: { boletos: true } },
+      },
       orderBy: { fechaHora: "asc" },
     }),
     prisma.funcion.count({ where: { estado: "ELIMINADO" } }),
+    prisma.sala.findMany({
+      where: { estado: { not: "ELIMINADO" } },
+      select: { id: true, nombre: true },
+      orderBy: { nombre: "asc" },
+    }),
+    prisma.pelicula.findMany({
+      where: { estado: { not: "ELIMINADO" } },
+      select: { id: true, titulo: true },
+      orderBy: { titulo: "asc" },
+    }),
   ]);
 
   return (
@@ -54,6 +95,15 @@ export default async function AdminFuncionesPage({
         papeleraCount={papeleraCount}
       />
 
+      <FuncionesDayToolbar
+        currentDate={selectedDateKey}
+        enPapelera={enPapelera}
+        currentSalaId={selectedSalaId ? String(selectedSalaId) : ""}
+        currentPeliculaId={selectedPeliculaId ? String(selectedPeliculaId) : ""}
+        salas={salas}
+        peliculas={peliculas}
+      />
+
       <div className="overflow-x-auto rounded-2xl border-2 border-navy/10 bg-white/90">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase tracking-wide text-navy/50">
@@ -63,6 +113,7 @@ export default async function AdminFuncionesPage({
               <th className="px-4 py-3">Fecha</th>
               <th className="px-4 py-3">Idioma</th>
               <th className="px-4 py-3">Precio</th>
+              <th className="px-4 py-3">Boletos</th>
               <th className="px-4 py-3">Estado</th>
               <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
@@ -70,10 +121,10 @@ export default async function AdminFuncionesPage({
           <tbody>
             {funciones.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-navy/50">
+                <td colSpan={8} className="px-4 py-8 text-center text-navy/50">
                   {enPapelera
-                    ? "La papelera está vacía."
-                    : "No hay funciones registradas."}
+                    ? "No hay funciones en papelera para la fecha seleccionada."
+                    : "No hay funciones registradas para los filtros seleccionados."}
                 </td>
               </tr>
             ) : (
@@ -91,6 +142,9 @@ export default async function AdminFuncionesPage({
                   </td>
                   <td className="px-4 py-3 text-navy/70">
                     {formatCurrency(Number(f.precioBase))}
+                  </td>
+                  <td className="px-4 py-3 text-navy/70">
+                    {f._count.boletos} / {f.sala.filas * f.sala.columnas}
                   </td>
                   <td className="px-4 py-3">
                     <AdminEstadoBadge estado={f.estado} />

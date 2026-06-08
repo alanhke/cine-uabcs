@@ -68,12 +68,14 @@ export default async function AdminDulceriaPage({
           ) : null}
         </div>
         <div className="overflow-x-auto rounded-2xl border-2 border-navy/10 bg-white/90">
-          <table className="w-full min-w-[520px] text-left text-sm">
+          <table className="w-full min-w-[620px] text-left text-sm">
             <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase text-navy/50">
               <tr>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Categoría</th>
+                <th className="px-4 py-3">Costo</th>
                 <th className="px-4 py-3">Precio</th>
+                <th className="px-4 py-3">Margen</th>
                 <th className="px-4 py-3">Stock</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3 text-right">Acciones</th>
@@ -82,7 +84,7 @@ export default async function AdminDulceriaPage({
             <tbody>
               {productos.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-navy/50">
+                  <td colSpan={8} className="px-4 py-8 text-center text-navy/50">
                     {enPapelera
                       ? "No hay productos en la papelera."
                       : "No hay productos registrados."}
@@ -93,7 +95,11 @@ export default async function AdminDulceriaPage({
                   <tr key={p.id} className="border-b border-navy/5 transition-colors last:border-0 hover:bg-cream/60">
                     <td className="px-4 py-3 font-medium text-navy">{p.nombre}</td>
                     <td className="px-4 py-3 text-navy/70">{p.categoria}</td>
+                    <td className="px-4 py-3">{formatCurrency(Number(p.costo))}</td>
                     <td className="px-4 py-3">{formatCurrency(Number(p.precio))}</td>
+                    <td className="px-4 py-3">
+                      {formatCurrency(Number(p.precio) - Number(p.costo))}
+                    </td>
                     <td className="px-4 py-3">{p.stock}</td>
                     <td className="px-4 py-3">
                       <AdminEstadoBadge estado={p.estado} />

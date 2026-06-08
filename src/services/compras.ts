@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { generarCodigoQR, generarFolio } from "@/lib/folio";
-import { serverNow } from "@/lib/datetime";
+import { funcionSigueDisponible, serverNow } from "@/lib/datetime";
 import { Prisma } from "@prisma/client";
 
 export interface BoletoInput {
@@ -17,10 +17,6 @@ export interface DulceriaInput {
   precioUnitario: number;
 }
 
-export type PagoInput =
-  | { metodo: "tarjeta"; numeroTarjeta: string }
-  | { metodo: "paypal"; paypalCorreo: string };
-
 export interface CompraInput {
   clienteId?: number;
   nombreComprador: string;
@@ -29,18 +25,6 @@ export interface CompraInput {
   esInvitado: boolean;
   boletos: BoletoInput[];
   dulceria: DulceriaInput[];
-  pago?: PagoInput;
-}
-
-function maskedPaymentReference(folio: string, pago?: PagoInput) {
-  if (!pago) return `PAY-${folio}`;
-
-  if (pago.metodo === "tarjeta") {
-    const last4 = pago.numeroTarjeta.replace(/\D/g, "").slice(-4).padStart(4, "0");
-    return `CARD-${last4}-${folio}`;
-  }
-
-  return `PAYPAL-${pago.paypalCorreo.toLowerCase().trim()}-${folio}`;
 }
 
 export async function crearCompra(input: CompraInput) {
@@ -52,6 +36,26 @@ export async function crearCompra(input: CompraInput) {
   const total = totalBoletos + totalDulceria;
 
   return prisma.$transaction(async (tx) => {
+    const ahora = serverNow();
+
+    const funcionIds = Array.from(new Set(input.boletos.map((b) => b.funcionId)));
+    if (funcionIds.length > 0) {
+      const funciones = await tx.funcion.findMany({
+        where: { id: { in: funcionIds } },
+        include: { pelicula: { select: { duracionMin: true } } },
+      });
+      const funcionesMap = new Map(funciones.map((funcion) => [funcion.id, funcion]));
+      for (const funcionId of funcionIds) {
+        const funcion = funcionesMap.get(funcionId);
+        if (!funcion || funcion.estado !== "ACTIVO") {
+          throw new Error("Una o más funciones ya no están disponibles");
+        }
+        if (!funcionSigueDisponible(funcion.fechaHora, funcion.pelicula.duracionMin, ahora)) {
+          throw new Error("La función ya terminó y no admite más compras");
+        }
+      }
+    }
+
     for (const b of input.boletos) {
       const ocupada = await tx.boleto.findUnique({
         where: {
@@ -63,46 +67,42 @@ export async function crearCompra(input: CompraInput) {
       }
     }
 
-    const stockRequerido = new Map<number, number>();
+    // Requerimientos de stock por producto: líneas directas + componentes de combos.
+    // Agregamos para descontar una sola vez (y validar correctamente cuando el
+    // mismo producto aparece suelto y dentro de un combo).
+    const requeridoPorProducto = new Map<number, number>();
     for (const d of input.dulceria) {
-      if (d.cantidad < 1) continue;
-
       if (d.productoId) {
-        stockRequerido.set(
+        requeridoPorProducto.set(
           d.productoId,
-          (stockRequerido.get(d.productoId) ?? 0) + d.cantidad
+          (requeridoPorProducto.get(d.productoId) ?? 0) + d.cantidad
         );
-      }
-
-      if (d.comboId) {
-        const combo = await tx.combo.findUnique({
-          where: { id: d.comboId },
-          include: { detalles: true },
+      } else if (d.comboId) {
+        const comboDetalles = await tx.comboDetalle.findMany({
+          where: { comboId: d.comboId },
         });
-        if (!combo || combo.estado !== "ACTIVO") {
-          throw new Error(`Combo #${d.comboId} no disponible`);
-        }
-
-        for (const detalle of combo.detalles) {
-          stockRequerido.set(
-            detalle.productoId,
-            (stockRequerido.get(detalle.productoId) ?? 0) + detalle.cantidad * d.cantidad
+        for (const cd of comboDetalles) {
+          requeridoPorProducto.set(
+            cd.productoId,
+            (requeridoPorProducto.get(cd.productoId) ?? 0) + cd.cantidad * d.cantidad
           );
         }
       }
     }
-
-    for (const [productoId, cantidad] of Array.from(stockRequerido.entries())) {
+    for (const [productoId, requerido] of Array.from(
+      requeridoPorProducto.entries()
+    )) {
       const producto = await tx.productoDulceria.findUnique({
         where: { id: productoId },
       });
-      if (!producto || producto.estado !== "ACTIVO" || producto.stock < cantidad) {
-        throw new Error(`Stock insuficiente para producto #${productoId}`);
+      if (!producto || producto.stock < requerido) {
+        throw new Error(
+          `Stock insuficiente para ${producto?.nombre ?? `producto #${productoId}`}`
+        );
       }
     }
 
     const folio = generarFolio();
-    const ahora = serverNow();
     const compra = await tx.compra.create({
       data: {
         clienteId: input.clienteId,
@@ -143,17 +143,20 @@ export async function crearCompra(input: CompraInput) {
       });
     }
 
-    for (const [productoId, cantidad] of Array.from(stockRequerido.entries())) {
+    // Descontar stock agregado (productos sueltos + componentes de combos).
+    for (const [productoId, requerido] of Array.from(
+      requeridoPorProducto.entries()
+    )) {
       await tx.productoDulceria.update({
         where: { id: productoId },
-        data: { stock: { decrement: cantidad } },
+        data: { stock: { decrement: requerido } },
       });
     }
 
     await tx.pagoSimulado.create({
       data: {
         compraId: compra.id,
-        referencia: maskedPaymentReference(folio, input.pago),
+        referencia: `PAY-${folio}`,
         monto: new Prisma.Decimal(total),
         estado: "CONFIRMADA",
         fechaPago: ahora,
@@ -190,12 +193,11 @@ export async function crearCompra(input: CompraInput) {
   });
 }
 
-export async function recuperarCompraInvitada(correo: string, folio: string) {
+export async function recuperarCompraPorCorreoYFolio(correo: string, folio: string) {
   return prisma.compra.findFirst({
     where: {
       correoComprador: correo.trim().toLowerCase(),
       folio: folio.trim().toUpperCase(),
-      esInvitado: true,
     },
     include: {
       boletos: {
@@ -205,7 +207,7 @@ export async function recuperarCompraInvitada(correo: string, folio: string) {
           qrBoletos: true,
         },
       },
-      detalleDulceria: { include: { producto: true, combo: true } },
+      detalleDulceria: { include: { producto: true, combo: true, qrBoletos: true } },
     },
   });
 }
@@ -233,4 +235,154 @@ export async function separarBoletoQR(boletoId: number, compraId: number) {
   });
 
   return qr;
+}
+
+export async function separarDulceriaQR(
+  detalleDulceriaCompraId: number,
+  compraId: number
+) {
+  const detalle = await prisma.detalleDulceriaCompra.findFirst({
+    where: { id: detalleDulceriaCompraId, compraId },
+    include: { qrBoletos: true, producto: true, combo: true },
+  });
+  if (!detalle) throw new Error("Item de dulcería no válido para separar");
+
+  const activos = detalle.qrBoletos.filter((qr) => qr.activo).length;
+  if (activos >= detalle.cantidad) {
+    throw new Error("Ya se generaron todos los QR individuales para este item");
+  }
+
+  const prefijo = detalle.productoId ? "DPR" : "DCB";
+  return prisma.qRBoleto.create({
+    data: {
+      compraId,
+      detalleDulceriaCompraId: detalle.id,
+      codigo: generarCodigoQR(prefijo),
+      tipoQR: "INDIVIDUAL",
+      activo: true,
+    },
+  });
+}
+
+export async function separarElementosQR(
+  compraId: number,
+  payload: {
+    boletoIds: number[];
+    dulceria: Array<{ detalleDulceriaCompraId: number; cantidad: number }>;
+  }
+) {
+  const boletoIds = Array.from(new Set(payload.boletoIds.map(Number).filter(Boolean)));
+  const dulceria = payload.dulceria
+    .map((item) => ({
+      detalleDulceriaCompraId: Number(item.detalleDulceriaCompraId),
+      cantidad: Number(item.cantidad),
+    }))
+    .filter((item) => item.detalleDulceriaCompraId > 0 && item.cantidad > 0);
+
+  if (boletoIds.length === 0 && dulceria.length === 0) {
+    throw new Error("Selecciona al menos un boleto o un producto de dulcería");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const boletos = boletoIds.length
+      ? await tx.boleto.findMany({
+          where: { id: { in: boletoIds }, compraId },
+          include: { butaca: true, funcion: { include: { pelicula: true } }, tipoBoleto: true },
+        })
+      : [];
+
+    if (boletos.length !== boletoIds.length) {
+      throw new Error("Uno o más boletos no pertenecen a esta compra");
+    }
+
+    for (const boleto of boletos) {
+      if (boleto.estadoUso !== "VIGENTE") {
+        throw new Error("Uno o más boletos ya fueron separados o utilizados");
+      }
+    }
+
+    const detalleIds = dulceria.map((item) => item.detalleDulceriaCompraId);
+    const detalles = detalleIds.length
+      ? await tx.detalleDulceriaCompra.findMany({
+          where: { id: { in: detalleIds }, compraId },
+          include: {
+            producto: true,
+            combo: true,
+            qrBoletos: { where: { activo: true } },
+            qrSeparaciones: { include: { qrBoleto: true } },
+          },
+        })
+      : [];
+
+    if (detalles.length !== detalleIds.length) {
+      throw new Error("Uno o más productos de dulcería no pertenecen a esta compra");
+    }
+
+    for (const item of dulceria) {
+      const detalle = detalles.find((current) => current.id === item.detalleDulceriaCompraId);
+      if (!detalle) {
+        throw new Error("Producto de dulcería no válido");
+      }
+      const separadosLegacy = detalle.qrBoletos.filter((qr) => qr.activo).length;
+      const separadosPaquetes = detalle.qrSeparaciones
+        .filter((rel) => rel.qrBoleto.activo)
+        .reduce((sum, rel) => sum + rel.cantidad, 0);
+      const disponibles = detalle.cantidad - separadosLegacy - separadosPaquetes;
+      if (item.cantidad > disponibles) {
+        const nombre = detalle.producto?.nombre ?? detalle.combo?.nombre ?? "producto";
+        throw new Error(`No hay suficientes unidades disponibles para separar de ${nombre}`);
+      }
+    }
+
+    const qr = await tx.qRBoleto.create({
+      data: {
+        compraId,
+        codigo: generarCodigoQR("MIX"),
+        tipoQR: "INDIVIDUAL",
+        activo: true,
+      },
+    });
+
+    if (boletos.length > 0) {
+      await tx.qRBoletoBoleto.createMany({
+        data: boletos.map((boleto) => ({
+          qrBoletoId: qr.id,
+          boletoId: boleto.id,
+        })),
+      });
+
+      await tx.boleto.updateMany({
+        where: { id: { in: boletos.map((boleto) => boleto.id) } },
+        data: { estadoUso: "SEPARADO" },
+      });
+    }
+
+    if (dulceria.length > 0) {
+      await tx.qRBoletoDulceria.createMany({
+        data: dulceria.map((item) => ({
+          qrBoletoId: qr.id,
+          detalleDulceriaCompraId: item.detalleDulceriaCompraId,
+          cantidad: item.cantidad,
+        })),
+      });
+    }
+
+    return tx.qRBoleto.findUnique({
+      where: { id: qr.id },
+      include: {
+        boletosSeparados: {
+          include: {
+            boleto: {
+              include: { butaca: true, funcion: { include: { pelicula: true } }, tipoBoleto: true },
+            },
+          },
+        },
+        dulceriaSeparada: {
+          include: {
+            detalleDulceriaCompra: { include: { producto: true, combo: true } },
+          },
+        },
+      },
+    });
+  });
 }

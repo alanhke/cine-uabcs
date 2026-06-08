@@ -25,6 +25,7 @@ export type PerfilPublicoData = {
     nombre: string;
     apellidoPaterno: string;
     apellidoMaterno: string | null;
+    correo?: string;
     avatarUrl: string | null;
     createdAt: Date;
   };
@@ -57,6 +58,7 @@ export async function fetchPerfilPublico(
       nombre: true,
       apellidoPaterno: true,
       apellidoMaterno: true,
+      correo: true,
       avatarUrl: true,
       createdAt: true,
       cliente: { select: { id: true, codigoAmigo: true } },
@@ -158,6 +160,7 @@ export async function fetchPerfilPublico(
       nombre: usuario.nombre,
       apellidoPaterno: usuario.apellidoPaterno,
       apellidoMaterno: usuario.apellidoMaterno,
+      correo: esPropio ? usuario.correo : undefined,
       avatarUrl: usuario.avatarUrl,
       createdAt: usuario.createdAt,
     },

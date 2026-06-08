@@ -38,6 +38,7 @@ export async function crearProducto(
     const parsed = productoDulceriaSchema.safeParse({
       nombre: formData.get("nombre"),
       categoria: formData.get("categoria"),
+      costo: formData.get("costo"),
       precio: formData.get("precio"),
       stock: formData.get("stock"),
       imagenUrl: imagenUrl ?? "",
@@ -55,6 +56,7 @@ export async function crearProducto(
     await prisma.productoDulceria.create({
       data: {
         ...parsed.data,
+        costo: new Prisma.Decimal(parsed.data.costo),
         precio: new Prisma.Decimal(parsed.data.precio),
         imagenUrl: imagenGuardada,
       },
@@ -90,6 +92,7 @@ export async function actualizarProducto(
     const parsed = productoDulceriaSchema.safeParse({
       nombre: formData.get("nombre"),
       categoria: formData.get("categoria"),
+      costo: formData.get("costo"),
       precio: formData.get("precio"),
       stock: formData.get("stock"),
       imagenUrl: imagenUrl ?? "",
@@ -111,6 +114,7 @@ export async function actualizarProducto(
       where: { id },
       data: {
         ...parsed.data,
+        costo: new Prisma.Decimal(parsed.data.costo),
         precio: new Prisma.Decimal(parsed.data.precio),
         imagenUrl: nuevaImagen,
       },

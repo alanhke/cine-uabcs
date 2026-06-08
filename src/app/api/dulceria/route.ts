@@ -11,5 +11,16 @@ export async function GET() {
       include: { detalles: { include: { producto: true } } },
     }),
   ]);
-  return NextResponse.json({ productos, combos });
+  return NextResponse.json({
+    productos,
+    combos: combos.map((combo) => ({
+      ...combo,
+      detalles: combo.detalles.map((detalle) => ({
+        id: detalle.id,
+        productoId: detalle.productoId,
+        cantidad: detalle.cantidad,
+        nombre: detalle.producto.nombre,
+      })),
+    })),
+  });
 }

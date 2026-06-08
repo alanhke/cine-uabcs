@@ -35,6 +35,17 @@ interface CheckoutForm {
   paypalPassword: string;
 }
 
+type SavedPaymentMethod = {
+  id: number;
+  tipo: "tarjeta" | "paypal";
+  titulo: string;
+  detalle: string;
+  ultimos4Tarjeta: string | null;
+  titularTarjeta: string | null;
+  vencimientoTarjeta: string | null;
+  paypalCorreo: string | null;
+};
+
 function validarVencimientoTarjeta(value: string) {
   const match = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(value);
   if (!match) return "Usa el formato MM/AA";
@@ -61,6 +72,9 @@ export default function CheckoutPage() {
   const [subtotalBoletos, setSubtotalBoletos] = useState(0);
   const [subtotalDulceria, setSubtotalDulceria] = useState(0);
   const [tieneDulceria, setTieneDulceria] = useState(false);
+  const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[]>([]);
+  const [selectedSavedMethodId, setSelectedSavedMethodId] = useState<number | null>(null);
+  const [guardarMetodoPago, setGuardarMetodoPago] = useState(false);
   const [boletosPayload, setBoletosPayload] = useState<
     Array<{
       funcionId: number;
@@ -75,6 +89,7 @@ export default function CheckoutPage() {
     handleSubmit,
     watch,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutForm>({
     defaultValues: {
@@ -148,6 +163,35 @@ export default function CheckoutPage() {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (!session?.user?.clienteId) {
+      setSavedMethods([]);
+      setSelectedSavedMethodId(null);
+      setGuardarMetodoPago(false);
+      return;
+    }
+    fetch("/api/perfil/metodos-pago")
+      .then((response) => response.json())
+      .then((data) => {
+        setSavedMethods(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        setSavedMethods([]);
+      });
+  }, [session?.user?.clienteId]);
+
+  function selectSavedMethod(method: SavedPaymentMethod) {
+    setSelectedSavedMethodId(method.id);
+    if (method.tipo === "tarjeta") {
+      setValue("metodoPago", "tarjeta");
+      setValue("titularTarjeta", method.titularTarjeta ?? "");
+      setValue("vencimientoTarjeta", method.vencimientoTarjeta ?? "");
+      return;
+    }
+    setValue("metodoPago", "paypal");
+    setValue("paypalCorreo", method.paypalCorreo ?? "");
+  }
+
   async function onSubmit(data: CheckoutForm) {
     const schema = requiereInvitado ? checkoutInvitadoSchema : checkoutRegistradoSchema;
     const parsed = schema.safeParse(data);
@@ -202,6 +246,7 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         ...parsed.data,
         esInvitado: requiereInvitado,
+        guardarMetodoPago: guardarMetodoPago && Boolean(session?.user?.clienteId),
         boletos: boletosPayload,
         dulceria: dulceriaCart,
         pago:
@@ -233,7 +278,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="sala-scene lights-dim min-h-[calc(100dvh-4rem)] space-y-6 px-4 py-6 pb-8">
+    <div className="sala-scene lights-dim min-h-[calc(100dvh-4rem)] px-4 py-6 pb-8">
       <PageHeaderConVolver
         href={tieneDulceria && resumenBoletos.length === 0 ? "/dulceria" : "/compra/dulceria"}
         label="Dulcería"
@@ -242,6 +287,7 @@ export default function CheckoutPage() {
         onDark
       />
 
+      <div className="mx-auto max-w-5xl space-y-6">
       <Card className="border-white/10 bg-sala-surface text-sala-ink">
         <CardContent className="space-y-2 py-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-sala-muted">
@@ -315,29 +361,56 @@ export default function CheckoutPage() {
             />
           </div>
 
-          <div className="space-y-3 rounded-lg border border-navy/10 bg-cream/40 p-3">
+          <div className="space-y-3 rounded-2xl border border-navy/10 bg-cream p-3">
             <Label>Método de pago simulado</Label>
             <div className="grid grid-cols-2 gap-2">
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
                 <input
                   type="radio"
                   value="tarjeta"
                   className="h-4 w-4 accent-primary"
+                  onClick={() => setSelectedSavedMethodId(null)}
                   {...register("metodoPago")}
                 />
                 Tarjeta
               </label>
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-navy/15 bg-white px-3 py-2 text-sm font-semibold text-navy transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
                 <input
                   type="radio"
                   value="paypal"
                   className="h-4 w-4 accent-primary"
+                  onClick={() => setSelectedSavedMethodId(null)}
                   {...register("metodoPago")}
                 />
                 PayPal
               </label>
             </div>
           </div>
+
+          {savedMethods.filter((method) => method.tipo === metodoPago).length > 0 ? (
+            <div className="space-y-2">
+              <Label>Métodos guardados</Label>
+              <div className="grid gap-2">
+                {savedMethods
+                  .filter((method) => method.tipo === metodoPago)
+                  .map((method) => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => selectSavedMethod(method)}
+                      className={`rounded-2xl border px-4 py-3 text-left transition ${
+                        selectedSavedMethodId === method.id
+                          ? "border-primary bg-primary/10"
+                          : "border-navy/10 bg-cream"
+                      }`}
+                    >
+                      <p className="font-semibold text-navy">{method.titulo}</p>
+                      <p className="text-sm text-navy/60">{method.detalle}</p>
+                    </button>
+                  ))}
+              </div>
+            </div>
+          ) : null}
 
           {metodoPago === "tarjeta" ? (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -405,6 +478,17 @@ export default function CheckoutPage() {
               </div>
             </div>
           )}
+          {session?.user?.clienteId ? (
+            <label className="flex items-start gap-2 rounded-2xl border border-navy/10 bg-cream px-3 py-3 text-sm text-navy/70">
+              <input
+                type="checkbox"
+                checked={guardarMetodoPago}
+                onChange={(event) => setGuardarMetodoPago(event.target.checked)}
+                className="mt-1"
+              />
+              <span>Guardar método de pago para futuras compras</span>
+            </label>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -418,6 +502,7 @@ export default function CheckoutPage() {
       >
         {isSubmitting ? "Procesando..." : "Pagar (simulado)"}
       </Button>
+      </div>
     </div>
   );
 }

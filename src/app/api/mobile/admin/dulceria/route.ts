@@ -11,6 +11,7 @@ type MobileDulceriaPayload = {
   nombre?: unknown;
   descripcion?: unknown;
   categoria?: unknown;
+  costo?: unknown;
   precio?: unknown;
   stock?: unknown;
   productoIds?: unknown;
@@ -41,12 +42,13 @@ async function upsertProducto(body: MobileDulceriaPayload) {
   const data = {
     nombre: String(body.nombre ?? "").trim(),
     categoria: String(body.categoria ?? body.descripcion ?? "General").trim(),
+    costo: new Prisma.Decimal(Number(body.costo ?? 0)),
     precio: new Prisma.Decimal(Number(body.precio ?? 0)),
     stock: Number(body.stock ?? 0),
     estado: "ACTIVO" as const,
   };
 
-  if (!data.nombre || Number(data.precio) <= 0) {
+  if (!data.nombre || Number(data.costo) < 0 || Number(data.precio) <= 0) {
     throw new Response(JSON.stringify({ error: "Datos de producto inválidos" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

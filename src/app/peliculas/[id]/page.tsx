@@ -2,9 +2,10 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarClock, ChevronRight } from "lucide-react";
+import { CalendarClock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { filtroFuncionesFuturas } from "@/lib/datetime";
+import { funcionSigueDisponible, startOfDay } from "@/lib/datetime";
+import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { RatingSummary } from "@/components/peliculas/rating-summary";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,7 +24,7 @@ export default async function PeliculaDetailPage({
     where: { id },
     include: {
       funciones: {
-        where: { estado: "ACTIVO", ...filtroFuncionesFuturas() },
+        where: { estado: "ACTIVO" },
         include: { sala: true, preciosTipo: { include: { tipoBoleto: true } } },
         orderBy: { fechaHora: "asc" },
       },
@@ -31,6 +32,9 @@ export default async function PeliculaDetailPage({
   });
 
   if (!pelicula) notFound();
+  pelicula.funciones = pelicula.funciones.filter((funcion) =>
+    funcionSigueDisponible(funcion.fechaHora, pelicula.duracionMin)
+  );
 
   const [calificacionAggregate, calificacionDistribucion] = await Promise.all([
     prisma.calificacion.aggregate({
@@ -60,6 +64,23 @@ export default async function PeliculaDetailPage({
     }),
   };
   const promedio = resumenCalificaciones.promedio;
+  const funcionesPorDia = pelicula.funciones.reduce<
+    Array<{
+      key: string;
+      date: Date;
+      funciones: typeof pelicula.funciones;
+    }>
+  >((acc, funcion) => {
+    const day = startOfDay(funcion.fechaHora);
+    const key = day.toISOString();
+    const existing = acc.find((item) => item.key === key);
+    if (existing) {
+      existing.funciones.push(funcion);
+      return acc;
+    }
+    acc.push({ key, date: day, funciones: [funcion] });
+    return acc;
+  }, []);
 
   return (
     <div className="pb-10">
@@ -101,38 +122,82 @@ export default async function PeliculaDetailPage({
             <p className="text-xs text-navy/55">Vuelve pronto: la cartelera se actualiza cada semana.</p>
           </div>
         ) : (
-          <div className="reveal-grid space-y-3">
-            {pelicula.funciones.map((f) => (
-              <Card
-                key={f.id}
-                className="group relative transition-[transform,box-shadow] duration-200 ease-out-quart hover:-translate-y-0.5 hover:shadow-matinee active:scale-[0.99]"
-              >
-                <Link
-                  href={`/compra/funcion/${f.id}/butacas`}
-                  aria-label={`Elegir butacas para ${f.sala.nombre}, ${formatDateTime(f.fechaHora)}`}
-                  className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
-                />
-                <CardContent className="flex items-center justify-between gap-3 py-4">
-                  <div className="min-w-0 space-y-0.5">
-                    <p className="truncate font-semibold text-navy">{f.sala.nombre}</p>
-                    <p className="flex items-center gap-1.5 text-sm text-navy/60">
-                      <CalendarClock className="h-3.5 w-3.5 shrink-0" />
-                      {formatDateTime(f.fechaHora)}
-                    </p>
-                    <p className="text-sm text-navy/70">
-                      desde{" "}
-                      <span className="font-semibold text-navy">
-                        {formatCurrency(Number(f.precioBase))}
-                      </span>
-                    </p>
+          <div className="space-y-6">
+            {funcionesPorDia.map((dia, index) => {
+              const espanhol = dia.funciones.filter(
+                (funcion) => getIdiomaFuncionLabel(funcion.idioma) === "Español"
+              );
+              const subtitulada = dia.funciones.filter(
+                (funcion) => getIdiomaFuncionLabel(funcion.idioma) === "Subtitulada"
+              );
+
+              return (
+                <div key={dia.key} className="space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-display text-lg font-bold text-navy capitalize">
+                        {index === 0
+                          ? "Hoy"
+                          : new Intl.DateTimeFormat("es-MX", {
+                              weekday: "long",
+                              timeZone: "America/Mazatlan",
+                            }).format(dia.date)}
+                      </p>
+                      <p className="text-sm text-navy/55">
+                        {new Intl.DateTimeFormat("es-MX", {
+                          day: "numeric",
+                          month: "long",
+                          timeZone: "America/Mazatlan",
+                        }).format(dia.date)}
+                      </p>
+                    </div>
                   </div>
-                  <span className="relative z-0 inline-flex h-9 shrink-0 items-center gap-1 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground shadow-cta transition-colors duration-150 ease-out-quart group-hover:bg-primary-dark">
-                    Butacas
-                    <ChevronRight className="h-4 w-4 transition-transform duration-300 ease-out-quart group-hover:translate-x-0.5" />
-                  </span>
-                </CardContent>
-              </Card>
-            ))}
+
+                  {[
+                    { label: "Español", funciones: espanhol },
+                    { label: "Subtitulada", funciones: subtitulada },
+                  ].map((grupo) =>
+                    grupo.funciones.length > 0 ? (
+                      <div key={grupo.label} className="space-y-3">
+                        <p className="rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-navy/80">
+                          {grupo.label}
+                        </p>
+                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                          {grupo.funciones.map((f) => (
+                            <Card
+                              key={f.id}
+                              className="group relative transition-[transform,box-shadow] duration-200 ease-out-quart hover:-translate-y-0.5 hover:shadow-matinee active:scale-[0.99]"
+                            >
+                              <Link
+                                href={`/compra/funcion/${f.id}?paso=asientos`}
+                                aria-label={`Elegir horario ${formatDateTime(f.fechaHora)} en ${f.sala.nombre}`}
+                                className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+                              />
+                              <CardContent className="space-y-2 py-4">
+                                <p className="font-display text-xl font-bold text-navy">
+                                  {new Intl.DateTimeFormat("es-MX", {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    timeZone: "America/Mazatlan",
+                                  }).format(f.fechaHora)}
+                                </p>
+                                <p className="truncate font-semibold text-navy/80">{f.sala.nombre}</p>
+                                <p className="text-sm text-navy/70">
+                                  desde{" "}
+                                  <span className="font-semibold text-navy">
+                                    {formatCurrency(Number(f.precioBase))}
+                                  </span>
+                                </p>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </section>

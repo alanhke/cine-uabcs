@@ -15,7 +15,11 @@ import { TmdbImportPanel } from "@/components/admin/tmdb-import-panel";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import { DashboardCharts } from "@/components/admin/dashboard-charts";
+import {
+  AsistenciaCard,
+  VentasChart,
+  SatisfaccionChart,
+} from "@/components/admin/dashboard-charts";
 import { SeatHeatmap } from "@/components/admin/seat-heatmap";
 import { ConversacionesImpacto } from "@/components/admin/conversaciones-impacto";
 import { AdminDashboardNavigation } from "@/components/admin/admin-dashboard-navigation";
@@ -178,6 +182,34 @@ export default function AdminDashboardPage() {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="mt-3 min-w-0">
+              <VentasChart
+                data={stats}
+                chartKey={`${stats.rango}-${stats.totalCompras}`}
+              />
+            </div>
+
+            {stats.porPelicula.length > 0 && (
+              <Card className="mt-3">
+                <CardContent className="py-4">
+                  <CardTitle className="mb-3 text-base">
+                    Por película (periodo)
+                  </CardTitle>
+                  {stats.porPelicula.map((p) => (
+                    <div
+                      key={p.titulo}
+                      className="flex justify-between border-b border-navy/5 py-2 text-sm"
+                    >
+                      <span className="text-navy">{p.titulo}</span>
+                      <span className="font-medium text-navy">
+                        {p.boletos} boletos · {formatCurrency(p.ingresos)}
+                      </span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </section>
 
           {stats.inventario.stockBajo.length > 0 && (
@@ -278,13 +310,32 @@ export default function AdminDashboardPage() {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="mt-3">
+              <AsistenciaCard data={stats} />
+            </div>
+
+            <div className="mt-3 min-w-0">
+              <Card>
+                <CardContent className="py-4">
+                  <CardTitle className="mb-1 text-base">
+                    Mapa de calor de butacas
+                  </CardTitle>
+                  <p className="mb-4 text-sm text-navy/60">
+                    Demanda por asiento en el periodo seleccionado. Útil para
+                    ajustar precios por zona y distribución de funciones.
+                  </p>
+                  <SeatHeatmap mapas={stats.mapasButacas} />
+                </CardContent>
+              </Card>
+            </div>
           </section>
 
           <section>
             <h2 className="mb-3 font-display text-lg font-bold text-navy">
               Dulcería
             </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Card className="border-navy/15 bg-white/90">
                 <CardContent className="py-5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
@@ -324,6 +375,38 @@ export default function AdminDashboardPage() {
                   <p className="mt-1 text-xs text-navy/50">
                     por compra con dulcería
                   </p>
+                </CardContent>
+              </Card>
+              <Card className="border-navy/15 bg-white/90">
+                <CardContent className="py-5">
+                  <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-navy/50">
+                    <Popcorn className="h-3.5 w-3.5" />
+                    Más solicitado
+                  </p>
+                  <div className="mt-2 space-y-2">
+                    <div>
+                      <p className="text-xs text-navy/50">Producto</p>
+                      <p className="font-display text-lg font-bold text-navy">
+                        {stats.dulceriaMetrics.productoTop?.nombre ?? "—"}
+                      </p>
+                      {stats.dulceriaMetrics.productoTop && (
+                        <p className="text-xs text-navy/50">
+                          {stats.dulceriaMetrics.productoTop.cantidad} vendidos
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs text-navy/50">Combo</p>
+                      <p className="font-display text-lg font-bold text-navy">
+                        {stats.dulceriaMetrics.comboTop?.nombre ?? "—"}
+                      </p>
+                      {stats.dulceriaMetrics.comboTop && (
+                        <p className="text-xs text-navy/50">
+                          {stats.dulceriaMetrics.comboTop.cantidad} vendidos
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -375,45 +458,11 @@ export default function AdminDashboardPage() {
           <ConversacionesImpacto items={stats.conversacionesImpacto} />
 
           <section className="min-w-0">
-            <DashboardCharts
+            <SatisfaccionChart
               data={stats}
               chartKey={`${stats.rango}-${stats.totalCompras}`}
             />
           </section>
-
-          <section className="min-w-0">
-            <Card>
-              <CardContent className="py-4">
-                <CardTitle className="mb-1 text-base">
-                  Mapa de calor de butacas
-                </CardTitle>
-                <p className="mb-4 text-sm text-navy/60">
-                  Demanda por asiento en el periodo seleccionado. Útil para
-                  ajustar precios por zona y distribución de funciones.
-                </p>
-                <SeatHeatmap mapas={stats.mapasButacas} />
-              </CardContent>
-            </Card>
-          </section>
-
-          {stats.porPelicula.length > 0 && (
-            <Card>
-              <CardContent className="py-4">
-                <CardTitle className="mb-3 text-base">Por película (periodo)</CardTitle>
-                {stats.porPelicula.map((p) => (
-                  <div
-                    key={p.titulo}
-                    className="flex justify-between border-b border-navy/5 py-2 text-sm"
-                  >
-                    <span className="text-navy">{p.titulo}</span>
-                    <span className="font-medium text-navy">
-                      {p.boletos} boletos · {formatCurrency(p.ingresos)}
-                    </span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
         </>
       )}
 

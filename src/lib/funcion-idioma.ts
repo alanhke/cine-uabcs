@@ -1,12 +1,16 @@
 import type { IdiomaFuncion } from "@prisma/client";
 
-/** Opciones de idioma disponibles para una función. */
-export const IDIOMAS_FUNCION: { value: IdiomaFuncion; label: string }[] = [
-  { value: "ESPANOL", label: "Doblada" },
+export const IDIOMA_FUNCION_OPTIONS: Array<{
+  value: IdiomaFuncion;
+  label: "Español" | "Subtitulada";
+}> = [
+  { value: "ESPANOL", label: "Español" },
   { value: "SUBTITULADA", label: "Subtitulada" },
 ];
 
-/** Etiqueta legible para el idioma de una función. */
-export function getIdiomaFuncionLabel(idioma: IdiomaFuncion): string {
-  return idioma === "SUBTITULADA" ? "Subtitulada" : "Doblada";
+export function getIdiomaFuncionLabel(idioma: IdiomaFuncion) {
+  return (
+    IDIOMA_FUNCION_OPTIONS.find((option) => option.value === idioma)?.label ??
+    "Español"
+  );
 }

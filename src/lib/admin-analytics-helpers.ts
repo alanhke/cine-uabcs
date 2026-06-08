@@ -84,6 +84,18 @@ export function construirMapasButacas(
     ventasPorButaca.set(clave, (ventasPorButaca.get(clave) ?? 0) + 1);
   }
 
+  return construirMapasButacasConConteos(salas, ventasPorButaca);
+}
+
+/**
+ * Igual que `construirMapasButacas`, pero recibe los conteos ya agregados
+ * (clave `${salaId}:${butacaId}` -> ventas). Permite alimentar el heatmap
+ * desde un GROUP BY en la base de datos sin materializar un boleto por venta.
+ */
+export function construirMapasButacasConConteos(
+  salas: SalaConButacasInput[],
+  ventasPorButaca: Map<string, number>
+): SalaHeatmap[] {
   return salas.map((sala) => {
     const filasCentrales = obtenerPosicionesCentrales(sala.filas);
     const columnasCentrales = obtenerPosicionesCentrales(sala.columnas);

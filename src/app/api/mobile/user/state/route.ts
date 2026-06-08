@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { handleMobileError, requireMobileUser } from "@/lib/mobile-auth";
+import {
+  mapConcessionPackages,
+  mapTicketPackages,
+  mobileQrsCompraInclude,
+  type MobileQrCompra,
+} from "@/lib/mobile-purchase";
 
 export const dynamic = "force-dynamic";
 
@@ -60,11 +66,12 @@ export async function GET(req: Request) {
                 },
               },
               detalleDulceria: true,
+              qrsCompra: mobileQrsCompraInclude,
             },
           })
         : Promise.resolve([]),
       prisma.resena.findMany({
-        where: { estado: "ACTIVO" },
+        where: { estado: "ACTIVO", parentResenaId: null },
         orderBy: { createdAt: "desc" },
         include: {
           usuario: {
@@ -122,6 +129,7 @@ export async function GET(req: Request) {
           ? `Codigo de amigo: ${u.cliente.codigoAmigo}`
           : "Usuario de Cine UABCS",
         isOnline: false,
+        friendCode: u.cliente?.codigoAmigo ?? "",
       })),
       friendIds,
       incomingRequestIds,
@@ -168,6 +176,8 @@ export async function GET(req: Request) {
           status: compra.estado === "CONFIRMADA" ? "Activa" : String(compra.estado),
           ticketTotal,
           concessionsTotal,
+          ticketPackages: mapTicketPackages(compra.qrsCompra as MobileQrCompra[]),
+          concessionPackages: mapConcessionPackages(compra.qrsCompra as MobileQrCompra[]),
         };
       }),
       reviews: resenas.map((resena) => ({

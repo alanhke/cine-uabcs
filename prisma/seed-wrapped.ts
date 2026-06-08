@@ -187,6 +187,7 @@ export async function seedWrappedHistorial(prisma: PrismaClient) {
         peliculaId: pel.id,
         salaId: sala.id,
         fechaHora: haceMeses(3 + i, 18 + i),
+        idioma: i % 2 === 0 ? "ESPANOL" : "SUBTITULADA",
         precioBase: new Prisma.Decimal(120),
       },
     });

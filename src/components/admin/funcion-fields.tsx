@@ -1,7 +1,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toDatetimeLocalValue } from "@/lib/datetime";
-import { IDIOMAS_FUNCION } from "@/lib/funcion-idioma";
+import { IDIOMA_FUNCION_OPTIONS } from "@/lib/funcion-idioma";
+import type { IdiomaFuncion } from "@prisma/client";
 
 interface Opcion {
   id: number;
@@ -19,8 +20,8 @@ export function FuncionFields({
     peliculaId: number;
     salaId: number;
     fechaHora: Date | string;
+    idioma: IdiomaFuncion;
     precioBase: number;
-    idioma: string;
     estado: string;
   };
 }) {
@@ -73,6 +74,21 @@ export function FuncionFields({
         <p className="text-xs text-navy/50">Debe ser una fecha futura</p>
       </div>
       <div className="space-y-1">
+        <Label>Idioma</Label>
+        <select
+          name="idioma"
+          defaultValue={defaults?.idioma ?? "ESPANOL"}
+          required
+          className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"
+        >
+          {IDIOMA_FUNCION_OPTIONS.map((idioma) => (
+            <option key={idioma.value} value={idioma.value}>
+              {idioma.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="space-y-1">
         <Label>Precio base (adulto)</Label>
         <Input
           name="precioBase"
@@ -87,20 +103,6 @@ export function FuncionFields({
             Tipos de boleto se recalculan al guardar
           </p>
         )}
-      </div>
-      <div className="space-y-1">
-        <Label>Idioma</Label>
-        <select
-          name="idioma"
-          defaultValue={defaults?.idioma ?? "ESPANOL"}
-          className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"
-        >
-          {IDIOMAS_FUNCION.map((i) => (
-            <option key={i.value} value={i.value}>
-              {i.label}
-            </option>
-          ))}
-        </select>
       </div>
       <div className="space-y-1">
         <Label>Estado</Label>

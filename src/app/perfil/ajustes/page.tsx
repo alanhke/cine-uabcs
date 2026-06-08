@@ -10,6 +10,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PerfilForm } from "@/components/perfil/perfil-form";
+import { PaymentMethodsManager } from "@/components/perfil/payment-methods-manager";
 import { getLoginRedirect } from "@/lib/access-control";
 
 export default function PerfilAjustesPage() {
@@ -129,9 +130,7 @@ export default function PerfilAjustesPage() {
           <p className="text-sm text-navy/65">
             CineUABCS usa un <strong>pago simulado</strong>.
           </p>
-          <Button variant="outline" disabled className="w-full border-navy/15">
-            Gestionar métodos de pago
-          </Button>
+          <PaymentMethodsManager />
         </CardContent>
       </Card>
     </div>

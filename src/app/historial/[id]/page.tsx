@@ -1,11 +1,13 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { QrDisplay } from "@/components/compra/qr-display";
 import {
   obtenerDetalleCompraPorId,
@@ -48,6 +50,12 @@ export default async function HistorialDetallePage({
         soloDulceria={soloDulceria}
         resumenDulceria={soloDulceria ? resumenDulceria : undefined}
       />
+
+      {(compra.boletos.length > 0 || compra.detalleDulceria.length > 0) && (
+        <Link href={`/compra/${compra.id}/boletos`}>
+          <Button className="w-full">Separar QR</Button>
+        </Link>
+      )}
 
       {compra.boletos.length > 0 ? (
         <Card>

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type IdiomaFuncion } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getMobileCatalog } from "@/lib/mobile-catalog";
 import { handleMobileError, requireMobileAdmin } from "@/lib/mobile-auth";
@@ -9,15 +9,32 @@ export async function POST(req: Request) {
   try {
     await requireMobileAdmin(req);
     const body = await req.json();
+    if (body.action === "delete") {
+      const id = Number(body.id);
+      if (!Number.isFinite(id) || id <= 0) {
+        return Response.json({ error: "ID inválido" }, { status: 400 });
+      }
+
+      await prisma.funcion.update({
+        where: { id },
+        data: { estado: "ELIMINADO" },
+      });
+
+      return Response.json(await getMobileCatalog());
+    }
+
     const id = Number(body.id);
     const peliculaId = Number(body.peliculaId);
     const salaId = Number(body.salaId);
     const fechaHora = new Date(String(body.fechaHora));
+    const idioma: IdiomaFuncion =
+      body.idioma === "SUBTITULADA" ? "SUBTITULADA" : "ESPANOL";
     const precioBase = Number(body.precioBase);
     const data = {
       peliculaId,
       salaId,
       fechaHora,
+      idioma,
       precioBase: new Prisma.Decimal(precioBase),
       estado: "ACTIVO" as const,
     };

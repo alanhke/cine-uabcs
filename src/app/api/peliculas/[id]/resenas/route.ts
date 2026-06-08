@@ -219,14 +219,30 @@ export async function POST(
       update: { puntuacion: puntuacionNormalizada },
     });
 
+    const includeResena = {
+      usuario: { select: usuarioSelect },
+      respuestas: {
+        include: { usuario: { select: usuarioSelect } },
+      },
+    };
+
+    // Una sola reseña (de raíz) por usuario y película: si ya existe, se actualiza.
+    const existente = await tx.resena.findFirst({
+      where: { usuarioId, peliculaId, parentResenaId: null, estado: "ACTIVO" },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (existente) {
+      return tx.resena.update({
+        where: { id: existente.id },
+        data: { comentario: comentario.trim() },
+        include: includeResena,
+      });
+    }
+
     return tx.resena.create({
       data: { usuarioId, peliculaId, comentario: comentario.trim() },
-      include: {
-        usuario: { select: usuarioSelect },
-        respuestas: {
-          include: { usuario: { select: usuarioSelect } },
-        },
-      },
+      include: includeResena,
     });
   });
   return NextResponse.json({ resena }, { status: 201 });

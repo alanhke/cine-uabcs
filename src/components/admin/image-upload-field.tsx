@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Clapperboard, User } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { SafeImage } from "@/components/ui/safe-image";
+import { useToast } from "@/components/ui/toast-provider";
 import { isBlobPreviewUrl, resolveImageSrc } from "@/lib/image-src";
 import { cn } from "@/lib/utils";
 import type { UploadPrefix } from "@/lib/uploads";
@@ -27,6 +28,7 @@ export function ImageUploadField({
   hint = "JPG, PNG, WebP o GIF · máx. 5 MB",
 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   /** Ruta ya guardada en servidor; nunca una vista previa blob: */
   const savedPath = resolveImageSrc(currentPath) ?? "";
@@ -51,12 +53,24 @@ export function ImageUploadField({
 
   function onFileChange(file: File | undefined) {
     if (!file) return;
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      if (inputRef.current) inputRef.current.value = "";
+      toast("Formato inválido. Usa JPG, PNG, WebP o GIF.", "error");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      if (inputRef.current) inputRef.current.value = "";
+      toast("La imagen excede el tamaño máximo de 5 MB.", "error");
+      return;
+    }
 
     setBlobPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
     });
     setHasNewFile(true);
+    toast("Imagen seleccionada. Se subirá al guardar los cambios.");
   }
 
   function clearSelection() {
@@ -71,12 +85,14 @@ export function ImageUploadField({
   const previewSrc = blobPreview ?? (savedPath || null);
 
   const Icon = variant === "avatar" ? User : Clapperboard;
+  // Dimensiones explícitas: SafeImage con `fill` posiciona su contenido en
+  // absolute, así que el contenedor necesita ancho y alto fijos o colapsaría a 0.
   const aspect =
     variant === "avatar"
-      ? "aspect-square max-w-[120px] rounded-full"
+      ? "h-[120px] w-[120px] rounded-full"
       : variant === "product"
-        ? "aspect-square max-w-[120px]"
-        : "aspect-[2/3] max-w-[140px]";
+        ? "h-[120px] w-[120px]"
+        : "h-[210px] w-[140px]";
 
   return (
     <div className="space-y-3">

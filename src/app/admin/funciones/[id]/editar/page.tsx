@@ -50,8 +50,8 @@ export default async function EditarFuncionPage({
                 peliculaId: funcion.peliculaId,
                 salaId: funcion.salaId,
                 fechaHora: funcion.fechaHora,
-                precioBase: Number(funcion.precioBase),
                 idioma: funcion.idioma,
+                precioBase: Number(funcion.precioBase),
                 estado: funcion.estado,
               }}
             />

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormError } from "@/components/ui/form-error";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
+import { useToast } from "@/components/ui/toast-provider";
 import { actualizarPerfil } from "@/app/actions/perfil";
 
 function SubmitButton() {
@@ -19,6 +20,7 @@ function SubmitButton() {
 }
 
 export function PerfilForm() {
+  const { toast } = useToast();
   const [state, formAction] = useFormState(actualizarPerfil, null);
   const [loaded, setLoaded] = useState(false);
   const [defaults, setDefaults] = useState({
@@ -46,9 +48,16 @@ export function PerfilForm() {
   }, []);
 
   useEffect(() => {
-    if (state?.ok) setMsg("Perfil actualizado");
-    if (state && !state.ok) setMsg("");
-  }, [state]);
+    if (state?.ok) {
+      setMsg("Perfil actualizado");
+      toast("Perfil guardado con éxito");
+      return;
+    }
+    if (state && !state.ok) {
+      setMsg("");
+      toast(state.error, "error");
+    }
+  }, [state, toast]);
 
   if (!loaded) {
     return <p className="text-sm text-navy/50">Cargando datos...</p>;

@@ -10,6 +10,8 @@ const enteroPositivo = z.coerce
   .int()
   .positive("Debe ser un número entero positivo");
 
+const tipoFuncionSchema = z.enum(["TRADICIONAL", "TRES_D", "CUATRO_D"]);
+
 export const peliculaAdminSchema = z.object({
   titulo: z.string().min(2, "Título requerido"),
   sinopsis: z.string().min(10, "Sinopsis muy corta"),
@@ -35,8 +37,9 @@ export const funcionAdminSchema = z
     peliculaId: z.coerce.number().int().positive(),
     salaId: z.coerce.number().int().positive(),
     fechaHora: z.string().min(1, "Fecha y hora requeridas"),
-    precioBase: precioPositivo,
     idioma: z.enum(["ESPANOL", "SUBTITULADA"]),
+    precioBase: precioPositivo,
+    tipoFuncion: tipoFuncionSchema.default("TRADICIONAL"),
     estado: z.enum(["ACTIVO", "INACTIVO"]),
   })
   .refine(
@@ -54,8 +57,9 @@ export const funcionAdminUpdateSchema = z.object({
   peliculaId: z.coerce.number().int().positive(),
   salaId: z.coerce.number().int().positive(),
   fechaHora: z.string().min(1, "Fecha y hora requeridas"),
-  precioBase: precioPositivo,
   idioma: z.enum(["ESPANOL", "SUBTITULADA"]),
+  precioBase: precioPositivo,
+  tipoFuncion: tipoFuncionSchema.default("TRADICIONAL"),
   estado: z.enum(["ACTIVO", "INACTIVO"]),
 });
 
@@ -64,6 +68,7 @@ export type FuncionAdminUpdateInput = z.infer<typeof funcionAdminUpdateSchema>;
 export const productoDulceriaSchema = z.object({
   nombre: z.string().min(2),
   categoria: z.string().min(2),
+  costo: z.coerce.number().min(0, "El costo no puede ser negativo"),
   precio: precioPositivo,
   stock: z.coerce.number().int().min(0),
   imagenUrl: z.string().optional().or(z.literal("")),
