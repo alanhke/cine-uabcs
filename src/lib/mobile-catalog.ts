@@ -1,6 +1,23 @@
+import type { IdiomaFuncion, TipoFuncion } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
 import { startOfDay } from "@/lib/datetime";
+
+// Etiqueta del formato/tipo de función para la app móvil.
+function tipoFuncionLabel(tipo: TipoFuncion): "Tradicional" | "3D" | "4D" {
+  switch (tipo) {
+    case "TRES_D":
+      return "3D";
+    case "CUATRO_D":
+      return "4D";
+    default:
+      return "Tradicional";
+  }
+}
+
+// Idioma como lo espera la app móvil: ESPANOL se muestra como "Doblada".
+function idiomaMovilLabel(idioma: IdiomaFuncion): "Doblada" | "Subtitulada" {
+  return idioma === "SUBTITULADA" ? "Subtitulada" : "Doblada";
+}
 
 export async function getMobileCatalog() {
   // Solo funciones de hoy en adelante: la app móvil muestra la cartelera desde
@@ -72,8 +89,9 @@ export async function getMobileCatalog() {
         peliculaId: String(funcion.peliculaId),
         salaId: String(funcion.salaId),
         sala: funcion.sala.nombre,
-        tipoSala: "Tradicional",
-        formato: `2D · ${getIdiomaFuncionLabel(funcion.idioma)}`,
+        tipoSala: tipoFuncionLabel(funcion.tipoFuncion),
+        tipoFuncion: tipoFuncionLabel(funcion.tipoFuncion),
+        formato: idiomaMovilLabel(funcion.idioma),
         idioma: funcion.idioma,
         fechaHora: funcion.fechaHora.toISOString(),
         precioBase: Number(funcion.precioBase),
