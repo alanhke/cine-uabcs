@@ -4,6 +4,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 
+/** Clasificaciones oficiales de la RTC (México). */
+const CLASIFICACIONES = [
+  { value: "AA", label: "AA — Público infantil" },
+  { value: "A", label: "A — Todo público" },
+  { value: "B", label: "B — Adolescentes y adultos (12+)" },
+  { value: "B15", label: "B15 — Mayores de 15 años" },
+  { value: "C", label: "C — Adultos (18+)" },
+  { value: "D", label: "D — Adultos, contenido extremo" },
+];
+
 export function PeliculaFields({
   defaults,
 }: {
@@ -35,12 +45,27 @@ export function PeliculaFields({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1">
           <Label>Clasificación</Label>
-          <Input
+          <select
             name="clasificacion"
-            placeholder="A, B, B15, C..."
-            defaultValue={defaults?.clasificacion}
+            defaultValue={defaults?.clasificacion ?? ""}
             required
-          />
+            className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"
+          >
+            <option value="" disabled>
+              Selecciona...
+            </option>
+            {CLASIFICACIONES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+            {defaults?.clasificacion &&
+              !CLASIFICACIONES.some((c) => c.value === defaults.clasificacion) && (
+                <option value={defaults.clasificacion}>
+                  {defaults.clasificacion}
+                </option>
+              )}
+          </select>
         </div>
         <div className="space-y-1">
           <Label>Duración (min)</Label>
