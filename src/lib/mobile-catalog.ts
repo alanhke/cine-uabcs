@@ -1,6 +1,6 @@
 import type { IdiomaFuncion, TipoFuncion } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { startOfDay } from "@/lib/datetime";
+import { serverNow } from "@/lib/datetime";
 
 // Etiqueta del formato/tipo de función para la app móvil.
 function tipoFuncionLabel(tipo: TipoFuncion): "Tradicional" | "3D" | "4D" {
@@ -20,17 +20,17 @@ function idiomaMovilLabel(idioma: IdiomaFuncion): "Doblada" | "Subtitulada" {
 }
 
 export async function getMobileCatalog() {
-  // Solo funciones de hoy en adelante: la app móvil muestra la cartelera desde
-  // el día actual, y cargar los boletos de funciones pasadas hacía explotar la
-  // memoria de la función serverless (OOM en /api/mobile/catalog).
-  const desde = startOfDay();
+  // Solo funciones futuras (que aún no empiezan): así no aparecen funciones que
+  // ya pasaron en el día y, de paso, evitamos cargar los boletos de funciones
+  // viejas que hacían explotar la memoria de la función serverless (OOM).
+  const ahora = serverNow();
   const [peliculas, productos, combos, salas, calificaciones] = await Promise.all([
     prisma.pelicula.findMany({
       where: { estado: "ACTIVO" },
       orderBy: { updatedAt: "desc" },
       include: {
         funciones: {
-          where: { estado: "ACTIVO", fechaHora: { gte: desde } },
+          where: { estado: "ACTIVO", fechaHora: { gt: ahora } },
           orderBy: { fechaHora: "asc" },
           include: {
             sala: true,
