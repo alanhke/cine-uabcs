@@ -112,9 +112,6 @@ function clavesSerie(rango: RangoVentas): string[] {
 }
 
 /** Clave de serie (día o mes) para una fecha según la granularidad del rango. */
-function claveDeFecha(date: Date, granularidad: Granularidad): string {
-  return granularidad === "mes" ? formatMonthKey(date) : formatDateKey(date);
-}
 
 /** Etiqueta legible para el eje del gráfico. */
 function etiquetaSerie(clave: string, granularidad: Granularidad): string {
