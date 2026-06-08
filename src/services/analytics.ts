@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   daysAgo,
@@ -13,7 +14,7 @@ import {
 } from "@/lib/datetime";
 import {
   calcularTicketPromedio,
-  construirMapasButacas,
+  construirMapasButacasConConteos,
 } from "@/lib/admin-analytics-helpers";
 import type { RangoVentas } from "@/lib/validations/admin";
 import type { AdminAnalytics, ConversacionImpacto } from "@/types/admin-analytics";
@@ -168,9 +169,31 @@ export async function obtenerAnalyticsAdmin(
   const hoyInicio = startOfDay(ahora);
   const hoyFin = endOfDay(ahora);
 
+  // Filtros reutilizables. Las métricas se calculan con agregaciones/GROUP BY en
+  // la base para no materializar un boleto por venta (a escala anual eso son
+  // cientos de miles de filas y revienta el driver).
+  const whereCompraRango = {
+    estado: "CONFIRMADA" as const,
+    fechaCompra: { gte: inicio, lte: fin },
+  };
+  const fmtSerie = granularidad === "mes" ? "%Y-%m" : "%Y-%m-%d";
+  const claveSerieSql = (columna: string) =>
+    Prisma.raw(
+      `DATE_FORMAT(CONVERT_TZ(${columna}, '+00:00', '-07:00'), '${fmtSerie}')`
+    );
+
   const [
-    comprasRango,
-    boletosConButaca,
+    compraAgg,
+    boletoAgg,
+    dulceriaAgg,
+    comprasConDulceria,
+    boletosPorPelicula,
+    dulceriaPorProducto,
+    ventasPorButacaGrupo,
+    serieCompras,
+    serieBoletos,
+    serieDulceria,
+    boletosHoy,
     calificaciones,
     conversacionesImpacto,
     funcionesRango,
@@ -178,27 +201,64 @@ export async function obtenerAnalyticsAdmin(
     productosStock,
     salasConButacas,
   ] = await Promise.all([
-    prisma.compra.findMany({
-      where: {
-        estado: "CONFIRMADA",
-        fechaCompra: { gte: inicio, lte: fin },
-      },
-      include: {
-        boletos: { include: { funcion: { include: { pelicula: true } } } },
-        detalleDulceria: { include: { producto: true, combo: true } },
-      },
+    prisma.compra.aggregate({
+      where: whereCompraRango,
+      _sum: { total: true },
+      _count: true,
     }),
-    prisma.boleto.findMany({
+    prisma.boleto.aggregate({
+      where: { compra: whereCompraRango },
+      _sum: { precioUnitario: true },
+      _count: true,
+    }),
+    prisma.detalleDulceriaCompra.aggregate({
+      where: { compra: whereCompraRango },
+      _sum: { subtotal: true },
+    }),
+    prisma.compra.count({
+      where: { ...whereCompraRango, detalleDulceria: { some: {} } },
+    }),
+    // Boletos por función (para agrupar por película) en el rango de compra.
+    prisma.boleto.groupBy({
+      by: ["funcionId"],
+      where: { compra: whereCompraRango },
+      _count: { _all: true },
+      _sum: { precioUnitario: true },
+    }),
+    // Cantidad de dulcería por producto/combo en el rango.
+    prisma.detalleDulceriaCompra.groupBy({
+      by: ["productoId", "comboId"],
+      where: { compra: whereCompraRango },
+      _sum: { cantidad: true },
+    }),
+    // Ventas por butaca (para el mapa de calor) sin traer cada boleto.
+    prisma.boleto.groupBy({
+      by: ["butacaId"],
+      where: { compra: whereCompraRango },
+      _count: { _all: true },
+    }),
+    // Series temporales agregadas por día/mes (La Paz, UTC-7) vía SQL.
+    prisma.$queryRaw<Array<{ k: string; ingresos: Prisma.Decimal | null }>>`
+      SELECT ${claveSerieSql("fecha_compra")} AS k, SUM(total) AS ingresos
+      FROM compras
+      WHERE estado = 'CONFIRMADA' AND fecha_compra BETWEEN ${inicio} AND ${fin}
+      GROUP BY k`,
+    prisma.$queryRaw<Array<{ k: string; boletos: bigint }>>`
+      SELECT ${claveSerieSql("c.fecha_compra")} AS k, COUNT(*) AS boletos
+      FROM boletos b JOIN compras c ON b.compra_id = c.id
+      WHERE c.estado = 'CONFIRMADA' AND c.fecha_compra BETWEEN ${inicio} AND ${fin}
+      GROUP BY k`,
+    prisma.$queryRaw<Array<{ k: string; dulceria: Prisma.Decimal | null }>>`
+      SELECT ${claveSerieSql("c.fecha_compra")} AS k, SUM(d.subtotal) AS dulceria
+      FROM detalle_dulceria_compra d JOIN compras c ON d.compra_id = c.id
+      WHERE c.estado = 'CONFIRMADA' AND c.fecha_compra BETWEEN ${inicio} AND ${fin}
+      GROUP BY k`,
+    // Boletos vendidos hoy (para la métrica de asistencia).
+    prisma.boleto.count({
       where: {
         compra: {
           estado: "CONFIRMADA",
-          fechaCompra: { gte: inicio, lte: fin },
-        },
-      },
-      select: {
-        butacaId: true,
-        butaca: {
-          select: { salaId: true },
+          fechaCompra: { gte: hoyInicio, lte: hoyFin },
         },
       },
     }),
@@ -243,48 +303,73 @@ export async function obtenerAnalyticsAdmin(
     }),
   ]);
 
-  const ingresosBoletos = comprasRango.reduce(
-    (s, c) =>
-      s + c.boletos.reduce((b, t) => b + Number(t.precioUnitario), 0),
-    0
-  );
-  const ingresosDulceria = comprasRango.reduce(
-    (s, c) =>
-      s + c.detalleDulceria.reduce((d, i) => d + Number(i.subtotal), 0),
-    0
-  );
-  const ingresosTotales = comprasRango.reduce(
-    (s, c) => s + Number(c.total),
-    0
-  );
-  const boletosVendidos = comprasRango.reduce(
-    (s, c) => s + c.boletos.length,
-    0
-  );
+  const ingresosTotales = Number(compraAgg._sum.total ?? 0);
+  const totalCompras = compraAgg._count;
+  const ingresosBoletos = Number(boletoAgg._sum.precioUnitario ?? 0);
+  const boletosVendidos = boletoAgg._count;
+  const ingresosDulceria = Number(dulceriaAgg._sum.subtotal ?? 0);
 
+  // Película por función para agrupar los boletos del rango.
+  const funcionIdsConVentas = boletosPorPelicula.map((g) => g.funcionId);
+  const funcionesPelicula =
+    funcionIdsConVentas.length > 0
+      ? await prisma.funcion.findMany({
+          where: { id: { in: funcionIdsConVentas } },
+          select: { id: true, pelicula: { select: { titulo: true } } },
+        })
+      : [];
+  const tituloPorFuncion = new Map(
+    funcionesPelicula.map((f) => [f.id, f.pelicula.titulo])
+  );
   const porPelicula: Record<
     string,
     { titulo: string; boletos: number; ingresos: number }
   > = {};
-  for (const compra of comprasRango) {
-    for (const boleto of compra.boletos) {
-      const titulo = boleto.funcion.pelicula.titulo;
-      if (!porPelicula[titulo]) {
-        porPelicula[titulo] = { titulo, boletos: 0, ingresos: 0 };
-      }
-      porPelicula[titulo].boletos += 1;
-      porPelicula[titulo].ingresos += Number(boleto.precioUnitario);
+  for (const grupo of boletosPorPelicula) {
+    const titulo = tituloPorFuncion.get(grupo.funcionId) ?? "Sin película";
+    if (!porPelicula[titulo]) {
+      porPelicula[titulo] = { titulo, boletos: 0, ingresos: 0 };
     }
+    porPelicula[titulo].boletos += grupo._count._all;
+    porPelicula[titulo].ingresos += Number(grupo._sum.precioUnitario ?? 0);
   }
 
+  // Nombres de producto/combo para el top de dulcería.
+  const productoIds = dulceriaPorProducto
+    .map((g) => g.productoId)
+    .filter((id): id is number => id !== null);
+  const comboIds = dulceriaPorProducto
+    .map((g) => g.comboId)
+    .filter((id): id is number => id !== null);
+  const [productosNombre, combosNombre] = await Promise.all([
+    productoIds.length > 0
+      ? prisma.productoDulceria.findMany({
+          where: { id: { in: productoIds } },
+          select: { id: true, nombre: true },
+        })
+      : Promise.resolve([] as Array<{ id: number; nombre: string }>),
+    comboIds.length > 0
+      ? prisma.combo.findMany({
+          where: { id: { in: comboIds } },
+          select: { id: true, nombre: true },
+        })
+      : Promise.resolve([] as Array<{ id: number; nombre: string }>),
+  ]);
+  const nombreProducto = new Map(productosNombre.map((p) => [p.id, p.nombre]));
+  const nombreCombo = new Map(combosNombre.map((c) => [c.id, c.nombre]));
   const productosMap: Record<string, number> = {};
-  for (const compra of comprasRango) {
-    for (const det of compra.detalleDulceria) {
-      const nombre = det.producto?.nombre ?? det.combo?.nombre ?? "Otro";
-      productosMap[nombre] = (productosMap[nombre] ?? 0) + det.cantidad;
-    }
+  for (const grupo of dulceriaPorProducto) {
+    const nombre =
+      (grupo.productoId !== null
+        ? nombreProducto.get(grupo.productoId)
+        : null) ??
+      (grupo.comboId !== null ? nombreCombo.get(grupo.comboId) : null) ??
+      "Otro";
+    productosMap[nombre] =
+      (productosMap[nombre] ?? 0) + (grupo._sum.cantidad ?? 0);
   }
 
+  // Series temporales: combinar los tres GROUP BY por clave de bucket (día/mes).
   const ventasPorDia: Record<
     string,
     { ingresos: number; boletos: number; dulceria: number }
@@ -292,23 +377,20 @@ export async function obtenerAnalyticsAdmin(
   for (const clave of claves) {
     ventasPorDia[clave] = { ingresos: 0, boletos: 0, dulceria: 0 };
   }
-
-  for (const compra of comprasRango) {
-    const key = claveDeFecha(compra.fechaCompra, granularidad);
-    if (!ventasPorDia[key]) {
-      ventasPorDia[key] = { ingresos: 0, boletos: 0, dulceria: 0 };
+  const asegurarBucket = (k: string) => {
+    if (!ventasPorDia[k]) {
+      ventasPorDia[k] = { ingresos: 0, boletos: 0, dulceria: 0 };
     }
-    const totalBoletosCompra = compra.boletos.reduce(
-      (s, b) => s + Number(b.precioUnitario),
-      0
-    );
-    const totalDulceriaCompra = compra.detalleDulceria.reduce(
-      (s, d) => s + Number(d.subtotal),
-      0
-    );
-    ventasPorDia[key].ingresos += totalBoletosCompra + totalDulceriaCompra;
-    ventasPorDia[key].boletos += compra.boletos.length;
-    ventasPorDia[key].dulceria += totalDulceriaCompra;
+    return ventasPorDia[k];
+  };
+  for (const row of serieCompras) {
+    asegurarBucket(row.k).ingresos += Number(row.ingresos ?? 0);
+  }
+  for (const row of serieBoletos) {
+    asegurarBucket(row.k).boletos += Number(row.boletos ?? 0);
+  }
+  for (const row of serieDulceria) {
+    asegurarBucket(row.k).dulceria += Number(row.dulceria ?? 0);
   }
 
   const ventasSerie = claves.map((fecha) => ({
@@ -318,11 +400,6 @@ export async function obtenerAnalyticsAdmin(
     boletos: ventasPorDia[fecha]?.boletos ?? 0,
     dulceria: ventasPorDia[fecha]?.dulceria ?? 0,
   }));
-
-  const comprasHoy = comprasRango.filter(
-    (c) => c.fechaCompra >= hoyInicio && c.fechaCompra <= hoyFin
-  );
-  const boletosHoy = comprasHoy.reduce((s, c) => s + c.boletos.length, 0);
 
   // Promedio por día real del periodo (la serie puede estar agregada por mes).
   const MS_POR_DIA = 86_400_000;
@@ -340,12 +417,22 @@ export async function obtenerAnalyticsAdmin(
         ? 100
         : 0;
 
-  const mapasButacas = construirMapasButacas(
+  // Mapa de calor: conteos por butaca desde el GROUP BY (sin un boleto por fila).
+  const salaPorButaca = new Map<number, number>();
+  for (const sala of salasConButacas) {
+    for (const butaca of sala.butacas) {
+      salaPorButaca.set(butaca.id, sala.id);
+    }
+  }
+  const ventasPorButaca = new Map<string, number>();
+  for (const grupo of ventasPorButacaGrupo) {
+    const salaId = salaPorButaca.get(grupo.butacaId);
+    if (salaId === undefined) continue;
+    ventasPorButaca.set(`${salaId}:${grupo.butacaId}`, grupo._count._all);
+  }
+  const mapasButacas = construirMapasButacasConConteos(
     salasConButacas,
-    boletosConButaca.map((boleto) => ({
-      butacaId: boleto.butacaId,
-      salaId: boleto.butaca.salaId,
-    }))
+    ventasPorButaca
   );
 
   const distribucionMap: Record<number, number> = {
@@ -410,11 +497,7 @@ export async function obtenerAnalyticsAdmin(
   };
 
   // --- Métricas de dulcería ---
-  const totalCompras = comprasRango.length;
   const ticketPromedio = calcularTicketPromedio(ingresosTotales, totalCompras);
-  const comprasConDulceria = comprasRango.filter(
-    (c) => c.detalleDulceria.length > 0
-  ).length;
   const dulceriaMetrics = {
     attachRate:
       totalCompras > 0
