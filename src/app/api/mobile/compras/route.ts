@@ -12,13 +12,16 @@ const mobileCompraSchema = z
     correoComprador: z.string().trim().email(),
     telefonoComprador: z.string().trim().optional(),
     esInvitado: z.boolean().optional(),
-    funcionId: z.number().optional(),
+    // La app móvil envía estos campos como `null` (no los omite) cuando no
+    // aplican, así que aceptamos null además de undefined; más abajo se
+    // normalizan a undefined antes de crear la compra.
+    funcionId: z.number().nullish(),
     seats: z.array(z.string().trim().min(2)).optional(),
     dulceria: z
       .array(
         z.object({
-          productoId: z.number().optional(),
-          comboId: z.number().optional(),
+          productoId: z.number().nullish(),
+          comboId: z.number().nullish(),
           cantidad: z.number().int().positive(),
           precioUnitario: z.number().nonnegative(),
         })
@@ -136,7 +139,12 @@ export async function POST(req: Request) {
       telefonoComprador: data.telefonoComprador,
       esInvitado: data.esInvitado ?? !usuario,
       boletos,
-      dulceria: data.dulceria ?? [],
+      dulceria: (data.dulceria ?? []).map((item) => ({
+        productoId: item.productoId ?? undefined,
+        comboId: item.comboId ?? undefined,
+        cantidad: item.cantidad,
+        precioUnitario: item.precioUnitario,
+      })),
     });
 
     const firstTicket = compra?.boletos[0];
