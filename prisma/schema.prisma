@@ -159,6 +159,7 @@ model Pelicula {
   sinopsis      String        @db.Text
   clasificacion String
   duracionMin   Int           @map("duracion_min")
+  genero        String?       @db.VarChar(100)
   actores       String?       @db.Text
   posterUrl     String?       @map("poster_url")
   tmdbId        Int?          @unique @map("tmdb_id")

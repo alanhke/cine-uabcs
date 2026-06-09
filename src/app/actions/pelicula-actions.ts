@@ -56,6 +56,7 @@ export async function importarPeliculaDesdeTmdb(
         sinopsis: detalle.overview?.trim() || "Sinopsis disponible próximamente.",
         clasificacion: clasificacionFromTMDB(detalle.adult, detalle.vote_average),
         duracionMin: detalle.runtime > 0 ? detalle.runtime : 120,
+        genero: detalle.genres?.[0]?.name ?? null,
         posterUrl: posterLocal,
         tmdbId: detalle.id,
         estado: "ACTIVO",

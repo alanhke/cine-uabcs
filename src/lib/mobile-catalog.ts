@@ -85,7 +85,7 @@ export async function getMobileCatalog() {
       sinopsis: pelicula.sinopsis,
       clasificacion: pelicula.clasificacion,
       duracionMin: pelicula.duracionMin,
-      genero: "Cartelera",
+      genero: pelicula.genero ?? "Cartelera",
       rating: (ratingPorPelicula.get(pelicula.id) ?? 0).toFixed(1),
       anio: String(pelicula.createdAt.getFullYear()),
       posterUrl: pelicula.posterUrl,

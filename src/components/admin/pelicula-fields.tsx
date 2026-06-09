@@ -22,6 +22,7 @@ export function PeliculaFields({
     sinopsis: string;
     clasificacion: string;
     duracionMin: number;
+    genero?: string;
     posterUrl: string;
     estado: string;
   };
@@ -77,6 +78,20 @@ export function PeliculaFields({
             required
           />
         </div>
+      </div>
+
+      <div className="space-y-1">
+        <Label>Género</Label>
+        <Input
+          name="genero"
+          defaultValue={defaults?.genero ?? ""}
+          placeholder="Ej. Drama, Ciencia ficción, Animación"
+          maxLength={100}
+        />
+        <p className="text-xs text-navy/50">
+          Se usa para los filtros de cartelera en la app. Las películas
+          importadas de TMDB lo traen automáticamente.
+        </p>
       </div>
 
       <ImageUploadField

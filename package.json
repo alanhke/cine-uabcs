@@ -10,6 +10,7 @@
     "db:push": "prisma db push",
     "db:seed": "npx tsx prisma/seed.ts",
     "db:clean-blobs": "npx tsx scripts/clean-blob-urls.ts",
+    "db:backfill-genero": "npx tsx scripts/backfill-genero.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "test": "vitest run",

@@ -37,6 +37,7 @@ export async function crearPelicula(
       sinopsis: formData.get("sinopsis"),
       clasificacion: formData.get("clasificacion"),
       duracionMin: formData.get("duracionMin"),
+      genero: formData.get("genero"),
       posterUrl: posterUrl ?? "",
       estado: formData.get("estado"),
     });
@@ -55,6 +56,7 @@ export async function crearPelicula(
         sinopsis: parsed.data.sinopsis,
         clasificacion: parsed.data.clasificacion,
         duracionMin: parsed.data.duracionMin,
+        genero: parsed.data.genero?.trim() || null,
         estado: parsed.data.estado,
         posterUrl: posterGuardado,
       },
@@ -92,6 +94,7 @@ export async function actualizarPelicula(
       sinopsis: formData.get("sinopsis"),
       clasificacion: formData.get("clasificacion"),
       duracionMin: formData.get("duracionMin"),
+      genero: formData.get("genero"),
       posterUrl: posterUrl ?? "",
       estado: formData.get("estado"),
     });
@@ -111,6 +114,7 @@ export async function actualizarPelicula(
       where: { id },
       data: {
         ...parsed.data,
+        genero: parsed.data.genero?.trim() || null,
         posterUrl: nuevoPoster,
       },
     });

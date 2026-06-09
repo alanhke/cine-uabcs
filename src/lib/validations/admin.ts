@@ -17,6 +17,7 @@ export const peliculaAdminSchema = z.object({
   sinopsis: z.string().min(10, "Sinopsis muy corta"),
   clasificacion: z.string().min(1, "Clasificación requerida"),
   duracionMin: enteroPositivo,
+  genero: z.string().trim().max(100).optional().or(z.literal("")),
   posterUrl: z.string().optional().or(z.literal("")),
   estado: z.enum(["ACTIVO", "INACTIVO"]),
 });

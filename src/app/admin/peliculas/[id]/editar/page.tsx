@@ -38,6 +38,7 @@ export default async function EditarPeliculaPage({
                 sinopsis: pelicula.sinopsis,
                 clasificacion: pelicula.clasificacion,
                 duracionMin: pelicula.duracionMin,
+                genero: pelicula.genero ?? "",
                 posterUrl: pelicula.posterUrl ?? "",
                 estado: pelicula.estado,
               }}
