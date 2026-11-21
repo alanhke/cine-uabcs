@@ -1,0 +1,11 @@
+# M8 – Simulación local del workflow .github/workflows/ci.yml (2026-11-20T22:39:28-07:00)
+Copia limpia del repositorio (git worktree) con variables ficticias, sin .env ni base de datos real.
+
+npm ci ................................ OK (0 vulnerabilidades)
+npx tsc --noEmit ...................... OK (0 errores)
+npm run lint .......................... OK (0 warnings / 0 errores)
+npm run test:coverage ................. OK (164/164 pruebas; líneas 41.34 % ≥ umbral 40 %)
+npm audit --audit-level=high .......... OK (0 vulnerabilidades)
+npm run build ......................... OK (28/28 páginas generadas)
+
+Pendiente: primera ejecución en GitHub Actions al subir la rama (push).

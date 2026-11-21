@@ -1,0 +1,54 @@
+# M8 – Integración continua (ISO/IEC 25010: Fiabilidad · ISO/IEC 27001 A.8.25, A.8.29)
+# Cada push y cada pull request deben pasar tipos, lint, pruebas con cobertura
+# mínima, auditoría de dependencias y compilación de producción.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    name: Tipos, lint, pruebas, auditoría y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Valores ficticios: prisma generate y next build no se conectan a la BD.
+      DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/ci
+      NEXTAUTH_SECRET: ci-solo-para-build
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias (lockfile exacto)
+        run: npm ci
+
+      - name: Verificar tipos (tsc)
+        run: npx tsc --noEmit
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Pruebas con cobertura (mínimo 40 % de líneas)
+        run: npm run test:coverage
+
+      - name: Auditoría de dependencias (falla con altas o críticas)
+        run: npm audit --audit-level=high
+
+      - name: Build de producción
+        run: npm run build
