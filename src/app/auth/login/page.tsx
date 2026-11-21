@@ -25,7 +25,9 @@ export default function LoginPage() {
         password,
         redirect: false,
       });
-      if (res?.error) {
+      if (res?.error === "RateLimit") {
+        setError("Demasiados intentos. Espera unos minutos antes de volver a intentar.");
+      } else if (res?.error) {
         setError("Credenciales incorrectas");
         return;
       }

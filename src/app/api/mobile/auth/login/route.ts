@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticateUser } from "@/lib/authenticate-user";
 import { prisma } from "@/lib/prisma";
+import { LIMITES, consumirVarios, ipDeSolicitud, respuesta429 } from "@/lib/rate-limit";
 
 const mobileLoginSchema = z.object({
   correo: z.string().email(),
@@ -20,6 +21,14 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    // M4: mismo límite que el login web.
+    const ip = ipDeSolicitud(req);
+    const limite = consumirVarios([
+      [`login:ip:${ip}`, LIMITES.loginIp],
+      [`login:cuenta:${ip}:${parsed.data.correo.toLowerCase().trim()}`, LIMITES.loginCuenta],
+    ]);
+    if (!limite.permitido) return respuesta429(limite);
 
     const usuario = await authenticateUser(parsed.data.correo, parsed.data.password);
     if (!usuario) {

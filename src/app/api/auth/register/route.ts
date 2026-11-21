@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { generarCodigoAmigoUnico } from "@/lib/codigo-amigo";
+import { LIMITES, consumirIntento, ipDeSolicitud, respuesta429 } from "@/lib/rate-limit";
 import { registroSchema } from "@/lib/validations/schemas";
 
 export async function POST(req: Request) {
+  // M4: máximo 5 registros por hora por IP.
+  const limite = consumirIntento(`registro:${ipDeSolicitud(req)}`, LIMITES.registro);
+  if (!limite.permitido) return respuesta429(limite);
   try {
     const body = await req.json();
     const parsed = registroSchema.safeParse(body);
