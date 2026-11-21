@@ -41,7 +41,7 @@ export default function PerfilAjustesPage() {
   }
 
   if (status === "loading") {
-    return <p className="p-8 text-center text-navy/60">Cargando...</p>;
+    return <p className="p-8 text-center text-navy/70">Cargando...</p>;
   }
 
   return (
@@ -56,7 +56,7 @@ export default function PerfilAjustesPage() {
         </Link>
         <div>
           <h1 className="font-display text-2xl font-bold text-navy">Ajustes</h1>
-          <p className="text-sm text-navy/60">Configuración de tu cuenta</p>
+          <p className="text-sm text-navy/70">Configuración de tu cuenta</p>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default function PerfilAjustesPage() {
               <Copy className="mr-2 h-4 w-4" />
               Copiar código
             </Button>
-            {msg && <p className="mt-2 text-xs text-navy/60">{msg}</p>}
+            {msg && <p className="mt-2 text-xs text-navy/70">{msg}</p>}
           </CardContent>
         </Card>
       )}
@@ -94,10 +94,10 @@ export default function PerfilAjustesPage() {
             <CardTitle className="font-display text-base text-navy">Correo</CardTitle>
           </div>
           <div className="space-y-1">
-            <Label>Correo institucional</Label>
-            <Input value={correo || session?.user?.email || ""} readOnly disabled />
+            <Label htmlFor="ajustes-correo-institucional">Correo institucional</Label>
+            <Input id="ajustes-correo-institucional" value={correo || session?.user?.email || ""} readOnly disabled />
           </div>
-          <p className="text-xs text-navy/55">
+          <p className="text-xs text-navy/70">
             El correo no se puede cambiar desde la app. Contacta al administrador si
             necesitas actualizarlo.
           </p>
@@ -110,7 +110,7 @@ export default function PerfilAjustesPage() {
             <KeyRound className="h-5 w-5 text-primary" />
             <CardTitle className="font-display text-base text-navy">Contraseña</CardTitle>
           </div>
-          <p className="text-sm text-navy/65">
+          <p className="text-sm text-navy/70">
             El cambio de contraseña estará disponible próximamente.
           </p>
           <Button variant="outline" disabled className="w-full border-navy/15">
@@ -127,7 +127,7 @@ export default function PerfilAjustesPage() {
               Métodos de pago
             </CardTitle>
           </div>
-          <p className="text-sm text-navy/65">
+          <p className="text-sm text-navy/70">
             CineUABCS usa un <strong>pago simulado</strong>.
           </p>
           <PaymentMethodsManager />

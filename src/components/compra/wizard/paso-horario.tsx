@@ -38,7 +38,7 @@ export function PasoHorario({ w }: { w: CompraWizardCtx }) {
             </p>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {funcionesByIdioma[idioma].length === 0 ? (
-                <p className="text-sm text-navy/55">Sin horarios en este grupo.</p>
+                <p className="text-sm text-navy/70">Sin horarios en este grupo.</p>
               ) : (
                 funcionesByIdioma[idioma].map((funcion) => (
                   <button
@@ -58,8 +58,8 @@ export function PasoHorario({ w }: { w: CompraWizardCtx }) {
                         timeZone: "America/Mazatlan",
                       }).format(new Date(funcion.fechaHora))}
                     </p>
-                    <p className="mt-2 text-sm text-navy/60">{funcion.salaNombre}</p>
-                    <p className="text-sm text-navy/60">
+                    <p className="mt-2 text-sm text-navy/70">{funcion.salaNombre}</p>
+                    <p className="text-sm text-navy/70">
                       desde {formatCurrency(funcion.precioBase)}
                     </p>
                   </button>

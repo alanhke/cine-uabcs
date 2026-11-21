@@ -38,7 +38,7 @@ export default async function HistorialPage() {
       <div className="flex items-baseline justify-between gap-3">
         <h1 className="font-display text-2xl font-bold text-navy sm:text-3xl">Historial</h1>
         {compras.length > 0 && (
-          <span className="text-sm font-medium text-navy/55">
+          <span className="text-sm font-medium text-navy/70">
             {compras.length} compra{compras.length !== 1 ? "s" : ""}
           </span>
         )}
@@ -68,7 +68,7 @@ export default async function HistorialPage() {
                 <CardContent className="flex items-center justify-between gap-3 py-4">
                   <div className="min-w-0">
                     <p className="font-semibold text-navy">{c.folio}</p>
-                    <p className="text-sm text-navy/60">{formatDateTime(c.fechaCompra)}</p>
+                    <p className="text-sm text-navy/70">{formatDateTime(c.fechaCompra)}</p>
                     <p className="truncate text-sm text-navy/70">
                       {c.boletos[0]?.funcion.pelicula.titulo ?? "Compra de dulcería"}
                     </p>
@@ -84,7 +84,7 @@ export default async function HistorialPage() {
                         {formatCurrency(Number(c.total))}
                       </p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-navy/30 transition-transform duration-300 ease-out-quart group-hover:translate-x-0.5 group-hover:text-navy/50" />
+                    <ChevronRight className="h-5 w-5 text-navy/30 transition-transform duration-300 ease-out-quart group-hover:translate-x-0.5 group-hover:text-navy/70" />
                   </div>
                 </CardContent>
               </Card>

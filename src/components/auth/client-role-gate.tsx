@@ -40,12 +40,12 @@ export function ClientRoleGate({
   }, [pathname, requiredRole, router, session?.user?.role, status]);
 
   if (status === "loading") {
-    return <p className="p-8 text-center text-navy/60">Cargando...</p>;
+    return <p className="p-8 text-center text-navy/70">Cargando...</p>;
   }
 
   const role = session?.user?.role;
   if (status !== "authenticated" || role !== requiredRole) {
-    return <p className="p-8 text-center text-navy/60">Redirigiendo...</p>;
+    return <p className="p-8 text-center text-navy/70">Redirigiendo...</p>;
   }
 
   return <>{children}</>;

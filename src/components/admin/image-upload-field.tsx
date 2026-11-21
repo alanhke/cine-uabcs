@@ -118,7 +118,7 @@ export function ImageUploadField({
           <span className="text-sm font-semibold text-navy">
             Toca para elegir imagen
           </span>
-          <span className="text-xs text-navy/50">{hint}</span>
+          <span className="text-xs text-navy/70">{hint}</span>
         </button>
 
         <div
@@ -138,7 +138,7 @@ export function ImageUploadField({
               debugLabel="upload-preview"
             />
           ) : (
-            <div className="flex h-full min-h-[120px] items-center justify-center bg-navy/5 text-xs text-navy/40">
+            <div className="flex h-full min-h-[120px] items-center justify-center bg-navy/5 text-xs text-navy/70">
               Sin imagen
             </div>
           )}
@@ -155,7 +155,7 @@ export function ImageUploadField({
       />
 
       {hasNewFile && blobPreview && (
-        <p className="text-xs text-navy/55">
+        <p className="text-xs text-navy/70">
           Archivo listo para subir al guardar (la vista previa no se guarda en la base de datos).
         </p>
       )}
@@ -164,14 +164,14 @@ export function ImageUploadField({
         <button
           type="button"
           onClick={clearSelection}
-          className="text-xs font-semibold text-navy/60 underline hover:text-navy"
+          className="text-xs font-semibold text-navy/70 underline hover:text-navy"
         >
           Descartar selección
         </button>
       )}
 
       {savedPath && !hasNewFile && (
-        <p className="truncate text-xs text-navy/50">
+        <p className="truncate text-xs text-navy/70">
           Ruta guardada: <code>{savedPath}</code>
         </p>
       )}

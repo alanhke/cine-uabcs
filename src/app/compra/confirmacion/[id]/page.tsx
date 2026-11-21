@@ -76,7 +76,7 @@ export default async function ConfirmacionPage(
         <h1 className="font-display text-2xl font-bold text-navy">
           ¡Compra confirmada!
         </h1>
-        <p className="text-sm text-navy/60">Pago simulado, sin cargo real</p>
+        <p className="text-sm text-navy/70">Pago simulado, sin cargo real</p>
       </div>
       <BoletoStub
         titulo={funcion?.pelicula.titulo}
@@ -93,7 +93,7 @@ export default async function ConfirmacionPage(
 
       {!soloDulceria ? (
         <details className="mx-auto max-w-sm text-left">
-          <summary className="cursor-pointer text-sm font-medium text-navy/60 transition-colors hover:text-navy">
+          <summary className="cursor-pointer text-sm font-medium text-navy/70 transition-colors hover:text-navy">
             Ver detalle de boletos ({compra.boletos.length})
           </summary>
           <div className="mt-2 space-y-1.5 rounded-2xl bg-white/70 p-4">

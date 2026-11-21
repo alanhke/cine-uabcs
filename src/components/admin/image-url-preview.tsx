@@ -20,7 +20,7 @@ export function ImageUrlPreview({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+      <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
         {label}
       </p>
       <div
@@ -37,7 +37,7 @@ export function ImageUrlPreview({
           sizes="140px"
         />
       </div>
-      <p className="text-xs text-navy/50">
+      <p className="text-xs text-navy/70">
         {valid
           ? "Cargando imagen desde la URL…"
           : "Pega una URL http(s) válida para ver la vista previa."}

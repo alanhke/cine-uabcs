@@ -134,10 +134,10 @@ export function RecomendarButton({
               >
                 Recomendar a un amigo
               </h2>
-              <button
+              <button aria-label="Cerrar"
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full p-1 text-navy/60 hover:bg-navy/5"
+                className="rounded-full p-1 text-navy/70 hover:bg-navy/5"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -146,7 +146,7 @@ export function RecomendarButton({
             <div className="px-4 py-3">
               <p className="mb-3 text-sm text-navy/70 truncate">{titulo}</p>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy/40" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy/70" />
                 <Input
                   placeholder="Buscar amigo por nombre..."
                   value={busqueda}
@@ -158,12 +158,12 @@ export function RecomendarButton({
 
             <ul className="max-h-64 overflow-y-auto px-2 pb-4">
               {loading && (
-                <li className="px-4 py-6 text-center text-sm text-navy/50">
+                <li className="px-4 py-6 text-center text-sm text-navy/70">
                   Cargando amigos...
                 </li>
               )}
               {!loading && filtrados.length === 0 && (
-                <li className="px-4 py-6 text-center text-sm text-navy/50">
+                <li className="px-4 py-6 text-center text-sm text-navy/70">
                   {amigos.length === 0
                     ? "Aún no tienes amigos. Agrégalos desde Social."
                     : "Ningún amigo coincide con la búsqueda."}

@@ -70,7 +70,7 @@ export default async function AdminDulceriaPage(
         </div>
         <div className="overflow-x-auto rounded-2xl border-2 border-navy/10 bg-white/90">
           <table className="w-full min-w-[620px] text-left text-sm">
-            <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase text-navy/50">
+            <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase text-navy/70">
               <tr>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Categoría</th>
@@ -85,7 +85,7 @@ export default async function AdminDulceriaPage(
             <tbody>
               {productos.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-navy/50">
+                  <td colSpan={8} className="px-4 py-8 text-center text-navy/70">
                     {enPapelera
                       ? "No hay productos en la papelera."
                       : "No hay productos registrados."}
@@ -109,7 +109,7 @@ export default async function AdminDulceriaPage(
                       <div className="flex items-center justify-end gap-1">
                         {!enPapelera ? (
                           <Link href={`/admin/dulceria/productos/${p.id}/editar`}>
-                            <Button variant="outline" size="sm">
+                            <Button aria-label={`Editar ${p.nombre}`} variant="outline" size="sm">
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
                           </Link>
@@ -132,7 +132,7 @@ export default async function AdminDulceriaPage(
           </table>
         </div>
         {!enPapelera ? (
-          <p className="mt-2 text-xs text-navy/50">
+          <p className="mt-2 text-xs text-navy/70">
             El stock se descuenta automáticamente al confirmar cada compra.
           </p>
         ) : null}
@@ -152,7 +152,7 @@ export default async function AdminDulceriaPage(
         </div>
         <div className="overflow-x-auto rounded-2xl border-2 border-navy/10 bg-white/90">
           <table className="w-full min-w-[480px] text-left text-sm">
-            <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase text-navy/50">
+            <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase text-navy/70">
               <tr>
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Precio</th>
@@ -164,7 +164,7 @@ export default async function AdminDulceriaPage(
             <tbody>
               {combos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-navy/50">
+                  <td colSpan={5} className="px-4 py-8 text-center text-navy/70">
                     {enPapelera
                       ? "No hay combos en la papelera."
                       : "No hay combos registrados."}
@@ -185,7 +185,7 @@ export default async function AdminDulceriaPage(
                       <div className="flex items-center justify-end gap-1">
                         {!enPapelera ? (
                           <Link href={`/admin/dulceria/combos/${c.id}/editar`}>
-                            <Button variant="outline" size="sm">
+                            <Button aria-label={`Editar ${c.nombre}`} variant="outline" size="sm">
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
                           </Link>

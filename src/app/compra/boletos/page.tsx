@@ -13,6 +13,7 @@ import {
   type CompraAsientosState,
   type BoletoAsignado,
 } from "@/lib/compra-flow";
+import { IndicadorPasos } from "@/components/compra/indicador-pasos";
 
 interface TipoPrecio {
   id: number;
@@ -156,6 +157,8 @@ export default function SeleccionTiposBoletoPage() {
         subtitle={`Asigna ${totalAsientos} boleto(s) para tus butacas seleccionadas`}
         onDark
       />
+      {/* M11: progreso del flujo de compra */}
+      <IndicadorPasos pasos={["Butacas", "Boletos", "Dulcería", "Pago"]} actual={1} onDark />
 
       <Card className="border-mobility-accent/30 bg-mobility-accent/10 text-sala-ink">
         <CardContent className="py-4">
@@ -187,7 +190,7 @@ export default function SeleccionTiposBoletoPage() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <button
+                <button aria-label={`Quitar boleto ${tipo.nombre}`}
                   type="button"
                   onClick={() => cambiarCantidad(tipo.id, -1)}
                   disabled={(cantidades[tipo.id] ?? 0) <= 0}
@@ -198,7 +201,7 @@ export default function SeleccionTiposBoletoPage() {
                 <span className="w-8 text-center font-display text-xl font-bold text-white">
                   {cantidades[tipo.id] ?? 0}
                 </span>
-                <button
+                <button aria-label={`Agregar boleto ${tipo.nombre}`}
                   type="button"
                   onClick={() => cambiarCantidad(tipo.id, 1)}
                   disabled={totalAsignado >= totalAsientos}

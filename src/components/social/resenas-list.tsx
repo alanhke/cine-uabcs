@@ -101,7 +101,7 @@ function ResenaCard({
                 resena.usuario.apellidoMaterno
               )}
             </UserLink>
-            <span className="text-xs text-navy/50">
+            <span className="text-xs text-navy/70">
               {formatRelativeTime(resena.createdAt)}
             </span>
           </div>
@@ -135,7 +135,7 @@ function ResenaCard({
                 <button
                   type="button"
                   onClick={() => setRespondiendo((v) => !v)}
-                  className="text-xs font-semibold text-navy/60 hover:text-primary"
+                  className="text-xs font-semibold text-navy/70 hover:text-primary"
                 >
                   {respondiendo ? "Cancelar" : "Responder"}
                 </button>
@@ -179,7 +179,7 @@ function ResenaCard({
 export function ResenasList({ peliculaId, resenas, onRefresh }: ResenasListProps) {
   if (!resenas.length) {
     return (
-      <p className="rounded-2xl border border-dashed border-navy/15 bg-white/60 px-4 py-6 text-center text-sm text-navy/50">
+      <p className="rounded-2xl border border-dashed border-navy/15 bg-white/60 px-4 py-6 text-center text-sm text-navy/70">
         Aún no hay reseñas. ¡Sé el primero en opinar!
       </p>
     );

@@ -69,7 +69,7 @@ export function TmdbImportPanel() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-navy/65">
+      <p className="text-sm text-navy/70">
         Películas en cartelera según TMDB. Importa las que quieras programar en
         CineUABCS y luego crea sus funciones.
       </p>
@@ -107,7 +107,7 @@ export function TmdbImportPanel() {
                 <p className="font-display text-sm font-bold text-navy line-clamp-2">
                   {m.title}
                 </p>
-                <p className="line-clamp-2 text-xs text-navy/60">{m.overview}</p>
+                <p className="line-clamp-2 text-xs text-navy/70">{m.overview}</p>
                 <Button
                   size="sm"
                   className="w-full"

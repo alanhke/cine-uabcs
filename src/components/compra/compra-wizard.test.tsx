@@ -65,9 +65,11 @@ describe("CompraWizard (tras la división de M9)", () => {
     render(
       <CompraWizard initialFuncionId={1} peliculaId={10} peliculaTitulo="Dune" funciones={funciones} />
     );
-    for (const paso of ["Horario", "Asientos", "Alimentos", "Pago"]) {
-      expect(screen.getByRole("button", { name: paso })).toBeInTheDocument();
-    }
+    const progreso = screen.getByRole("navigation", { name: "Progreso de la compra" });
+    expect(progreso).toHaveTextContent("Paso 1 de 4: Horario");
+    expect(progreso.querySelector('[aria-current="step"]')).toHaveTextContent("1. Horario");
+    // M11: los pasos futuros no son botones (antes se veían clicables sin hacer nada)
+    expect(screen.queryByRole("button", { name: /Pago/ })).toBeNull();
     expect(screen.getAllByText("Sala 1").length).toBeGreaterThan(0);
     expect(screen.getByText("Sala 2")).toBeInTheDocument();
   });

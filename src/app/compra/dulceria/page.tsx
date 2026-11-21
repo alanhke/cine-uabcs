@@ -9,6 +9,7 @@ import { PageHeaderConVolver } from "@/components/navigation/boton-volver";
 import { formatCurrency } from "@/lib/utils";
 import { leerBoletos } from "@/lib/compra-flow";
 import { SafeImage } from "@/components/ui/safe-image";
+import { IndicadorPasos } from "@/components/compra/indicador-pasos";
 
 interface Producto {
   id: number;
@@ -108,6 +109,8 @@ export default function DulceriaPage() {
         subtitle="Agrega snacks antes de pagar"
         onDark
       />
+      {/* M11: progreso del flujo de compra */}
+      <IndicadorPasos pasos={["Butacas", "Boletos", "Dulcería", "Pago"]} actual={2} onDark />
 
       <Card className="border-white/10 bg-sala-surface text-sala-ink">
         <CardContent className="py-4">
@@ -148,7 +151,7 @@ export default function DulceriaPage() {
                     {formatCurrency(Number(p.precio))} · Stock {p.stock}
                   </p>
                 </div>
-                <Button
+                <Button aria-label={`Agregar ${p.nombre}`}
                   size="icon"
                   disabled={p.stock < 1}
                   onClick={() =>
@@ -179,7 +182,7 @@ export default function DulceriaPage() {
                     {formatCurrency(Number(c.precio))}
                   </p>
                 </div>
-                <Button
+                <Button aria-label={`Agregar ${c.nombre}`}
                   size="icon"
                   onClick={() =>
                     addItem({

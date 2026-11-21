@@ -50,7 +50,7 @@ export function AdminRecycleButtons({
     return (
       <>
         <div className="flex justify-end gap-1">
-          <Button
+          <Button aria-label="Restaurar"
             type="button"
             variant="outline"
             size="sm"
@@ -60,7 +60,7 @@ export function AdminRecycleButtons({
           >
             <RotateCcw className="h-3.5 w-3.5 text-blue-600" />
           </Button>
-          <Button
+          <Button aria-label="Eliminar definitivamente"
             type="button"
             variant="destructive"
             size="sm"
@@ -101,7 +101,7 @@ export function AdminRecycleButtons({
 
   return (
     <>
-      <Button
+      <Button aria-label="Mover a la papelera"
         type="button"
         variant="destructive"
         size="sm"

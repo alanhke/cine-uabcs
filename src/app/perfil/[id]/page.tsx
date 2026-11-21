@@ -41,13 +41,13 @@ export default function PerfilPublicoPage() {
   }
 
   if (esPropioSesion || loading) {
-    return <p className="p-8 text-center text-navy/60">Cargando perfil...</p>;
+    return <p className="p-8 text-center text-navy/70">Cargando perfil...</p>;
   }
 
   if (!perfil) {
     return (
       <div className="px-4 py-12 text-center">
-        <p className="text-navy/60">Perfil no encontrado.</p>
+        <p className="text-navy/70">Perfil no encontrado.</p>
         <Link
           href="/cartelera"
           className="mt-4 inline-block text-sm font-semibold text-primary underline"

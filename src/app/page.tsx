@@ -128,7 +128,7 @@ export default async function HomePage() {
         <h2 className="font-display mb-1 text-xl font-bold text-navy">
           Lo que dicen los cinéfilos
         </h2>
-        <p className="mb-4 text-sm text-navy/60">
+        <p className="mb-4 text-sm text-navy/70">
           Las reseñas más útiles de la comunidad
         </p>
         <ResenasDestacadas

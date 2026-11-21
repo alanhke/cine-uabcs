@@ -43,7 +43,7 @@ export default async function DulceriaCatalogoPage() {
           <h1 className="font-display text-2xl font-bold text-navy sm:text-3xl">
             Dulcería
           </h1>
-          <p className="mt-1 text-sm text-navy/60">
+          <p className="mt-1 text-sm text-navy/70">
             Palomitas, combos y bebidas para tu función (o para recoger en barra)
           </p>
         </div>

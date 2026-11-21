@@ -66,7 +66,7 @@ export function ResenasSection({ peliculaId }: { peliculaId: number }) {
     <section className="space-y-6">
       <div>
         <h2 className="font-display text-lg font-bold text-navy">Reseñas</h2>
-        <p className="mt-1 text-sm text-navy/60">
+        <p className="mt-1 text-sm text-navy/70">
           Opiniones de la comunidad CineUABCS
         </p>
       </div>
@@ -75,7 +75,7 @@ export function ResenasSection({ peliculaId }: { peliculaId: number }) {
 
       {!session ? (
         <Card className="border-navy/10 shadow-sm">
-          <CardContent className="py-4 text-sm text-navy/60">
+          <CardContent className="py-4 text-sm text-navy/70">
             Inicia sesión para calificar y reseñar esta película.
           </CardContent>
         </Card>

@@ -28,9 +28,9 @@ export function TmdbMovieCard({ movie }: { movie: TMDBMovie }) {
           {movie.title}
         </h3>
         {movie.release_date && (
-          <p className="text-xs text-navy/55">{movie.release_date}</p>
+          <p className="text-xs text-navy/70">{movie.release_date}</p>
         )}
-        <p className="line-clamp-2 text-xs text-navy/65">{movie.overview}</p>
+        <p className="line-clamp-2 text-xs text-navy/70">{movie.overview}</p>
       </CardContent>
     </Card>
   );

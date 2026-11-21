@@ -26,8 +26,8 @@ export function ResumenCompra({ w }: { w: CompraWizardCtx }) {
         {wizard.funcion ? (
           <div className="space-y-1 rounded-2xl border border-navy/10 bg-cream p-4">
             <p className="font-semibold text-navy">{wizard.funcion.peliculaTitulo}</p>
-            <p className="text-sm text-navy/60">{wizard.funcion.salaNombre}</p>
-            <p className="text-sm text-navy/60">
+            <p className="text-sm text-navy/70">{wizard.funcion.salaNombre}</p>
+            <p className="text-sm text-navy/70">
               {formatDateTime(wizard.funcion.fechaHora)}
             </p>
             <Button
@@ -42,7 +42,7 @@ export function ResumenCompra({ w }: { w: CompraWizardCtx }) {
         ) : null}
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-navy/60">
+          <div className="flex items-center justify-between text-sm text-navy/70">
             <span>Asientos ({wizard.boletos.length})</span>
             <Button
               type="button"
@@ -61,7 +61,7 @@ export function ResumenCompra({ w }: { w: CompraWizardCtx }) {
                 <p className="font-medium text-navy">
                   Fila {boleto.fila} · Asiento {boleto.numero}
                 </p>
-                <p className="text-sm text-navy/60">
+                <p className="text-sm text-navy/70">
                   {boleto.tipoNombre} · {formatCurrency(boleto.precioUnitario)}
                 </p>
               </div>
@@ -70,7 +70,7 @@ export function ResumenCompra({ w }: { w: CompraWizardCtx }) {
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-navy/60">
+          <div className="flex items-center justify-between text-sm text-navy/70">
             <span>Alimentos ({wizard.dulceria.length})</span>
             <Button
               type="button"
@@ -88,12 +88,12 @@ export function ResumenCompra({ w }: { w: CompraWizardCtx }) {
               <div key={item.productoId ?? `c-${item.comboId}`} className="flex items-center justify-between gap-3 rounded-2xl border border-navy/10 bg-cream p-3">
                 <div>
                   <p className="font-medium text-navy">{item.nombre}</p>
-                  <p className="text-sm text-navy/60">
+                  <p className="text-sm text-navy/70">
                     {item.cantidad} × {formatCurrency(item.precioUnitario)}
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button
+                  <button aria-label={`Quitar ${item.nombre}`}
                     type="button"
                     className="rounded-full bg-primary p-2 text-white"
                     onClick={() => updateSnack(item, -1)}
@@ -112,7 +112,7 @@ export function ResumenCompra({ w }: { w: CompraWizardCtx }) {
                     }}
                     className="w-10 rounded-lg border border-navy/15 bg-white py-1 text-center text-sm text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
-                  <button
+                  <button aria-label={`Agregar ${item.nombre}`}
                     type="button"
                     className="rounded-full bg-primary p-2 text-white"
                     onClick={() => updateSnack(item, 1)}
@@ -126,11 +126,11 @@ export function ResumenCompra({ w }: { w: CompraWizardCtx }) {
         </div>
 
         <div className="rounded-2xl border border-navy/10 bg-cream p-4">
-          <div className="flex justify-between text-sm text-navy/60">
+          <div className="flex justify-between text-sm text-navy/70">
             <span>Subtotal boletos</span>
             <span>{formatCurrency(subtotalTickets)}</span>
           </div>
-          <div className="mt-2 flex justify-between text-sm text-navy/60">
+          <div className="mt-2 flex justify-between text-sm text-navy/70">
             <span>Subtotal alimentos</span>
             <span>{formatCurrency(subtotalSnacks)}</span>
           </div>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CompraWizardCtx } from "./use-compra-wizard";
 import { MetodosGuardados } from "@/components/compra/metodos-guardados";
+import { CampoVencimiento } from "@/components/compra/campo-vencimiento";
 
 /** Paso 4: datos del comprador y pago. */
 export function PasoPago({ w }: { w: CompraWizardCtx }) {
@@ -16,7 +17,7 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
     <Card className="border-navy/10 bg-white text-navy shadow-matinee">
       <CardContent className="space-y-4 py-5">
         {!session && (
-          <label className="flex items-center gap-2 text-sm text-navy/60">
+          <label className="flex items-center gap-2 text-sm text-navy/70">
             <input
               type="checkbox"
               checked={checkout.esInvitado ?? true}
@@ -28,8 +29,9 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
           </label>
         )}
         <div className="space-y-2">
-          <Label>Nombre completo</Label>
+          <Label htmlFor="paso-pago-nombre-completo">Nombre completo</Label>
           <Input
+            id="paso-pago-nombre-completo"
             value={checkout.nombreComprador}
             onChange={(event) =>
               setCheckout((prev) => ({ ...prev, nombreComprador: event.target.value }))
@@ -37,8 +39,9 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
           />
         </div>
         <div className="space-y-2">
-          <Label>Correo</Label>
+          <Label htmlFor="paso-pago-correo">Correo</Label>
           <Input
+            id="paso-pago-correo"
             value={checkout.correoComprador}
             onChange={(event) =>
               setCheckout((prev) => ({ ...prev, correoComprador: event.target.value }))
@@ -46,8 +49,9 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
           />
         </div>
         <div className="space-y-2">
-          <Label>Teléfono</Label>
+          <Label htmlFor="paso-pago-telefono">Teléfono</Label>
           <Input
+            id="paso-pago-telefono"
             value={checkout.telefonoComprador}
             onChange={(event) =>
               setCheckout((prev) => ({
@@ -91,8 +95,9 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
         {checkout.metodoPago === "tarjeta" ? (
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
-              <Label>Número de tarjeta</Label>
+              <Label htmlFor="paso-pago-numero-de-tarjeta">Número de tarjeta</Label>
               <Input
+                id="paso-pago-numero-de-tarjeta"
                 value={checkout.numeroTarjeta}
                 onChange={(event) =>
                   setCheckout((prev) => ({
@@ -106,32 +111,22 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
                 }
               />
               {selectedSavedMethodId ? (
-                <p className="text-xs text-navy/55">
+                <p className="text-xs text-navy/70">
                   Puedes dejar la misma referencia de tu tarjeta guardada o capturar otra para esta compra.
                 </p>
               ) : null}
             </div>
+            <CampoVencimiento
+              id="paso-pago-vencimiento"
+              value={checkout.vencimientoTarjeta}
+              onValueChange={(vencimientoTarjeta) =>
+                setCheckout((prev) => ({ ...prev, vencimientoTarjeta }))
+              }
+            />
             <div className="space-y-2">
-              <Label>Vencimiento</Label>
+              <Label htmlFor="paso-pago-cvv">CVV</Label>
               <Input
-                value={checkout.vencimientoTarjeta}
-                onChange={(event) =>
-                  setCheckout((prev) => {
-                    const digits = event.target.value.replace(/\D/g, "").slice(0, 4);
-                    return {
-                      ...prev,
-                      vencimientoTarjeta:
-                        digits.length > 2
-                          ? `${digits.slice(0, 2)}/${digits.slice(2)}`
-                          : digits,
-                    };
-                  })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>CVV</Label>
-              <Input
+                id="paso-pago-cvv"
                 value={checkout.cvvTarjeta}
                 onChange={(event) =>
                   setCheckout((prev) => ({
@@ -142,8 +137,9 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>Titular</Label>
+              <Label htmlFor="paso-pago-titular">Titular</Label>
               <Input
+                id="paso-pago-titular"
                 value={checkout.titularTarjeta}
                 onChange={(event) =>
                   setCheckout((prev) => ({ ...prev, titularTarjeta: event.target.value }))
@@ -154,8 +150,9 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
         ) : (
           <div className="grid gap-3">
             <div className="space-y-2">
-              <Label>Correo de PayPal</Label>
+              <Label htmlFor="paso-pago-correo-de-paypal">Correo de PayPal</Label>
               <Input
+                id="paso-pago-correo-de-paypal"
                 value={checkout.paypalCorreo}
                 onChange={(event) =>
                   setCheckout((prev) => ({ ...prev, paypalCorreo: event.target.value }))
@@ -163,8 +160,9 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
               />
             </div>
             <div className="space-y-2">
-              <Label>Contraseña de PayPal</Label>
+              <Label htmlFor="paso-pago-contrasena-de-paypal">Contraseña de PayPal</Label>
               <Input
+                id="paso-pago-contrasena-de-paypal"
                 type="password"
                 value={checkout.paypalPassword}
                 onChange={(event) =>
@@ -175,7 +173,7 @@ export function PasoPago({ w }: { w: CompraWizardCtx }) {
                 }
               />
               {selectedSavedMethodId ? (
-                <p className="text-xs text-navy/55">
+                <p className="text-xs text-navy/70">
                   El correo se recuperó de tu método guardado. La contraseña simulada se captura en cada compra.
                 </p>
               ) : null}

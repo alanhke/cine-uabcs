@@ -16,7 +16,7 @@ function StarRow({ filled, size = "sm" }: { filled: boolean; size?: "sm" | "lg" 
 
 function StarsDisplay({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }) {
   return (
-    <div className="flex gap-0.5" aria-label={`${rating} de 5 estrellas`}>
+    <div className="flex gap-0.5" role="img" aria-label={`${rating} de 5 estrellas`}>
       {[1, 2, 3, 4, 5].map((n) => (
         <StarRow key={n} filled={n <= Math.round(rating)} size={size} />
       ))}
@@ -37,7 +37,7 @@ export function RatingSummary({ resumen }: { resumen: ResumenCalificaciones }) {
           <div className="mt-2">
             <StarsDisplay rating={promedio} size="lg" />
           </div>
-          <p className="mt-2 text-xs text-navy/55">
+          <p className="mt-2 text-xs text-navy/70">
             {total} calificación{total !== 1 ? "es" : ""}
           </p>
         </div>
@@ -55,7 +55,7 @@ export function RatingSummary({ resumen }: { resumen: ResumenCalificaciones }) {
                   style={{ width: `${d.porcentaje}%` }}
                 />
               </div>
-              <span className="w-9 text-right text-xs tabular-nums text-navy/50">
+              <span className="w-9 text-right text-xs tabular-nums text-navy/70">
                 {d.porcentaje}%
               </span>
             </div>

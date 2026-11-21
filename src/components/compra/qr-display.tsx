@@ -52,7 +52,7 @@ export function QrDisplay({
           alt={soloDulceria ? "QR de recoleccion de dulceria" : "QR de compra"}
           className="rounded-3xl ring-2 ring-paliacate/25"
         />
-        <p className="text-xs break-all text-navy/50">{codigo}</p>
+        <p className="text-xs break-all text-navy/70">{codigo}</p>
         {soloDulceria ? (
           <p className="text-sm text-navy/80">
             Presenta este QR en barra para recoger tus productos.

@@ -67,7 +67,7 @@ export function Header() {
             </Link>
           )}
           {session ? (
-            <Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/" })}>
+            <Button aria-label="Cerrar sesión" variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/" })}>
               <LogOut className="h-5 w-5" />
             </Button>
           ) : (

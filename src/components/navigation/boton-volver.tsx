@@ -85,7 +85,7 @@ export function PageHeaderConVolver({
           <p
             className={cn(
               "mt-1 text-sm",
-              onDark ? "text-sala-muted" : "text-navy/60"
+              onDark ? "text-sala-muted" : "text-navy/70"
             )}
           >
             {subtitle}

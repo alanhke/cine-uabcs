@@ -23,7 +23,7 @@ export function DialogoBoletos({ w }: { w: CompraWizardCtx }) {
         <DialogHeader className="px-6 pt-6">
           <div className="space-y-2 pr-8">
             <DialogTitle className="text-2xl text-navy">Boletos</DialogTitle>
-            <DialogDescription className="text-navy/60">
+            <DialogDescription className="text-navy/70">
               Selecciona cuántos boletos de cada tipo quieres asignar.
             </DialogDescription>
           </div>
@@ -36,7 +36,7 @@ export function DialogoBoletos({ w }: { w: CompraWizardCtx }) {
             >
               <div className="min-w-0">
                 <p className="font-semibold text-navy">{tipo.nombre}</p>
-                <p className="text-sm text-navy/60">{formatCurrency(tipo.precio)}</p>
+                <p className="text-sm text-navy/70">{formatCurrency(tipo.precio)}</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -73,7 +73,7 @@ export function DialogoBoletos({ w }: { w: CompraWizardCtx }) {
             >
               Continuar
             </Button>
-            <p className="text-center text-sm font-medium text-navy/55">
+            <p className="text-center text-sm font-medium text-navy/70">
               {remainingTickets > 0
                 ? `Falta(n) ${remainingTickets} boleto(s) por seleccionar`
                 : "Todos los boletos están asignados"}

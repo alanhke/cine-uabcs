@@ -17,7 +17,7 @@ export default async function CarteleraPage() {
           Cartelera
         </h1>
         {peliculas.length > 0 && (
-          <p className="shrink-0 text-sm font-medium text-navy/60">
+          <p className="shrink-0 text-sm font-medium text-navy/70">
             {peliculas.length}{" "}
             {peliculas.length === 1 ? "película" : "películas"} en exhibición
           </p>
@@ -42,6 +42,9 @@ export default async function CarteleraPage() {
           </Link>
         </div>
       ) : (
+        <>
+        {/* M11: encabezado de sección para que las tarjetas (h3) sigan un orden lógico. */}
+        <h2 className="sr-only">Películas en exhibición</h2>
         <div className="reveal-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {peliculas.map((p, i) => {
             const promedio = Number(promedioPorPelicula[p.id] ?? 0);
@@ -59,6 +62,7 @@ export default async function CarteleraPage() {
             );
           })}
         </div>
+        </>
       )}
     </div>
   );

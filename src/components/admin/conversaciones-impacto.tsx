@@ -15,12 +15,12 @@ export function ConversacionesImpacto({
           <MessageSquare className="h-5 w-5 text-navy" />
           Conversaciones de impacto
         </CardTitle>
-        <p className="mb-4 text-xs text-navy/55">
+        <p className="mb-4 text-xs text-navy/70">
           Reseñas con más respuestas — películas que generan debate
         </p>
 
         {items.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-navy/15 px-4 py-6 text-center text-sm text-navy/50">
+          <p className="rounded-2xl border border-dashed border-navy/15 px-4 py-6 text-center text-sm text-navy/70">
             Aún no hay hilos de reseñas con respuestas.
           </p>
         ) : (
@@ -32,7 +32,7 @@ export function ConversacionesImpacto({
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-navy/45">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                       {item.peliculaTitulo}
                     </p>
                     <p className="font-semibold text-navy">{item.autorNombre}</p>
@@ -52,7 +52,7 @@ export function ConversacionesImpacto({
 
         <Link
           href="/cartelera"
-          className="mt-4 inline-block text-xs font-semibold text-navy/60 hover:text-navy"
+          className="mt-4 inline-block text-xs font-semibold text-navy/70 hover:text-navy"
         >
           Ver cartelera →
         </Link>

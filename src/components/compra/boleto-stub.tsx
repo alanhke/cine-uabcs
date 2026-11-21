@@ -111,20 +111,20 @@ export function BoletoStub({
               height={196}
             />
             {qrCodigo && (
-              <p className="mt-3 break-all font-mono text-xs text-navy/45">
+              <p className="mt-3 break-all font-mono text-xs text-navy/70">
                 {qrCodigo}
               </p>
             )}
           </>
         ) : (
-          <p className="py-6 text-sm text-navy/60">
+          <p className="py-6 text-sm text-navy/70">
             Tu código se generará en breve.
           </p>
         )}
 
         <div className="mt-4 flex items-center justify-between border-t border-navy/10 pt-4 text-left">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-navy/45">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-navy/70">
               Folio
             </p>
             <p className="font-display text-lg font-bold tracking-wide text-navy">
@@ -132,7 +132,7 @@ export function BoletoStub({
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-navy/45">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-navy/70">
               Total
             </p>
             <p className="font-display text-lg font-bold text-navy">{total}</p>

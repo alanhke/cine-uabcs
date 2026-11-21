@@ -7,7 +7,7 @@ export default function ChatPage() {
     <ClientRoleGate requiredRole="CLIENTE">
       <Suspense
         fallback={
-          <p className="p-8 text-center text-navy/60">Cargando mensajes...</p>
+          <p className="p-8 text-center text-navy/70">Cargando mensajes...</p>
         }
       >
         <ChatClient />

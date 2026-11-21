@@ -75,7 +75,7 @@ export function AdminDashboardNavigation({
           className="hidden lg:block"
         >
           <div className="sticky top-24 w-52 rounded-2xl border border-navy/10 bg-white/80 p-2 shadow-sm">
-            <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-navy/40">
+            <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-navy/70">
               Administración
             </p>
             <div className="space-y-1">
@@ -93,7 +93,7 @@ export function AdminDashboardNavigation({
           aria-label="Accesos rápidos administrativos"
           className="lg:hidden"
         >
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-navy/45">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-navy/70">
             Accesos rápidos
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

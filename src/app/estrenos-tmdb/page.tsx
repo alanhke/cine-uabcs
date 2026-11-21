@@ -22,7 +22,7 @@ export default async function EstrenosTmdbPage() {
         <h1 className="font-display text-2xl font-bold text-navy sm:text-3xl">
           Estrenos TMDB
         </h1>
-        <p className="mt-1 text-sm text-navy/60">
+        <p className="mt-1 text-sm text-navy/70">
           Cartelera en tiempo real desde The Movie Database
         </p>
       </header>
@@ -40,7 +40,7 @@ export default async function EstrenosTmdbPage() {
       )}
 
       {!tmdbError && movies.length === 0 && (
-        <p className="rounded-2xl border border-dashed border-navy/15 bg-white/60 px-4 py-10 text-center text-sm text-navy/50">
+        <p className="rounded-2xl border border-dashed border-navy/15 bg-white/60 px-4 py-10 text-center text-sm text-navy/70">
           No hay estrenos disponibles en este momento.
         </p>
       )}

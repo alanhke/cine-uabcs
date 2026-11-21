@@ -68,7 +68,7 @@ export function AsistenciaCard({ data }: DashboardChartsProps) {
         <p className="text-3xl font-display font-bold text-navy">
           {data.asistencia.boletosHoy} boletos
         </p>
-        <p className="mt-1 text-sm text-navy/60">
+        <p className="mt-1 text-sm text-navy/70">
           Promedio diario: {data.asistencia.promedioDiario} ·{" "}
           {data.asistencia.porcentajeVsPromedio}% vs promedio
         </p>
@@ -207,7 +207,7 @@ export function SatisfaccionChart({ data, chartKey = 0 }: DashboardChartsProps) 
     <Card key={chartKey}>
       <CardContent className="py-4">
         <CardTitle className="mb-2 text-base">Satisfacción del cliente</CardTitle>
-        <p className="mb-4 text-sm text-navy/60">
+        <p className="mb-4 text-sm text-navy/70">
           Promedio:{" "}
           <span className="font-bold text-paliacate">
             {data.satisfaccion.promedio.toFixed(1)} / 5

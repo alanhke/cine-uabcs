@@ -35,7 +35,7 @@ export function MetodosGuardados({
             }`}
           >
             <p className="font-semibold text-navy">{method.titulo}</p>
-            <p className="text-sm text-navy/60">{method.detalle}</p>
+            <p className="text-sm text-navy/70">{method.detalle}</p>
           </button>
         ))}
       </div>

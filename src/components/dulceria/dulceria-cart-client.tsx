@@ -120,7 +120,7 @@ export function DulceriaCartClient({
       <section>
         <h2 className="font-display mb-4 text-lg font-bold text-navy">Productos</h2>
         {productos.length === 0 ? (
-          <p className="text-sm text-navy/50">No hay productos disponibles.</p>
+          <p className="text-sm text-navy/70">No hay productos disponibles.</p>
         ) : (
           <div className="reveal-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {productos.map((p) => {
@@ -143,7 +143,7 @@ export function DulceriaCartClient({
                             ? "text-xs font-medium text-red-600"
                             : pocoStock
                               ? "text-xs font-medium text-amber-700"
-                              : "text-xs text-navy/50"
+                              : "text-xs text-navy/70"
                         }
                       >
                         {agotado
@@ -172,7 +172,7 @@ export function DulceriaCartClient({
       <section>
         <h2 className="font-display mb-4 text-lg font-bold text-navy">Combos</h2>
         {combos.length === 0 ? (
-          <p className="text-sm text-navy/50">No hay combos disponibles.</p>
+          <p className="text-sm text-navy/70">No hay combos disponibles.</p>
         ) : (
           <div className="reveal-grid grid grid-cols-1 gap-4 sm:grid-cols-2">
             {combos.map((c) => (
@@ -187,7 +187,7 @@ export function DulceriaCartClient({
                       {formatCurrency(Number(c.precio))}
                     </p>
                     {c.detalles.length > 0 ? (
-                      <p className="mt-1 text-xs leading-relaxed text-navy/55">
+                      <p className="mt-1 text-xs leading-relaxed text-navy/70">
                         Incluye{" "}
                         {c.detalles
                           .map((detalle) => `${detalle.cantidad} ${detalle.nombre}`)
@@ -218,7 +218,7 @@ export function DulceriaCartClient({
                 <div key={k} className="flex items-center justify-between gap-3 text-sm text-navy">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{item.nombre}</p>
-                    <p className="text-xs text-navy/55">
+                    <p className="text-xs text-navy/70">
                       {formatCurrency(item.precioUnitario * item.cantidad)}
                     </p>
                   </div>

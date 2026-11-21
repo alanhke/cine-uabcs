@@ -63,7 +63,7 @@ export default function RecuperarPage() {
           <h1 className="font-display text-2xl font-bold text-navy sm:text-3xl">
             Recuperar compra
           </h1>
-          <p className="mt-1 text-sm text-navy/60">
+          <p className="mt-1 text-sm text-navy/70">
             Ingresa el correo y folio que usaste al hacer la compra.
           </p>
         </div>
@@ -71,8 +71,9 @@ export default function RecuperarPage() {
 
       <form onSubmit={buscar} className="space-y-4">
         <div className="space-y-2">
-          <Label>Correo del comprador</Label>
+          <Label htmlFor="recuperar-correo-del-comprador">Correo del comprador</Label>
           <Input
+            id="recuperar-correo-del-comprador"
             type="email"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
@@ -80,8 +81,9 @@ export default function RecuperarPage() {
           />
         </div>
         <div className="space-y-2">
-          <Label>Folio de compra</Label>
+          <Label htmlFor="recuperar-folio-de-compra">Folio de compra</Label>
           <Input
+            id="recuperar-folio-de-compra"
             value={folio}
             onChange={(e) => setFolio(e.target.value.toUpperCase())}
             placeholder="CU-..."

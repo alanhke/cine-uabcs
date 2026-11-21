@@ -72,7 +72,7 @@ function AmigoRow({ amigo }: { amigo: Amigo }) {
               {nombreCompleto(amigo.nombre, amigo.apellidoPaterno, amigo.apellidoMaterno)}
             </p>
             {amigo.codigoAmigo && (
-              <p className="font-mono text-xs text-navy/50">{amigo.codigoAmigo}</p>
+              <p className="font-mono text-xs text-navy/70">{amigo.codigoAmigo}</p>
             )}
           </div>
         </CardContent>
@@ -175,7 +175,7 @@ export default function AmigosPage() {
               <Share2 className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-navy/60">
+              <p className="text-xs font-bold uppercase tracking-widest text-navy/70">
                 CineUABCS · Tu código
               </p>
               <p className="font-display mt-2 text-3xl font-bold tracking-wide text-primary">
@@ -203,10 +203,10 @@ export default function AmigosPage() {
                 }}
                 className="font-mono uppercase"
               />
-              <Button variant="default" onClick={buscarPorCodigo} disabled={buscando}>
+              <Button aria-label="Buscar por código" variant="default" onClick={buscarPorCodigo} disabled={buscando}>
                 <Search className="h-4 w-4" />
               </Button>
-              <Button variant="outline" onClick={() => agregarPorCodigo()}>
+              <Button aria-label="Agregar amigo" variant="outline" onClick={() => agregarPorCodigo()}>
                 <UserPlus className="h-4 w-4" />
               </Button>
             </div>
@@ -230,7 +230,7 @@ export default function AmigosPage() {
                           usuarioBuscado.apellidoMaterno
                         )}
                       </UserLink>
-                      <p className="font-mono text-xs text-navy/50">
+                      <p className="font-mono text-xs text-navy/70">
                         {usuarioBuscado.codigoAmigo}
                       </p>
                     </div>
@@ -276,10 +276,10 @@ export default function AmigosPage() {
                       </UserLink>
                     </div>
                     <div className="flex shrink-0 gap-2">
-                      <Button size="icon" onClick={() => responder(s.id, "aceptar")}>
+                      <Button aria-label="Aceptar solicitud" size="icon" onClick={() => responder(s.id, "aceptar")}>
                         <Check className="h-4 w-4" />
                       </Button>
-                      <Button
+                      <Button aria-label="Rechazar solicitud"
                         size="icon"
                         variant="outline"
                         onClick={() => responder(s.id, "rechazar")}
@@ -298,11 +298,11 @@ export default function AmigosPage() {
           <h2 className="mb-3 font-semibold text-navy">Mis amigos</h2>
           {amigos.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-navy/15 bg-white/60 px-6 py-10 text-center">
-              <Users className="h-7 w-7 text-navy/40" />
+              <Users className="h-7 w-7 text-navy/70" />
               <p className="text-sm font-medium text-navy/70">
                 Aún no tienes amigos confirmados
               </p>
-              <p className="text-xs text-navy/55">
+              <p className="text-xs text-navy/70">
                 Comparte tu código o busca a alguien por el suyo para conectar.
               </p>
             </div>

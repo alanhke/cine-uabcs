@@ -99,7 +99,7 @@ export function WrappedSummaryDashboard({
         />
 
         <header className="relative z-20 mb-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-navy/70">
             Tu resumen del año
           </p>
           <div
@@ -115,7 +115,7 @@ export function WrappedSummaryDashboard({
             <h2 className="font-display text-5xl font-bold leading-[1.05] text-primary sm:text-6xl">
               {data.cineIdentidad}
             </h2>
-            <p className="text-sm text-navy/60">
+            <p className="text-sm text-navy/70">
               {data.nombre} · Cine Wrapped {data.anio}
             </p>
           </div>
@@ -152,7 +152,7 @@ export function WrappedSummaryDashboard({
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-navy/50">Sin funciones registradas aún</p>
+              <p className="text-sm text-navy/70">Sin funciones registradas aún</p>
             )}
           </StatCard>
 
@@ -169,7 +169,7 @@ export function WrappedSummaryDashboard({
                 ))}
               </ol>
             ) : (
-              <p className="text-sm text-navy/50">—</p>
+              <p className="text-sm text-navy/70">—</p>
             )}
           </StatCard>
 
@@ -180,7 +180,7 @@ export function WrappedSummaryDashboard({
               </span>
               <span className="ml-1 text-lg font-semibold text-navy">horas</span>
             </p>
-            <p className="mt-1 text-xs text-navy/55">{data.minutosPantalla} min totales</p>
+            <p className="mt-1 text-xs text-navy/70">{data.minutosPantalla} min totales</p>
           </StatCard>
 
           <StatCard
@@ -195,13 +195,13 @@ export function WrappedSummaryDashboard({
                 <p className="font-display text-3xl font-bold text-primary">
                   {data.totalResenas}
                 </p>
-                <p className="text-xs text-navy/60">reseñas</p>
+                <p className="text-xs text-navy/70">reseñas</p>
               </div>
               <div className="rounded-xl border border-primary/15 bg-cream/80 px-3 py-2">
                 <p className="font-display text-3xl font-bold text-primary">
                   {data.totalRecomendaciones}
                 </p>
-                <p className="text-xs text-navy/60">recomendaciones</p>
+                <p className="text-xs text-navy/70">recomendaciones</p>
               </div>
             </div>
           </StatCard>
@@ -215,7 +215,7 @@ export function WrappedSummaryDashboard({
           style={{ animationDelay: "560ms" }}
         >
           <Sparkles className="h-4 w-4 text-paliacate" aria-hidden />
-          <p className="text-xs font-medium text-navy/50">CineUABCS</p>
+          <p className="text-xs font-medium text-navy/70">CineUABCS</p>
         </footer>
       </div>
     </div>

@@ -60,7 +60,7 @@ export function PerfilForm() {
   }, [state, toast]);
 
   if (!loaded) {
-    return <p className="text-sm text-navy/50">Cargando datos...</p>;
+    return <p className="text-sm text-navy/70">Cargando datos...</p>;
   }
 
   return (
@@ -75,20 +75,21 @@ export function PerfilForm() {
       />
 
       <div className="space-y-1">
-        <Label>Nombre</Label>
-        <Input name="nombre" defaultValue={defaults.nombre} required />
+        <Label htmlFor="perfil-form-nombre">Nombre</Label>
+        <Input id="perfil-form-nombre" name="nombre" defaultValue={defaults.nombre} required />
       </div>
       <div className="space-y-1">
-        <Label>Apellido paterno</Label>
-        <Input name="apellidoPaterno" defaultValue={defaults.apellidoPaterno} required />
+        <Label htmlFor="perfil-form-apellido-paterno">Apellido paterno</Label>
+        <Input id="perfil-form-apellido-paterno" name="apellidoPaterno" defaultValue={defaults.apellidoPaterno} required />
       </div>
       <div className="space-y-1">
-        <Label>Apellido materno</Label>
-        <Input name="apellidoMaterno" defaultValue={defaults.apellidoMaterno} />
+        <Label htmlFor="perfil-form-apellido-materno">Apellido materno</Label>
+        <Input id="perfil-form-apellido-materno" name="apellidoMaterno" defaultValue={defaults.apellidoMaterno} />
       </div>
       <div className="space-y-1">
-        <Label>Teléfono (10 dígitos)</Label>
+        <Label htmlFor="perfil-form-telefono-10-digitos">Teléfono (10 dígitos)</Label>
         <Input
+          id="perfil-form-telefono-10-digitos"
           name="telefono"
           inputMode="numeric"
           maxLength={10}

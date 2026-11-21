@@ -24,9 +24,9 @@ export default function AdminVentasPage() {
         <>
           <Card>
             <CardContent className="py-4">
-              <p className="text-sm text-navy/60">Boletos vendidos</p>
+              <p className="text-sm text-navy/70">Boletos vendidos</p>
               <p className="text-2xl font-bold text-navy">{stats.boletosVendidos}</p>
-              <p className="mt-2 text-sm text-navy/60">Ingresos dulcería</p>
+              <p className="mt-2 text-sm text-navy/70">Ingresos dulcería</p>
               <p className="text-xl font-bold text-navy">
                 {formatCurrency(stats.ventasDulceria)}
               </p>

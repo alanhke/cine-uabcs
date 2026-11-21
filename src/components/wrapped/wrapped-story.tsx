@@ -49,7 +49,7 @@ function StatNumber({ children }: { children: React.ReactNode }) {
 }
 
 const navBtnClass =
-  "rounded-full bg-primary text-primary-foreground shadow-cta hover:bg-primary-dark disabled:bg-navy/15 disabled:text-navy/40 disabled:shadow-none";
+  "rounded-full bg-primary text-primary-foreground shadow-cta hover:bg-primary-dark disabled:bg-navy/15 disabled:text-navy/70 disabled:shadow-none";
 
 export function WrappedStory({ data }: { data: WrappedData }) {
   const [slide, setSlide] = useState(0);
@@ -182,7 +182,7 @@ export function WrappedStory({ data }: { data: WrappedData }) {
       >
         <Slide active={slide === 0}>
           <Sparkles className="mb-6 h-14 w-14 animate-pulse text-paliacate" />
-          <p className="text-sm font-medium uppercase tracking-widest text-navy/60">
+          <p className="text-sm font-medium uppercase tracking-widest text-navy/70">
             Cine Wrapped {data.anio}
           </p>
           <h1 className="mt-4 font-display text-3xl font-bold leading-tight text-navy sm:text-4xl">
@@ -195,7 +195,7 @@ export function WrappedStory({ data }: { data: WrappedData }) {
         </Slide>
 
         <Slide active={slide === 1}>
-          <p className="text-sm font-medium uppercase tracking-widest text-navy/60">
+          <p className="text-sm font-medium uppercase tracking-widest text-navy/70">
             Tu película favorita
           </p>
           {fav ? (
@@ -219,14 +219,14 @@ export function WrappedStory({ data }: { data: WrappedData }) {
               </p>
             </>
           ) : (
-            <p className="mt-6 text-navy/60">
+            <p className="mt-6 text-navy/70">
               Aún no tienes funciones en tu historial. ¡La cartelera te espera!
             </p>
           )}
         </Slide>
 
         <Slide active={slide === 2}>
-          <p className="text-sm font-medium uppercase tracking-widest text-navy/60">
+          <p className="text-sm font-medium uppercase tracking-widest text-navy/70">
             Tus actores inseparables
           </p>
           <h2 className="mt-4 font-display text-2xl font-bold text-navy">
@@ -247,12 +247,12 @@ export function WrappedStory({ data }: { data: WrappedData }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-6 text-navy/60">Compra boletos para descubrir a tus estrellas.</p>
+            <p className="mt-6 text-navy/70">Compra boletos para descubrir a tus estrellas.</p>
           )}
         </Slide>
 
         <Slide active={slide === 3}>
-          <p className="text-sm font-medium uppercase tracking-widest text-navy/60">
+          <p className="text-sm font-medium uppercase tracking-widest text-navy/70">
             Maratón de horas
           </p>
           <h2 className="mt-4 font-display text-2xl font-bold text-navy sm:text-3xl">
@@ -264,7 +264,7 @@ export function WrappedStory({ data }: { data: WrappedData }) {
         </Slide>
 
         <Slide active={slide === 4}>
-          <p className="text-sm font-medium uppercase tracking-widest text-navy/60">
+          <p className="text-sm font-medium uppercase tracking-widest text-navy/70">
             Tu impacto social
           </p>
           <h2 className="mt-4 font-display text-2xl font-bold text-navy">
@@ -285,7 +285,7 @@ export function WrappedStory({ data }: { data: WrappedData }) {
         </Slide>
 
         <Slide active={slide === 5}>
-          <p className="text-sm font-medium uppercase tracking-widest text-navy/60">
+          <p className="text-sm font-medium uppercase tracking-widest text-navy/70">
             Tu Cine-Identidad
           </p>
           <div className="mt-6 rounded-4xl border-2 border-primary/40 bg-gradient-to-br from-white to-primary/10 px-8 py-10 shadow-matinee">
@@ -335,7 +335,7 @@ export function WrappedStory({ data }: { data: WrappedData }) {
               type="button"
               variant="ghost"
               size="sm"
-              className="w-full text-navy/60"
+              className="w-full text-navy/70"
               onClick={prev}
             >
               <ChevronLeft className="h-4 w-4" />

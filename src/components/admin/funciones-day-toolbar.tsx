@@ -73,9 +73,9 @@ export function FuncionesDayToolbar({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-navy/10 bg-white/90 px-4 py-3 shadow-sm">
-      <p className="text-sm font-medium text-navy/60">Funciones del día</p>
+      <p className="text-sm font-medium text-navy/70">Funciones del día</p>
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => shiftDay(-1)}>
+        <Button aria-label="Día anterior" type="button" variant="outline" size="sm" onClick={() => shiftDay(-1)}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <button
@@ -86,7 +86,7 @@ export function FuncionesDayToolbar({
           <CalendarDays className="h-4 w-4 text-primary" />
           <span>{label}</span>
         </button>
-        <Button type="button" variant="outline" size="sm" onClick={() => shiftDay(1)}>
+        <Button aria-label="Día siguiente" type="button" variant="outline" size="sm" onClick={() => shiftDay(1)}>
           <ChevronRight className="h-4 w-4" />
         </Button>
         <input

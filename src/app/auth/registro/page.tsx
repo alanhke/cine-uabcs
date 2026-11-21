@@ -51,27 +51,28 @@ export default function RegistroPage() {
           <CardTitle className="text-center">Crear cuenta</CardTitle>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div className="space-y-1">
-              <Label>Nombre</Label>
-              <Input {...register("nombre")} />
+              <Label htmlFor="registro-nombre">Nombre</Label>
+              <Input id="registro-nombre" {...register("nombre")} />
               <FormError message={errors.nombre?.message} />
             </div>
             <div className="space-y-1">
-              <Label>Apellido paterno</Label>
-              <Input {...register("apellidoPaterno")} />
+              <Label htmlFor="registro-apellido-paterno">Apellido paterno</Label>
+              <Input id="registro-apellido-paterno" {...register("apellidoPaterno")} />
               <FormError message={errors.apellidoPaterno?.message} />
             </div>
             <div className="space-y-1">
-              <Label>Apellido materno (opcional)</Label>
-              <Input {...register("apellidoMaterno")} />
+              <Label htmlFor="registro-apellido-materno-opcional">Apellido materno (opcional)</Label>
+              <Input id="registro-apellido-materno-opcional" {...register("apellidoMaterno")} />
             </div>
             <div className="space-y-1">
-              <Label>Correo</Label>
-              <Input type="email" {...register("correo")} />
+              <Label htmlFor="registro-correo">Correo</Label>
+              <Input id="registro-correo" type="email" {...register("correo")} />
               <FormError message={errors.correo?.message} variant="navy" />
             </div>
             <div className="space-y-1">
-              <Label>Teléfono (10 dígitos, opcional)</Label>
+              <Label htmlFor="registro-telefono-10-digitos-opcional">Teléfono (10 dígitos, opcional)</Label>
               <Input
+                id="registro-telefono-10-digitos-opcional"
                 inputMode="numeric"
                 maxLength={10}
                 {...register("telefono", {
@@ -81,8 +82,8 @@ export default function RegistroPage() {
               <FormError message={errors.telefono?.message} />
             </div>
             <div className="space-y-1">
-              <Label>Contraseña</Label>
-              <Input type="password" {...register("password")} />
+              <Label htmlFor="registro-contrasena">Contraseña</Label>
+              <Input id="registro-contrasena" type="password" {...register("password")} />
               <FormError message={errors.password?.message} />
             </div>
             <FormError message={errors.root?.message} variant="navy" />

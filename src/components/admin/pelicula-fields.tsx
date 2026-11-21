@@ -30,12 +30,13 @@ export function PeliculaFields({
   return (
     <>
       <div className="space-y-1">
-        <Label>Título</Label>
-        <Input name="titulo" defaultValue={defaults?.titulo} required />
+        <Label htmlFor="pelicula-fields-titulo">Título</Label>
+        <Input id="pelicula-fields-titulo" name="titulo" defaultValue={defaults?.titulo} required />
       </div>
       <div className="space-y-1">
-        <Label>Sinopsis</Label>
+        <Label htmlFor="pelicula-fields-sinopsis">Sinopsis</Label>
         <textarea
+          id="pelicula-fields-sinopsis"
           name="sinopsis"
           defaultValue={defaults?.sinopsis}
           required
@@ -45,8 +46,9 @@ export function PeliculaFields({
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1">
-          <Label>Clasificación</Label>
+          <Label htmlFor="pelicula-fields-clasificacion">Clasificación</Label>
           <select
+            id="pelicula-fields-clasificacion"
             name="clasificacion"
             defaultValue={defaults?.clasificacion ?? ""}
             required
@@ -69,8 +71,9 @@ export function PeliculaFields({
           </select>
         </div>
         <div className="space-y-1">
-          <Label>Duración (min)</Label>
+          <Label htmlFor="pelicula-fields-duracion-min">Duración (min)</Label>
           <Input
+            id="pelicula-fields-duracion-min"
             name="duracionMin"
             type="number"
             min={1}
@@ -81,14 +84,15 @@ export function PeliculaFields({
       </div>
 
       <div className="space-y-1">
-        <Label>Género</Label>
+        <Label htmlFor="pelicula-fields-genero">Género</Label>
         <Input
+          id="pelicula-fields-genero"
           name="genero"
           defaultValue={defaults?.genero ?? ""}
           placeholder="Ej. Drama, Ciencia ficción, Animación"
           maxLength={100}
         />
-        <p className="text-xs text-navy/50">
+        <p className="text-xs text-navy/70">
           Se usa para los filtros de cartelera en la app. Las películas
           importadas de TMDB lo traen automáticamente.
         </p>
@@ -104,8 +108,9 @@ export function PeliculaFields({
       />
 
       <div className="space-y-1">
-        <Label>Estado</Label>
+        <Label htmlFor="pelicula-fields-estado">Estado</Label>
         <select
+          id="pelicula-fields-estado"
           name="estado"
           defaultValue={defaults?.estado ?? "ACTIVO"}
           className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"

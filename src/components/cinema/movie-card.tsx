@@ -52,7 +52,7 @@ export function MovieCard({
         <h3 className="font-display text-lg font-bold leading-tight text-navy line-clamp-2">
           {titulo}
         </h3>
-        <div className="flex items-center gap-3 text-sm text-navy/60">
+        <div className="flex items-center gap-3 text-sm text-navy/70">
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
             {duracionMin} min

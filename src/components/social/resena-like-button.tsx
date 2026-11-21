@@ -45,7 +45,7 @@ export function ResenaLikeButton({
         "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors",
         liked
           ? "bg-primary/10 text-primary"
-          : "text-navy/55 hover:bg-navy/5 hover:text-primary"
+          : "text-navy/70 hover:bg-navy/5 hover:text-primary"
       )}
       aria-pressed={liked}
       aria-label={liked ? "Quitar me gusta" : "Marcar como útil"}

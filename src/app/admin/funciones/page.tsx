@@ -107,7 +107,7 @@ export default async function AdminFuncionesPage(
 
       <div className="overflow-x-auto rounded-2xl border-2 border-navy/10 bg-white/90">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase tracking-wide text-navy/50">
+          <thead className="border-b border-navy/10 bg-cream/80 text-xs uppercase tracking-wide text-navy/70">
             <tr>
               <th className="px-4 py-3">Película</th>
               <th className="px-4 py-3">Sala</th>
@@ -122,7 +122,7 @@ export default async function AdminFuncionesPage(
           <tbody>
             {funciones.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-navy/50">
+                <td colSpan={8} className="px-4 py-8 text-center text-navy/70">
                   {enPapelera
                     ? "No hay funciones en papelera para la fecha seleccionada."
                     : "No hay funciones registradas para los filtros seleccionados."}
@@ -154,7 +154,7 @@ export default async function AdminFuncionesPage(
                     <div className="flex items-center justify-end gap-1">
                       {!enPapelera ? (
                         <Link href={`/admin/funciones/${f.id}/editar`}>
-                          <Button variant="outline" size="sm">
+                          <Button aria-label="Editar función" variant="outline" size="sm">
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                         </Link>

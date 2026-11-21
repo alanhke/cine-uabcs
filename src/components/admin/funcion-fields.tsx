@@ -28,8 +28,9 @@ export function FuncionFields({
   return (
     <>
       <div className="space-y-1">
-        <Label>Película</Label>
+        <Label htmlFor="funcion-fields-pelicula">Película</Label>
         <select
+          id="funcion-fields-pelicula"
           name="peliculaId"
           defaultValue={defaults?.peliculaId}
           required
@@ -44,8 +45,9 @@ export function FuncionFields({
         </select>
       </div>
       <div className="space-y-1">
-        <Label>Sala</Label>
+        <Label htmlFor="funcion-fields-sala">Sala</Label>
         <select
+          id="funcion-fields-sala"
           name="salaId"
           defaultValue={defaults?.salaId}
           required
@@ -60,8 +62,9 @@ export function FuncionFields({
         </select>
       </div>
       <div className="space-y-1">
-        <Label>Fecha y hora</Label>
+        <Label htmlFor="funcion-fields-fecha-y-hora">Fecha y hora</Label>
         <Input
+          id="funcion-fields-fecha-y-hora"
           name="fechaHora"
           type="datetime-local"
           defaultValue={
@@ -71,11 +74,12 @@ export function FuncionFields({
           }
           required
         />
-        <p className="text-xs text-navy/50">Debe ser una fecha futura</p>
+        <p className="text-xs text-navy/70">Debe ser una fecha futura</p>
       </div>
       <div className="space-y-1">
-        <Label>Idioma</Label>
+        <Label htmlFor="funcion-fields-idioma">Idioma</Label>
         <select
+          id="funcion-fields-idioma"
           name="idioma"
           defaultValue={defaults?.idioma ?? "ESPANOL"}
           required
@@ -89,8 +93,9 @@ export function FuncionFields({
         </select>
       </div>
       <div className="space-y-1">
-        <Label>Precio base (adulto)</Label>
+        <Label htmlFor="funcion-fields-precio-base-adulto">Precio base (adulto)</Label>
         <Input
+          id="funcion-fields-precio-base-adulto"
           name="precioBase"
           type="number"
           step="0.01"
@@ -99,14 +104,15 @@ export function FuncionFields({
           required
         />
         {defaults?.precioBase && (
-          <p className="text-xs text-navy/50">
+          <p className="text-xs text-navy/70">
             Tipos de boleto se recalculan al guardar
           </p>
         )}
       </div>
       <div className="space-y-1">
-        <Label>Estado</Label>
+        <Label htmlFor="funcion-fields-estado">Estado</Label>
         <select
+          id="funcion-fields-estado"
           name="estado"
           defaultValue={defaults?.estado ?? "ACTIVO"}
           className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"

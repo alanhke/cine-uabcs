@@ -80,7 +80,7 @@ function StatPill({
     <div className="rounded-2xl border border-primary/20 bg-white/90 px-3 py-3 text-center shadow-matinee">
       <Icon className="mx-auto h-5 w-5 text-primary" aria-hidden />
       <p className="mt-1 font-display text-xl font-bold text-primary">{value}</p>
-      <p className="text-xs text-navy/60">{label}</p>
+      <p className="text-xs text-navy/70">{label}</p>
     </div>
   );
 }
@@ -149,11 +149,11 @@ export function PerfilPublicoView({
               {estadisticas.cineIdentidad}
             </p>
           )}
-          <p className="mt-2 text-sm text-navy/60">
+          <p className="mt-2 text-sm text-navy/70">
             Miembro desde {formatDateTime(usuario.createdAt)}
           </p>
           {perfil.esPropio && usuario.correo ? (
-            <p className="mt-1 text-sm text-navy/60">{usuario.correo}</p>
+            <p className="mt-1 text-sm text-navy/70">{usuario.correo}</p>
           ) : null}
 
           {!perfil.esPropio && (
@@ -254,7 +254,7 @@ export function PerfilPublicoView({
                 <p className="font-display font-bold text-navy">
                   Ver mi Resumen del Año
                 </p>
-                <p className="text-sm text-navy/60">
+                <p className="text-sm text-navy/70">
                   Descubre tu Cine Wrapped {new Date().getFullYear()}
                 </p>
               </div>
@@ -269,7 +269,7 @@ export function PerfilPublicoView({
       <section>
         <h2 className="font-display mb-3 text-lg font-bold text-navy">Favoritos</h2>
         {perfil.favoritos.length === 0 ? (
-          <p className="text-sm text-navy/50">
+          <p className="text-sm text-navy/70">
             Sin películas favoritas aún.{" "}
             {perfil.esPropio && (
               <Link href="/cartelera" className="font-semibold text-primary underline">
@@ -307,7 +307,7 @@ export function PerfilPublicoView({
           Actividad reciente
         </h2>
         {perfil.actividad.length === 0 ? (
-          <p className="text-sm text-navy/50">Sin actividad reciente.</p>
+          <p className="text-sm text-navy/70">Sin actividad reciente.</p>
         ) : (
           <div className="space-y-3">
             {perfil.actividad.map((a) => (
@@ -333,7 +333,7 @@ export function PerfilPublicoView({
                     >
                       {a.pelicula.titulo}
                     </Link>
-                    <p className="flex items-center gap-1 text-xs text-navy/50">
+                    <p className="flex items-center gap-1 text-xs text-navy/70">
                       {formatRelativeTime(a.createdAt)}
                       {a.tipo === "calificacion" && a.puntuacion ? (
                         <>

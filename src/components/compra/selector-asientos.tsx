@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState, type KeyboardEvent } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,17 @@ interface SelectorAsientosProps {
 
 function isMovilidad(tipo?: SeatTipo) {
   return tipo === "MOVILIDAD";
+}
+
+const ESTADO_TEXTO: Record<SeatStatus, string> = {
+  available: "disponible",
+  selected: "seleccionada",
+  occupied: "ocupada",
+  disabled: "no disponible",
+};
+
+function noSeleccionable(seat: Seat) {
+  return seat.status === "occupied" || seat.status === "disabled";
 }
 
 function seatButtonClass(seat: Seat, onDark: boolean) {
@@ -74,6 +86,48 @@ export function SelectorAsientos({
   }
 
   const rowLabels = Array.from(byRow.keys()).sort();
+  const filas = rowLabels.map((fila) =>
+    [...(byRow.get(fila) ?? [])].sort((a, b) => a.numero - b.numero)
+  );
+
+  // M11: "roving tabindex" — el mapa es una sola parada de Tab y las flechas
+  // mueven el foco entre butacas (antes: ~100 Tab para salir del mapa).
+  const botones = useRef(new Map<number, HTMLButtonElement>());
+  const primeraDisponible = filas.flat().find((s) => !noSeleccionable(s));
+  const [activaId, setActivaId] = useState<number | null>(null);
+  const idEnfocable =
+    (activaId != null && seats.some((s) => s.id === activaId) ? activaId : null) ??
+    selectedIds.find((id) => seats.some((s) => s.id === id)) ??
+    primeraDisponible?.id ??
+    seats[0]?.id;
+
+  function enfocar(seat: Seat | undefined) {
+    if (!seat) return;
+    setActivaId(seat.id);
+    botones.current.get(seat.id)?.focus();
+  }
+
+  function onTecla(e: KeyboardEvent<HTMLButtonElement>, r: number, c: number) {
+    const fila = filas[r];
+    const mover: Record<string, () => Seat | undefined> = {
+      ArrowRight: () => fila[Math.min(c + 1, fila.length - 1)],
+      ArrowLeft: () => fila[Math.max(c - 1, 0)],
+      ArrowDown: () => {
+        const sig = filas[Math.min(r + 1, filas.length - 1)];
+        return sig[Math.min(c, sig.length - 1)];
+      },
+      ArrowUp: () => {
+        const ant = filas[Math.max(r - 1, 0)];
+        return ant[Math.min(c, ant.length - 1)];
+      },
+      Home: () => fila[0],
+      End: () => fila[fila.length - 1],
+    };
+    if (mover[e.key]) {
+      e.preventDefault();
+      enfocar(mover[e.key]());
+    }
+  }
 
   const selectedLabels = selectedIds
     .map((id) => {
@@ -95,42 +149,61 @@ export function SelectorAsientos({
       ) : (
         <div className="space-y-1.5">
           <div className="mx-auto h-1.5 w-4/5 rounded-full bg-gradient-to-b from-primary/60 to-primary/10 shadow-[0_8px_24px_-6px_rgba(0,91,150,0.55)]" />
-          <p className="text-center text-xs font-semibold uppercase tracking-wider text-navy/50">
+          <p className="text-center text-xs font-semibold uppercase tracking-wider text-navy/70">
             Pantalla
           </p>
         </div>
       )}
 
-      <div className="space-y-2 overflow-x-auto pb-2">
-        {rowLabels.map((fila) => (
+      <p id="ayuda-butacas" className="sr-only">
+        Usa las flechas para moverte entre butacas y Enter o Espacio para seleccionar.
+      </p>
+      <div
+        role="group"
+        aria-label="Mapa de butacas"
+        aria-describedby="ayuda-butacas"
+        className="space-y-2 overflow-x-auto p-1 pb-2"
+      >
+        {rowLabels.map((fila, r) => (
           <div key={fila} className="flex items-center justify-center gap-1.5">
             <span
               className={cn(
                 "w-6 text-xs font-bold",
-                onDark ? "text-sala-muted/70" : "text-navy/45"
+                onDark ? "text-sala-muted/70" : "text-navy/70"
               )}
             >
               {fila}
             </span>
-            {(byRow.get(fila) ?? [])
-              .sort((a, b) => a.numero - b.numero)
-              .map((seat) => (
-                <button
-                  key={seat.id}
-                  type="button"
-                  disabled={
-                    seat.status === "occupied" || seat.status === "disabled"
-                  }
-                  onClick={() => onSelect(seat.id)}
-                  className={cn(
-                    "h-8 w-8 rounded-lg text-[10px] font-bold transition-[transform,background-color,border-color,box-shadow] duration-150 ease-out-quart sm:h-9 sm:w-9",
-                    seatButtonClass(seat, onDark)
-                  )}
-                  aria-label={`Butaca ${fila}${seat.numero}${
-                    isMovilidad(seat.tipo) ? ", movilidad" : ""
-                  }`}
-                />
-              ))}
+            {filas[r].map((seat, c) => (
+              <button
+                key={seat.id}
+                ref={(el) => {
+                  if (el) botones.current.set(seat.id, el);
+                  else botones.current.delete(seat.id);
+                }}
+                type="button"
+                tabIndex={seat.id === idEnfocable ? 0 : -1}
+                // aria-disabled (no disabled): la butaca ocupada recibe foco y se anuncia.
+                aria-disabled={noSeleccionable(seat) || undefined}
+                aria-pressed={seat.status === "selected"}
+                onClick={() => {
+                  setActivaId(seat.id);
+                  if (!noSeleccionable(seat)) onSelect(seat.id);
+                }}
+                onKeyDown={(e) => onTecla(e, r, c)}
+                className={cn(
+                  "h-8 w-8 scroll-mb-40 scroll-mt-24 rounded-lg text-[10px] font-bold transition-[transform,background-color,border-color,box-shadow] duration-150 ease-out-quart sm:h-9 sm:w-9",
+                  "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-offset-2",
+                  onDark
+                    ? "focus-visible:ring-paliacate focus-visible:ring-offset-sala"
+                    : "focus-visible:ring-primary focus-visible:ring-offset-white",
+                  seatButtonClass(seat, onDark)
+                )}
+                aria-label={`Butaca ${fila}${seat.numero}, ${ESTADO_TEXTO[seat.status]}${
+                  isMovilidad(seat.tipo) ? ", movilidad" : ""
+                }`}
+              />
+            ))}
           </div>
         ))}
       </div>

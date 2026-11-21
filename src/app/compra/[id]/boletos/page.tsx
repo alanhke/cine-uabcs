@@ -218,7 +218,7 @@ export default function BoletosCompraPage() {
     <div className="space-y-6 px-4 py-6">
       <div className="space-y-1">
         <h1 className="font-display text-2xl font-bold text-navy">Separar QR</h1>
-        <p className="text-sm text-navy/60">
+        <p className="text-sm text-navy/70">
           Selecciona boletos y dulcería para generar un QR aparte para las personas que llegarán después.
         </p>
       </div>
@@ -228,7 +228,7 @@ export default function BoletosCompraPage() {
           <section className="space-y-3">
             <h2 className="font-semibold text-navy">Boletos</h2>
             {boletos.length === 0 ? (
-              <p className="text-sm text-navy/55">Esta compra no incluye boletos.</p>
+              <p className="text-sm text-navy/70">Esta compra no incluye boletos.</p>
             ) : (
               <div className="grid gap-3">
                 {boletos.map((boleto) => {
@@ -251,7 +251,7 @@ export default function BoletosCompraPage() {
                         <p className="font-medium text-navy">
                           {boleto.pelicula} · {boleto.tipoNombre}
                         </p>
-                        <p className="text-sm text-navy/60">
+                        <p className="text-sm text-navy/70">
                           Butaca {boleto.fila}
                           {boleto.numero} ·{" "}
                           {boleto.estadoUso === "SEPARADO" ? "Ya separada" : "Disponible"}
@@ -267,7 +267,7 @@ export default function BoletosCompraPage() {
           <section className="space-y-3">
             <h2 className="font-semibold text-navy">Dulcería</h2>
             {dulceria.length === 0 ? (
-              <p className="text-sm text-navy/55">Esta compra no incluye dulcería.</p>
+              <p className="text-sm text-navy/70">Esta compra no incluye dulcería.</p>
             ) : (
               <div className="grid gap-3">
                 {dulceria.map((item) => {
@@ -278,12 +278,12 @@ export default function BoletosCompraPage() {
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <p className="font-medium text-navy">{item.nombre}</p>
-                          <p className="text-sm text-navy/60">
+                          <p className="text-sm text-navy/70">
                             Disponibles para separar: {disponible} de {item.cantidad}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button
+                          <button aria-label={`Quitar ${item.nombre}`}
                             type="button"
                             onClick={() => updateDulceria(item.id, -1)}
                             disabled={seleccionado === 0}
@@ -294,7 +294,7 @@ export default function BoletosCompraPage() {
                           <span className="w-6 text-center font-semibold text-navy">
                             {seleccionado}
                           </span>
-                          <button
+                          <button aria-label={`Agregar ${item.nombre}`}
                             type="button"
                             onClick={() => updateDulceria(item.id, 1)}
                             disabled={seleccionado >= disponible}
@@ -312,7 +312,7 @@ export default function BoletosCompraPage() {
           </section>
 
           <div className="rounded-2xl bg-cream p-4">
-            <p className="text-sm text-navy/60">
+            <p className="text-sm text-navy/70">
               Seleccionados: {selectedBoletos.length} boleto(s) y {totalSeleccionadoDulceria} producto(s) de dulcería
             </p>
           </div>

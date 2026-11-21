@@ -25,7 +25,7 @@ export function QrPaqueteCard({ qr }: { qr: QrPaquete }) {
       <CardContent className="space-y-3 py-4">
         <div className="space-y-1 text-center">
           <p className="font-semibold text-navy">QR separado</p>
-          <p className="truncate text-[11px] text-navy/50">{qr.codigo}</p>
+          <p className="truncate text-[11px] text-navy/70">{qr.codigo}</p>
         </div>
         {qrImg ? (
           // eslint-disable-next-line @next/next/no-img-element

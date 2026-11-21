@@ -32,7 +32,7 @@ export function ResenasDestacadas({
 }) {
   if (resenas.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-navy/15 bg-white/60 px-4 py-8 text-center text-sm text-navy/50">
+      <p className="rounded-2xl border border-dashed border-navy/15 bg-white/60 px-4 py-8 text-center text-sm text-navy/70">
         Aún no hay reseñas destacadas. ¡Sé el primero en opinar en la cartelera!
       </p>
     );
@@ -89,7 +89,7 @@ export function ResenasDestacadas({
           <p className="mt-3 line-clamp-3 flex-1 break-words text-sm leading-relaxed text-navy/80">
             {r.comentario}
           </p>
-          <p className="mt-3 flex items-center gap-1 text-xs font-medium text-navy/50">
+          <p className="mt-3 flex items-center gap-1 text-xs font-medium text-navy/70">
             <ThumbsUp className="h-3.5 w-3.5 text-primary" aria-hidden />
             Útil · {r.likesCount}
           </p>

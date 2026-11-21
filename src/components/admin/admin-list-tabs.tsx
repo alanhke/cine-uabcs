@@ -20,7 +20,7 @@ export function AdminListTabsActive({
           "rounded-xl px-4 py-2 text-sm font-semibold transition",
           !enPapelera
             ? "bg-navy text-cream shadow-sm"
-            : "text-navy/60 hover:bg-navy/5 hover:text-navy"
+            : "text-navy/70 hover:bg-navy/5 hover:text-navy"
         )}
       >
         Activos
@@ -31,7 +31,7 @@ export function AdminListTabsActive({
           "rounded-xl px-4 py-2 text-sm font-semibold transition",
           enPapelera
             ? "bg-navy text-cream shadow-sm"
-            : "text-navy/60 hover:bg-navy/5 hover:text-navy"
+            : "text-navy/70 hover:bg-navy/5 hover:text-navy"
         )}
       >
         Papelera

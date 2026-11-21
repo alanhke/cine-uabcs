@@ -8,6 +8,7 @@ import {
 } from "@/components/compra/selector-asientos";
 import { PageHeaderConVolver } from "@/components/navigation/boton-volver";
 import { guardarAsientos } from "@/lib/compra-flow";
+import { IndicadorPasos } from "@/components/compra/indicador-pasos";
 
 export default function ButacasPage() {
   const params = useParams();
@@ -129,6 +130,8 @@ export default function ButacasPage() {
         subtitle={titulo ? `Función: ${titulo}` : undefined}
         onDark
       />
+      {/* M11: progreso del flujo de compra */}
+      <IndicadorPasos pasos={["Butacas", "Boletos", "Dulcería", "Pago"]} actual={0} onDark />
 
       <SelectorAsientos
         seats={seats}

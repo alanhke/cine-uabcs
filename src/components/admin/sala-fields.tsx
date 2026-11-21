@@ -14,13 +14,14 @@ export function SalaFields({
   return (
     <>
       <div className="space-y-1">
-        <Label>Nombre de la sala</Label>
-        <Input name="nombre" defaultValue={defaults?.nombre} required />
+        <Label htmlFor="sala-fields-nombre-de-la-sala">Nombre de la sala</Label>
+        <Input id="sala-fields-nombre-de-la-sala" name="nombre" defaultValue={defaults?.nombre} required />
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1">
-          <Label>Filas</Label>
+          <Label htmlFor="sala-fields-filas">Filas</Label>
           <Input
+            id="sala-fields-filas"
             name="filas"
             type="number"
             min={1}
@@ -30,8 +31,9 @@ export function SalaFields({
           />
         </div>
         <div className="space-y-1">
-          <Label>Columnas</Label>
+          <Label htmlFor="sala-fields-columnas">Columnas</Label>
           <Input
+            id="sala-fields-columnas"
             name="columnas"
             type="number"
             min={1}
@@ -41,12 +43,13 @@ export function SalaFields({
           />
         </div>
       </div>
-      <p className="text-xs text-navy/50">
+      <p className="text-xs text-navy/70">
         Al guardar se sincronizan las butacas del mapa (A1, A2…).
       </p>
       <div className="space-y-1">
-        <Label>Estado</Label>
+        <Label htmlFor="sala-fields-estado">Estado</Label>
         <select
+          id="sala-fields-estado"
           name="estado"
           defaultValue={defaults?.estado ?? "ACTIVO"}
           className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"

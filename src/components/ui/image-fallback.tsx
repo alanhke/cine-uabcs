@@ -24,7 +24,7 @@ export function ImageFallback({
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-b from-cream to-paliacate/25 text-navy/50",
+        "flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-b from-cream to-paliacate/25 text-navy/70",
         variant === "avatar" && "rounded-full",
         className
       )}
@@ -33,7 +33,7 @@ export function ImageFallback({
     >
       <Icon className="h-10 w-10 text-navy/25" strokeWidth={1.5} />
       {variant === "poster" && (
-        <span className="font-display text-xs font-semibold text-navy/35">
+        <span className="font-display text-xs font-semibold text-navy/70">
           Cine UABCS
         </span>
       )}

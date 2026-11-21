@@ -45,18 +45,46 @@ export function checkoutInicial(esInvitado: boolean): CheckoutForm {
   };
 }
 
-/** Valida MM/AA y que la tarjeta no esté vencida. Devuelve el mensaje de error o null. */
+/**
+ * M11: da formato MM/AA mientras se escribe y evita meses imposibles.
+ * Si el primer dígito del mes es 2–9 se antepone 0 ("6" → "06"), y "1" seguido
+ * de 3–9 se corrige a "01" (como hacen los formularios de pago habituales).
+ */
+export function formatearVencimiento(valor: string): string {
+  let d = valor.replace(/\D/g, "");
+  if (/^[2-9]/.test(d)) d = `0${d}`;
+  else if (/^1[3-9]/.test(d)) d = `01${d.slice(1)}`;
+  d = d.slice(0, 4);
+  return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
+}
+
+/** Número de tarjeta en grupos de 4 dígitos (máx. 19). */
+export function formatearNumeroTarjeta(valor: string): string {
+  return valor
+    .replace(/\D/g, "")
+    .slice(0, 19)
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+}
+
+export const AYUDA_VENCIMIENTO = "Mes y año como aparecen en la tarjeta, por ejemplo 08/28.";
+
+/**
+ * Valida MM/AA y que la tarjeta no esté vencida. Devuelve un mensaje que dice
+ * cómo corregir el dato (M11), o null si es válido.
+ */
 export function validarVencimientoTarjeta(value: string, ahora = new Date()) {
-  const match = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(value);
-  if (!match) return "Usa el formato MM/AA";
+  const match = /^(\d{2})\/(\d{2})$/.exec(value.trim());
+  if (!match) return "Escribe la fecha de vencimiento como MM/AA, por ejemplo 08/28";
 
   const month = Number(match[1]);
+  if (month < 1 || month > 12) return "El mes de vencimiento debe estar entre 01 y 12";
+
   const year = 2000 + Number(match[2]);
   const currentMonth = ahora.getMonth() + 1;
   const currentYear = ahora.getFullYear();
-
   if (year < currentYear || (year === currentYear && month < currentMonth)) {
-    return "La tarjeta está vencida";
+    return "La tarjeta está vencida: revisa el mes y el año";
   }
   return null;
 }
@@ -65,11 +93,17 @@ export function validarVencimientoTarjeta(value: string, ahora = new Date()) {
 export function validarDatosPago(data: CheckoutForm, ahora = new Date()): string | null {
   if (data.metodoPago === "tarjeta") {
     const numero = data.numeroTarjeta.replace(/\s/g, "");
-    if (!/^\d{13,19}$/.test(numero)) return "Ingresa un número de tarjeta válido";
+    if (!/^\d{13,19}$/.test(numero)) {
+      return "El número de tarjeta debe tener entre 13 y 19 dígitos";
+    }
     const vencimiento = validarVencimientoTarjeta(data.vencimientoTarjeta, ahora);
     if (vencimiento) return vencimiento;
-    if (!/^\d{3,4}$/.test(data.cvvTarjeta)) return "Ingresa un CVV válido";
-    if (data.titularTarjeta.trim().length < 3) return "Ingresa el titular de la tarjeta";
+    if (!/^\d{3,4}$/.test(data.cvvTarjeta)) {
+      return "El CVV son los 3 o 4 dígitos al reverso de la tarjeta";
+    }
+    if (data.titularTarjeta.trim().length < 3) {
+      return "Escribe el nombre del titular como aparece en la tarjeta";
+    }
     return null;
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.paypalCorreo)) {

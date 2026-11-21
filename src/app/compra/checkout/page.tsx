@@ -27,6 +27,8 @@ import {
 } from "@/lib/pago-checkout";
 import { ResumenCheckout } from "@/components/compra/checkout/resumen-checkout";
 import { MetodosGuardados } from "@/components/compra/metodos-guardados";
+import { CampoVencimiento } from "@/components/compra/campo-vencimiento";
+import { IndicadorPasos } from "@/components/compra/indicador-pasos";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -212,6 +214,8 @@ export default function CheckoutPage() {
         subtitle="Pago simulado — sin cargo real"
         onDark
       />
+      {/* M11: progreso del flujo de compra */}
+      {resumenBoletos.length > 0 && <IndicadorPasos pasos={["Butacas", "Boletos", "Dulcería", "Pago"]} actual={3} onDark />}
 
       <div className="mx-auto max-w-5xl space-y-6">
       <ResumenCheckout
@@ -232,18 +236,19 @@ export default function CheckoutPage() {
             </p>
           )}
           <div className="space-y-2">
-            <Label>Nombre completo</Label>
-            <Input {...register("nombreComprador")} />
+            <Label htmlFor="checkout-nombre-completo">Nombre completo</Label>
+            <Input id="checkout-nombre-completo" {...register("nombreComprador")} />
           </div>
           <div className="space-y-2">
-            <Label>Correo</Label>
-            <Input type="email" {...register("correoComprador")} />
+            <Label htmlFor="checkout-correo">Correo</Label>
+            <Input id="checkout-correo" type="email" {...register("correoComprador")} />
           </div>
           <div className="space-y-2">
-            <Label>
+            <Label htmlFor="checkout-telefono">
               Teléfono {requiereInvitado ? "(10 dígitos, obligatorio)" : "(opcional)"}
             </Label>
             <Input
+              id="checkout-telefono"
               inputMode="numeric"
               maxLength={10}
               {...register("telefonoComprador", {
@@ -290,8 +295,9 @@ export default function CheckoutPage() {
           {metodoPago === "tarjeta" ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
-                <Label>Número de tarjeta</Label>
+                <Label htmlFor="checkout-numero-de-tarjeta">Número de tarjeta</Label>
                 <Input
+                  id="checkout-numero-de-tarjeta"
                   inputMode="numeric"
                   autoComplete="cc-number"
                   maxLength={23}
@@ -303,25 +309,15 @@ export default function CheckoutPage() {
                   })}
                 />
               </div>
+              <CampoVencimiento
+                id="checkout-vencimiento"
+                value={watch("vencimientoTarjeta") ?? ""}
+                onValueChange={(v) => setValue("vencimientoTarjeta", v)}
+              />
               <div className="space-y-2">
-                <Label>Vencimiento (MM/AA)</Label>
+                <Label htmlFor="checkout-cvv">CVV</Label>
                 <Input
-                  inputMode="numeric"
-                  autoComplete="cc-exp"
-                  placeholder="08/28"
-                  maxLength={5}
-                  {...register("vencimientoTarjeta", {
-                    onChange: (e) => {
-                      const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
-                      e.target.value =
-                        digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
-                    },
-                  })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>CVV</Label>
-                <Input
+                  id="checkout-cvv"
                   inputMode="numeric"
                   autoComplete="cc-csc"
                   maxLength={4}
@@ -333,19 +329,20 @@ export default function CheckoutPage() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label>Titular de la tarjeta</Label>
-                <Input autoComplete="cc-name" {...register("titularTarjeta")} />
+                <Label htmlFor="checkout-titular-de-la-tarjeta">Titular de la tarjeta</Label>
+                <Input id="checkout-titular-de-la-tarjeta" autoComplete="cc-name" {...register("titularTarjeta")} />
               </div>
             </div>
           ) : (
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label>Correo de PayPal</Label>
-                <Input type="email" autoComplete="email" {...register("paypalCorreo")} />
+                <Label htmlFor="checkout-correo-de-paypal">Correo de PayPal</Label>
+                <Input id="checkout-correo-de-paypal" type="email" autoComplete="email" {...register("paypalCorreo")} />
               </div>
               <div className="space-y-2">
-                <Label>Contraseña de PayPal</Label>
+                <Label htmlFor="checkout-contrasena-de-paypal">Contraseña de PayPal</Label>
                 <Input
+                  id="checkout-contrasena-de-paypal"
                   type="password"
                   autoComplete="current-password"
                   {...register("paypalPassword")}

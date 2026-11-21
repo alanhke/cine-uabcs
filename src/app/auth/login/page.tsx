@@ -59,29 +59,37 @@ export default function LoginPage() {
           <CardTitle className="text-center">Iniciar sesión</CardTitle>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Correo</Label>
+              <Label htmlFor="login-correo">Correo</Label>
               <Input
+                id="login-correo"
                 type="email"
+                autoComplete="email"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label>Contraseña</Label>
+              <Label htmlFor="login-contrasena">Contraseña</Label>
               <Input
+                id="login-contrasena"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-red-700">
+                {error}
+              </p>
+            )}
             <Button type="submit" className="w-full">
               Entrar
             </Button>
           </form>
-          <p className="text-center text-sm text-navy/60">
+          <p className="text-center text-sm text-navy/70">
             ¿No tienes cuenta?{" "}
             <Link href="/auth/registro" className="font-semibold text-navy underline">
               Regístrate

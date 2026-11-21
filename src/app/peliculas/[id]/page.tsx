@@ -108,7 +108,7 @@ export default async function PeliculaDetailPage(
         <div className="mb-3 flex items-baseline justify-between gap-3">
           <h2 className="font-display text-lg font-bold text-navy">Funciones</h2>
           {pelicula.funciones.length > 0 && (
-            <span className="text-sm font-medium text-navy/55">
+            <span className="text-sm font-medium text-navy/70">
               {pelicula.funciones.length} disponible
               {pelicula.funciones.length !== 1 ? "s" : ""}
             </span>
@@ -116,11 +116,11 @@ export default async function PeliculaDetailPage(
         </div>
         {pelicula.funciones.length === 0 ? (
           <div className="flex flex-col items-center gap-2 rounded-3xl border border-navy/10 bg-white/70 px-6 py-10 text-center">
-            <CalendarClock className="h-7 w-7 text-navy/40" />
+            <CalendarClock className="h-7 w-7 text-navy/70" />
             <p className="text-sm font-medium text-navy/70">
               No hay funciones programadas por ahora.
             </p>
-            <p className="text-xs text-navy/55">Vuelve pronto: la cartelera se actualiza cada semana.</p>
+            <p className="text-xs text-navy/70">Vuelve pronto: la cartelera se actualiza cada semana.</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -144,7 +144,7 @@ export default async function PeliculaDetailPage(
                               timeZone: "America/Mazatlan",
                             }).format(dia.date)}
                       </p>
-                      <p className="text-sm text-navy/55">
+                      <p className="text-sm text-navy/70">
                         {new Intl.DateTimeFormat("es-MX", {
                           day: "numeric",
                           month: "long",

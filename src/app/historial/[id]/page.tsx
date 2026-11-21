@@ -40,7 +40,7 @@ export default async function HistorialDetallePage(
       <div className="space-y-1 text-center">
         <Badge variant="navy">Detalle de compra</Badge>
         <h1 className="font-display text-2xl font-bold text-navy">{compra.folio}</h1>
-        <p className="text-sm text-navy/60">{formatDateTime(compra.fechaCompra)}</p>
+        <p className="text-sm text-navy/70">{formatDateTime(compra.fechaCompra)}</p>
         <p className="text-sm font-semibold text-navy">
           Total: {formatCurrency(Number(compra.total))}
         </p>

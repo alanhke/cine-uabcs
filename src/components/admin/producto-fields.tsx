@@ -20,12 +20,13 @@ export function ProductoFields({
   return (
     <>
       <div className="space-y-1">
-        <Label>Nombre</Label>
-        <Input name="nombre" defaultValue={defaults?.nombre} required />
+        <Label htmlFor="producto-fields-nombre">Nombre</Label>
+        <Input id="producto-fields-nombre" name="nombre" defaultValue={defaults?.nombre} required />
       </div>
       <div className="space-y-1">
-        <Label>Categoría</Label>
+        <Label htmlFor="producto-fields-categoria">Categoría</Label>
         <Input
+          id="producto-fields-categoria"
           name="categoria"
           placeholder="Palomitas, Bebidas..."
           defaultValue={defaults?.categoria}
@@ -34,8 +35,9 @@ export function ProductoFields({
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="space-y-1">
-          <Label>Costo</Label>
+          <Label htmlFor="producto-fields-costo">Costo</Label>
           <Input
+            id="producto-fields-costo"
             name="costo"
             type="number"
             step="0.01"
@@ -45,8 +47,9 @@ export function ProductoFields({
           />
         </div>
         <div className="space-y-1">
-          <Label>Precio</Label>
+          <Label htmlFor="producto-fields-precio">Precio</Label>
           <Input
+            id="producto-fields-precio"
             name="precio"
             type="number"
             step="0.01"
@@ -56,8 +59,9 @@ export function ProductoFields({
           />
         </div>
         <div className="space-y-1">
-          <Label>Stock</Label>
+          <Label htmlFor="producto-fields-stock">Stock</Label>
           <Input
+            id="producto-fields-stock"
             name="stock"
             type="number"
             min={0}
@@ -77,8 +81,9 @@ export function ProductoFields({
       />
 
       <div className="space-y-1">
-        <Label>Estado</Label>
+        <Label htmlFor="producto-fields-estado">Estado</Label>
         <select
+          id="producto-fields-estado"
           name="estado"
           defaultValue={defaults?.estado ?? "ACTIVO"}
           className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"

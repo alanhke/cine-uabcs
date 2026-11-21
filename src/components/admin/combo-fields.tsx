@@ -21,12 +21,13 @@ export function ComboFields({
   return (
     <>
       <div className="space-y-1">
-        <Label>Nombre del combo</Label>
-        <Input name="nombre" defaultValue={defaults?.nombre} required />
+        <Label htmlFor="combo-fields-nombre-del-combo">Nombre del combo</Label>
+        <Input id="combo-fields-nombre-del-combo" name="nombre" defaultValue={defaults?.nombre} required />
       </div>
       <div className="space-y-1">
-        <Label>Precio</Label>
+        <Label htmlFor="combo-fields-precio">Precio</Label>
         <Input
+          id="combo-fields-precio"
           name="precio"
           type="number"
           step="0.01"
@@ -56,8 +57,9 @@ export function ComboFields({
         </div>
       </div>
       <div className="space-y-1">
-        <Label>Estado</Label>
+        <Label htmlFor="combo-fields-estado">Estado</Label>
         <select
+          id="combo-fields-estado"
           name="estado"
           defaultValue={defaults?.estado ?? "ACTIVO"}
           className="h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm text-navy"

@@ -33,7 +33,7 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
 
   if (!sala) {
     return (
-      <p className="rounded-2xl border border-dashed border-navy/15 px-4 py-10 text-center text-sm text-navy/50">
+      <p className="rounded-2xl border border-dashed border-navy/15 px-4 py-10 text-center text-sm text-navy/70">
         No hay salas disponibles
       </p>
     );
@@ -50,7 +50,7 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
         <div>
           <label
             htmlFor="seat-heatmap-sala"
-            className="text-xs font-semibold uppercase tracking-wide text-navy/50"
+            className="text-xs font-semibold uppercase tracking-wide text-navy/70"
           >
             Seleccionar sala
           </label>
@@ -84,7 +84,7 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
 
       <div className="space-y-1.5">
         <div className="mx-auto h-1.5 w-4/5 rounded-full bg-gradient-to-b from-primary/60 to-primary/10" />
-        <p className="text-center text-xs font-semibold uppercase tracking-wider text-navy/50">
+        <p className="text-center text-xs font-semibold uppercase tracking-wider text-navy/70">
           Pantalla
         </p>
       </div>
@@ -106,7 +106,7 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
               >
                 <span
                   aria-hidden="true"
-                  className="w-6 shrink-0 text-xs font-bold text-navy/45"
+                  className="w-6 shrink-0 text-xs font-bold text-navy/70"
                 >
                   {fila}
                 </span>
@@ -154,7 +154,7 @@ export function SeatHeatmap({ mapas }: SeatHeatmapProps) {
       <div
         role="group"
         aria-label="Leyenda del mapa de calor"
-        className="space-y-2 text-xs text-navy/60"
+        className="space-y-2 text-xs text-navy/70"
       >
         {sala.maxVentas === 0 ? (
           <p className="text-center font-semibold">Sin ventas en el periodo</p>

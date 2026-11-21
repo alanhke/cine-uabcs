@@ -70,7 +70,7 @@ function AmigoChatRow({
             {nombreCompleto(amigo.nombre, amigo.apellidoPaterno, amigo.apellidoMaterno)}
           </p>
           {amigo.codigoAmigo && (
-            <p className="truncate text-xs text-navy/50">{amigo.codigoAmigo}</p>
+            <p className="truncate text-xs text-navy/70">{amigo.codigoAmigo}</p>
           )}
         </div>
       </button>
@@ -105,7 +105,7 @@ function ChatHeader({ amigo }: { amigo: Amigo }) {
         <p className="font-display font-bold text-navy transition-colors hover:text-primary">
           {nombreCompleto(amigo.nombre, amigo.apellidoPaterno, amigo.apellidoMaterno)}
         </p>
-        <p className="text-xs text-navy/50">Ver perfil · Chat privado</p>
+        <p className="text-xs text-navy/70">Ver perfil · Chat privado</p>
       </div>
     </Link>
   );
@@ -205,7 +205,7 @@ export function ChatClient() {
           )}
         >
           <div className="relative mb-3 px-1">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-navy/40" />
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-navy/70" />
             <Input
               placeholder="Buscar amigo..."
               value={busqueda}
@@ -222,7 +222,7 @@ export function ChatClient() {
                 <p className="text-sm font-medium text-navy">
                   Aún no tienes amigos para chatear
                 </p>
-                <p className="text-xs text-navy/60">
+                <p className="text-xs text-navy/70">
                   Comparte tu código{" "}
                   <span className="font-mono font-bold text-navy">
                     {codigoAmigo || "—"}
@@ -236,7 +236,7 @@ export function ChatClient() {
                 </Link>
               </div>
             ) : amigosFiltrados.length === 0 ? (
-              <p className="p-6 text-center text-sm text-navy/50">
+              <p className="p-6 text-center text-sm text-navy/70">
                 No hay coincidencias para &quot;{busqueda}&quot;
               </p>
             ) : (
@@ -262,7 +262,7 @@ export function ChatClient() {
             <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
               <MessageCircle className="mb-4 h-14 w-14 text-paliacate" />
               <p className="font-medium text-navy">Selecciona un amigo</p>
-              <p className="mt-1 text-sm text-navy/50">
+              <p className="mt-1 text-sm text-navy/70">
                 Elige alguien de la lista para ver la conversación
               </p>
             </div>
@@ -282,9 +282,9 @@ export function ChatClient() {
 
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-cream/50 p-4">
                 {loadingChat && mensajes.length === 0 ? (
-                  <p className="text-center text-sm text-navy/50">Cargando...</p>
+                  <p className="text-center text-sm text-navy/70">Cargando...</p>
                 ) : mensajes.length === 0 ? (
-                  <p className="text-center text-sm text-navy/50">
+                  <p className="text-center text-sm text-navy/70">
                     Envía el primer mensaje
                   </p>
                 ) : (
@@ -341,7 +341,7 @@ export function ChatClient() {
                   placeholder="Escribe un mensaje..."
                   className="flex-1"
                 />
-                <Button type="submit"  size="icon">
+                <Button aria-label="Enviar mensaje" type="submit"  size="icon">
                   <Send className="h-4 w-4" />
                 </Button>
               </form>

@@ -99,12 +99,13 @@ export function PaymentMethodsManager() {
       {tipo === "tarjeta" ? (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1 sm:col-span-2">
-            <Label>Titular</Label>
-            <Input value={form.titularTarjeta} onChange={(e) => setForm((prev) => ({ ...prev, titularTarjeta: e.target.value }))} />
+            <Label htmlFor="payment-methods-manager-titular">Titular</Label>
+            <Input id="payment-methods-manager-titular" value={form.titularTarjeta} onChange={(e) => setForm((prev) => ({ ...prev, titularTarjeta: e.target.value }))} />
           </div>
           <div className="space-y-1 sm:col-span-2">
-            <Label>Número de tarjeta</Label>
+            <Label htmlFor="payment-methods-manager-numero-de-tarjeta">Número de tarjeta</Label>
             <Input
+              id="payment-methods-manager-numero-de-tarjeta"
               value={form.numeroTarjeta}
               onChange={(e) =>
                 setForm((prev) => ({
@@ -115,8 +116,9 @@ export function PaymentMethodsManager() {
             />
           </div>
           <div className="space-y-1">
-            <Label>Vencimiento</Label>
+            <Label htmlFor="payment-methods-manager-vencimiento">Vencimiento</Label>
             <Input
+              id="payment-methods-manager-vencimiento"
               value={form.vencimientoTarjeta}
               onChange={(e) => {
                 const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
@@ -130,8 +132,8 @@ export function PaymentMethodsManager() {
         </div>
       ) : (
         <div className="space-y-1">
-          <Label>Correo de PayPal</Label>
-          <Input value={form.paypalCorreo} onChange={(e) => setForm((prev) => ({ ...prev, paypalCorreo: e.target.value }))} />
+          <Label htmlFor="payment-methods-manager-correo-de-paypal">Correo de PayPal</Label>
+          <Input id="payment-methods-manager-correo-de-paypal" value={form.paypalCorreo} onChange={(e) => setForm((prev) => ({ ...prev, paypalCorreo: e.target.value }))} />
         </div>
       )}
 
@@ -153,16 +155,16 @@ export function PaymentMethodsManager() {
                   )}
                   <p className="font-semibold text-navy">{metodo.titulo}</p>
                 </div>
-                <p className="mt-1 text-sm text-navy/60">{metodo.detalle}</p>
+                <p className="mt-1 text-sm text-navy/70">{metodo.detalle}</p>
               </div>
-              <Button type="button" variant="outline" size="icon" onClick={() => eliminar(metodo.id)}>
+              <Button aria-label={`Eliminar ${metodo.titulo}`} type="button" variant="outline" size="icon" onClick={() => eliminar(metodo.id)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </CardContent>
           </Card>
         ))}
         {metodos.length === 0 ? (
-          <p className="text-sm text-navy/55">No tienes métodos de pago guardados.</p>
+          <p className="text-sm text-navy/70">No tienes métodos de pago guardados.</p>
         ) : null}
       </div>
     </div>

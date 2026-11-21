@@ -26,11 +26,11 @@ export function PasoAlimentos({ w }: { w: CompraWizardCtx }) {
               <CardContent className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-navy">{producto.nombre}</p>
-                  <p className="text-sm text-navy/60">
+                  <p className="text-sm text-navy/70">
                     {formatCurrency(Number(producto.precio))}
                   </p>
                 </div>
-                <Button
+                <Button aria-label={`Agregar ${producto.nombre}`}
                   size="icon"
                   className="shrink-0"
                   onClick={() =>
@@ -58,16 +58,16 @@ export function PasoAlimentos({ w }: { w: CompraWizardCtx }) {
               <CardContent className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-navy">{combo.nombre}</p>
-                  <p className="text-sm text-navy/60">
+                  <p className="text-sm text-navy/70">
                     {formatCurrency(Number(combo.precio))}
                   </p>
                   {combo.detalles?.length ? (
-                    <p className="text-xs text-navy/55">
+                    <p className="text-xs text-navy/70">
                       Incluye {combo.detalles.map((detail) => `${detail.cantidad} ${detail.nombre}`).join(", ")}
                     </p>
                   ) : null}
                 </div>
-                <Button
+                <Button aria-label={`Agregar ${combo.nombre}`}
                   size="icon"
                   className="shrink-0"
                   onClick={() =>
