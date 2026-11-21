@@ -2,26 +2,13 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { Film } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { obtenerCartelera } from "@/lib/catalogo-cache";
 import { MovieCard } from "@/components/cinema/movie-card";
 import { Button } from "@/components/ui/button";
 
 export default async function CarteleraPage() {
-  const [peliculas, promediosPorPelicula] = await Promise.all([
-    prisma.pelicula.findMany({
-      where: { estado: "ACTIVO" },
-      orderBy: { titulo: "asc" },
-    }),
-    // Promedio por película vía agregación en BD: evita cargar todas las
-    // calificaciones en memoria (no escala al crecer los datos).
-    prisma.calificacion.groupBy({
-      by: ["peliculaId"],
-      _avg: { puntuacion: true },
-    }),
-  ]);
-  const promedioMap = new Map(
-    promediosPorPelicula.map((r) => [r.peliculaId, r._avg.puntuacion ?? 0])
-  );
+  // M10: datos en caché (60 s o hasta que el admin edite películas).
+  const { peliculas, promedioPorPelicula } = await obtenerCartelera();
 
   return (
     <div className="px-4 py-6">
@@ -56,8 +43,8 @@ export default async function CarteleraPage() {
         </div>
       ) : (
         <div className="reveal-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {peliculas.map((p) => {
-            const promedio = Number(promedioMap.get(p.id) ?? 0);
+          {peliculas.map((p, i) => {
+            const promedio = Number(promedioPorPelicula[p.id] ?? 0);
             return (
               <MovieCard
                 key={p.id}
@@ -67,6 +54,7 @@ export default async function CarteleraPage() {
                 duracionMin={p.duracionMin}
                 posterUrl={p.posterUrl}
                 promedio={promedio}
+                priority={i < 2}
               />
             );
           })}

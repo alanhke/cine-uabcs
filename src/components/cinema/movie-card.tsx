@@ -11,6 +11,8 @@ interface MovieCardProps {
   duracionMin: number;
   posterUrl?: string | null;
   promedio?: number;
+  /** M10: true para las primeras tarjetas visibles (LCP). */
+  priority?: boolean;
 }
 
 export function MovieCard({
@@ -20,6 +22,7 @@ export function MovieCard({
   duracionMin,
   posterUrl,
   promedio,
+  priority = false,
 }: MovieCardProps) {
   return (
     <Card className="group relative flex flex-col overflow-hidden transition-[transform,box-shadow] duration-300 ease-out-quart hover:-translate-y-1 hover:shadow-matinee-lg active:scale-[0.98]">
@@ -36,7 +39,9 @@ export function MovieCard({
           alt={titulo}
           variant="poster"
           fill
-          sizes="(max-width: 768px) 50vw, 200px"
+          // grid: 2 columnas en móvil, 3 en sm, 4 en lg
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          priority={priority}
           debugLabel={`cartelera-${id}`}
           className="transition-transform duration-500 ease-out-quart group-hover:scale-105"
         />

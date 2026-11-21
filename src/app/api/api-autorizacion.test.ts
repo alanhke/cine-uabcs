@@ -101,9 +101,10 @@ describe("GET /api/compras/[id] (M1)", () => {
     ["quien tiene el folio", null, { "x-compra-folio": FOLIO }],
   ])("200 para %s", async (_quien, s, headers) => {
     sesion.actual = s;
-    prismaMock.compra.findUnique
-      .mockResolvedValueOnce(cabecera)
-      .mockResolvedValueOnce({ id: 5, ...cabecera, boletos: [] });
+    prismaMock.compra.findUnique.mockResolvedValueOnce(cabecera);
+    prismaMock.boleto.findMany.mockResolvedValueOnce([]);
+    prismaMock.detalleDulceriaCompra.findMany.mockResolvedValueOnce([]);
+    prismaMock.qRBoleto.findMany.mockResolvedValueOnce([]);
     prismaMock.qRBoleto.findFirst.mockResolvedValueOnce({ codigo: "GRP-1" });
     const res = await getCompra(req("/api/compras/5", { headers }), ctx("5"));
     expect(res.status).toBe(200);

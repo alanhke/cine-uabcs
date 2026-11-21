@@ -42,6 +42,9 @@ const nextConfig = {
   // SafeImage usa <img> nativo para /uploads y next/image unoptimized solo para URLs externas.
   images: {
     loader: "default",
+    // M10: formatos modernos y caché larga (las URLs de Blob/TMDB no cambian).
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     dangerouslyAllowSVG: false,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

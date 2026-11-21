@@ -62,6 +62,7 @@ export function PeliculaHeader({
             fill
             sizes="(max-width: 640px) 112px, 144px"
             className="object-cover"
+            priority
           />
         </div>
         <div className="min-w-0 flex-1 space-y-2.5 pb-1">

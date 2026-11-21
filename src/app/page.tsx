@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Sparkles, Ticket, Popcorn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { prisma } from "@/lib/prisma";
 import { MovieCard } from "@/components/cinema/movie-card";
+import { obtenerPeliculasRecientes } from "@/lib/catalogo-cache";
 import { ResenasDestacadas } from "@/components/home/resenas-destacadas";
 import { fetchResenasDestacadas } from "@/lib/resenas-destacadas";
 import { getServerSession } from "next-auth";
@@ -18,23 +18,11 @@ export default async function HomePage() {
     ? parseInt(session.user.id, 10)
     : null;
 
-  const [peliculas, resenasDestacadas] = await Promise.all([
-    prisma.pelicula.findMany({
-      where: { estado: "ACTIVO" },
-      take: 4,
-      orderBy: { id: "desc" },
-    }),
+  // M10: películas recientes desde la caché de datos (se invalida al editar).
+  const [{ peliculas, promedioPorPelicula }, resenasDestacadas] = await Promise.all([
+    obtenerPeliculasRecientes(4),
     fetchResenasDestacadas(3),
   ]);
-  // Promedio por película vía agregación en BD (no carga las calificaciones).
-  const promediosPorPelicula = await prisma.calificacion.groupBy({
-    by: ["peliculaId"],
-    where: { peliculaId: { in: peliculas.map((p) => p.id) } },
-    _avg: { puntuacion: true },
-  });
-  const promedioMap = new Map(
-    promediosPorPelicula.map((r) => [r.peliculaId, r._avg.puntuacion ?? 0])
-  );
 
   return (
     <div className="space-y-8 px-4 py-6">
@@ -120,7 +108,7 @@ export default async function HomePage() {
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {peliculas.map((p) => {
-            const promedio = Number(promedioMap.get(p.id) ?? 0);
+            const promedio = Number(promedioPorPelicula[p.id] ?? 0);
             return (
               <MovieCard
                 key={p.id}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
 import { Card, CardContent } from "@/components/ui/card";
 import type { QrPaquete } from "./tipos";
 
@@ -10,7 +9,10 @@ export function QrPaqueteCard({ qr }: { qr: QrPaquete }) {
   const [qrImg, setQrImg] = useState("");
 
   useEffect(() => {
-    QRCode.toDataURL(qr.codigo).then(setQrImg);
+    // M10: la librería de QR se descarga solo cuando hace falta.
+    import("qrcode")
+      .then(({ default: QRCode }) => QRCode.toDataURL(qr.codigo))
+      .then(setQrImg);
   }, [qr.codigo]);
 
   const resumenContenido = [

@@ -7,8 +7,7 @@ import { ImageFallback } from "@/components/ui/image-fallback";
 import { isAbsoluteHttpUrl, isLocalUploadPath } from "@/lib/image-path";
 import {
   isBlobPreviewUrl,
-  resolveImageSrc,
-} from "@/lib/image-src";
+  resolveImageSrc, shouldUnoptimizeImageSrc } from "@/lib/image-src";
 import { registrarError } from "@/lib/logger";
 
 export type SafeImageVariant = "poster" | "avatar" | "product";
@@ -24,10 +23,13 @@ type SafeImageProps = {
   debugLabel?: string;
   /** Permite blob: solo para vista previa antes de subir al servidor. */
   allowBlobPreview?: boolean;
+  /** M10: solo para la imagen principal visible al cargar (LCP). */
+  priority?: boolean;
 };
 
 /**
- * Blob/URLs http(s) → next/image unoptimized.
+ * Blob/URLs http(s) → next/image optimizado (M10: redimensiona y sirve AVIF/WebP;
+ * los dominios permitidos están acotados en next.config, M5).
  * Rutas legacy /uploads/* o vistas previas blob: → <img> nativo cuando aplica.
  */
 export function SafeImage({
@@ -40,6 +42,7 @@ export function SafeImage({
   sizes,
   debugLabel,
   allowBlobPreview = false,
+  priority = false,
 }: SafeImageProps) {
   const isBlob = isBlobPreviewUrl(src);
   const resolved =
@@ -100,7 +103,7 @@ export function SafeImage({
         alt={alt}
         className={imgClass}
         decoding="async"
-        loading={fill ? "eager" : "lazy"}
+        loading={priority ? "eager" : "lazy"}
         onError={handleError}
         onLoad={handleLoad}
       />
@@ -114,8 +117,8 @@ export function SafeImage({
         height={fill ? undefined : 450}
         sizes={sizes ?? (fill ? "100vw" : undefined)}
         className={imgClass}
-        unoptimized
-        priority={fill}
+        unoptimized={shouldUnoptimizeImageSrc(resolved!)}
+        priority={priority}
         onError={handleError}
         onLoad={handleLoad}
       />

@@ -8,7 +8,8 @@ import {
   posterUrl,
 } from "@/lib/tmdb";
 import { downloadRemoteImageToUploads } from "@/lib/uploads-server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { TAG_CARTELERA } from "@/lib/catalogo-cache";
 
 export type ImportTmdbResult =
   | { ok: true; peliculaId: number; titulo: string }
@@ -66,6 +67,7 @@ export async function importarPeliculaDesdeTmdb(
     revalidatePath("/admin/dashboard");
     revalidatePath("/admin/peliculas");
     revalidatePath("/cartelera");
+    revalidateTag(TAG_CARTELERA); // M10: caché de cartelera
     revalidatePath("/estrenos-tmdb");
 
     return { ok: true, peliculaId: pelicula.id, titulo: pelicula.titulo };

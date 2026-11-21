@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
 import { Popcorn } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -23,6 +22,8 @@ export function QrDisplay({
         setQrImg(null);
         return;
       }
+      // M10: la librería de QR se descarga solo cuando hace falta.
+      const QRCode = (await import("qrcode")).default;
       const img = await QRCode.toDataURL(codigo, { width: 320, margin: 2 });
       if (activo) setQrImg(img);
     }
