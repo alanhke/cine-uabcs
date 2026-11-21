@@ -1,0 +1,28 @@
+# M8 – Simulación local del workflow .github/workflows/ci.yml (2026-11-20T22:39:28-07:00)
+Copia limpia del repositorio (git worktree) con variables ficticias, sin .env ni base de datos real.
+
+npm ci ................................ OK (0 vulnerabilidades)
+npx tsc --noEmit ...................... OK (0 errores)
+npm run lint .......................... OK (0 warnings / 0 errores)
+npm run test:coverage ................. OK (164/164 pruebas; líneas 41.34 % ≥ umbral 40 %)
+npm audit --audit-level=high .......... OK (0 vulnerabilidades)
+npm run build ......................... OK (28/28 páginas generadas)
+
+
+# Ejecución real en GitHub Actions (PR mejoras-calidad → main)
+Run: https://github.com/alanhke/cine-uabcs/actions/runs/44873251828 — duración 1m4s
+success  Set up job
+success  Run actions/checkout@v4
+success  Run actions/setup-node@v4
+success  Instalar dependencias (lockfile exacto)
+success  Verificar tipos (tsc)
+success  Lint (ESLint)
+success  Pruebas con cobertura (mínimo 40 % de líneas)
+success  Auditoría de dependencias (falla con altas o críticas)
+success  Build de producción
+success  Post Run actions/setup-node@v4
+success  Post Run actions/checkout@v4
+success  Complete job
+Cobertura en CI: Lines 41.34 % (693/1676); npm audit: 0 vulnerabilidades
+
+Historial: las 2 primeras ejecuciones fallaron en npm ci (lockfile generado en Windows sin @emnapi/*); se corrigió en los commits siguientes. Esto muestra a la CI detectando un problema de portabilidad que en local no se veía.
