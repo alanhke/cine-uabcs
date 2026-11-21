@@ -1,0 +1,15 @@
+# Cabeceras HTTP de / (2026-11-20T16:34:30-07:00)
+HTTP/1.1 200 OK
+Vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding
+X-Powered-By: Next.js
+Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+Content-Type: text/html; charset=utf-8
+Date: Fri, 20 Nov 2026 23:34:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+
+content-security-policy: AUSENTE
+strict-transport-security: AUSENTE
+x-frame-options: AUSENTE
+x-content-type-options: AUSENTE

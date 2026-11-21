@@ -1,0 +1,469 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/Spamp/Documents/Trabajos UABCS/Proyecto Calidad de Software[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m src/lib/access-control.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m src/lib/admin-analytics-helpers.test.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+ [31m❯[39m src/components/admin/seat-heatmap.test.tsx [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[90m 147[2mms[22m[39m
+[31m   [31m×[31m SeatHeatmap[2m > [22mmuestra la sala seleccionada, sus indicadores y la pantalla[90m 54[2mms[22m[31m[39m
+[31m     → Unable to find an element with the text: 75%. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between"[31m
+      [36m>[31m
+        [36m<div>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"text-xs font-semibold uppercase tracking-wide text-navy/50"[31m
+            [33mfor[31m=[32m"seat-heatmap-sala"[31m
+          [36m>[31m
+            [0mSeleccionar sala[0m
+          [36m</label>[31m
+          [36m<select[31m
+            [33mclass[31m=[32m"mt-1 block h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm font-semibold text-navy sm:w-auto"[31m
+            [33mid[31m=[32m"seat-heatmap-sala"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"1"[31m
+            [36m>[31m
+              [0mSala 1[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"2"[31m
+            [36m>[31m
+              [0mSala 2[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"grid grid-cols-1 gap-2"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"rounded-2xl bg-red-50 px-3 py-2 text-red-800"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"block text-[10px] font-semibold uppercase tracking-wide"[31m
+            [36m>[31m
+              [0mMás pedida[0m
+            [36m</span>[31m
+            [36m<strong[31m
+              [33mclass[31m=[32m"text-sm"[31m
+            [36m>[31m
+              [0mA2[0m
+            [36m</strong>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"mx-auto h-1.5 w-4/5 rounded-full bg-gradient-to-b from-primary/60 to-primary/10"[31m
+        [36m/>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-center text-xs font-semibold uppercase tracking-wider text-navy/50"[31m
+        [36m>[31m
+          [0mPantalla[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"overflow-x-auto pb-2"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33maria-label[31m=[32m"Mapa de butacas de Sala 1"[31m
+          [33mclass[31m=[32m"mx-auto w-max min-w-full space-y-2"[31m
+          [33mrole[31m=[32m"grid"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"flex items-center justify-center gap-1.5"[31m
+            [33mrole[31m=[32m"row"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33maria-hidden[31m=[32m"true"[31m
+              [33mclass[31m=[32m"w-6 shrink-0 text-xs font-bold text-navy/45"[31m
+            [36m>[31m
+              [0mA[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33maria-label[31m=[32m"Butaca A1 de Sala 1, activa, 0 ventas"[31m
+              [33mclass[31m=[32m"h-8 w-8 shrink-0 rounded-lg border border-navy/10 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:h-9 sm:w-9"[31m
+              [33mrole[31m=[32m"gridcell"[31m
+              [33mstyle[31m=[32m"background-color: rgb(255, 255, 255);"[31m
+              [33mtabindex[31m=[32m"0"[31m
+              [33mtitle[31m=[32m"A1: activa, 0 ventas"[31m
+            [36m/>[31m
+            [36m<span[31m
+              [33maria-label[31m=[32m"Butaca A2 de Sala 1, activa, 4 ventas"[31m
+              [33mclass[31m=[32m"h-8 w-8 shrink-0 rounded-lg border border-navy/10 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:h-9 sm:w-9"[31m
+              [33mrole[31m=[32m"gridcell"[31m
+              [33mstyle[31m=[32m"background-color: rgb(220, 38, 38);"[31m
+              [33mtabindex[31m=[32m"0"[31m
+              [33mtitle[31m=[32m"A2: activa, 4 ventas"[31m
+            [36m/>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33maria-label[31m=[32m"Leyenda del mapa de calor"[31m
+        [33mclass[31m=[32m"space-y-2 text-xs text-navy/60"[31m
+        [33mrole[31m=[32m"group"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"flex flex-wrap items-center justify-center gap-x-3 gap-y-2"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"flex items-center gap-1.5"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"h-3 w-3 rounded border border-navy/10 bg-white"[31m
+            [36m/>[31m
+            [0mSin ventas[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"flex items-center gap-1.5"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"h-3 w-3 rounded bg-[#FDE68A]"[31m
+            [36m/>[31m
+            [0mDemanda baja[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"flex items-center gap-1.5"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"h-3 w-3 rounded bg-[#FB923C]"[31m
+            [36m/>[31m
+            [0mDemanda media[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"flex items-center gap-1.5"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"h-3 w-3 rounded bg-[#DC2626]"[31m
+            [36m/>[31m
+            [0mDemanda alta[0m
+          [36m</span>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"flex items-center justify-center gap-1.5"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"h-3 w-3 rounded bg-[#D8DDE4]"[31m
+          [36m/>[31m
+          [36m<span>[31m
+            [0mButaca inactiva[0m
+          [36m</span>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+ [32m✓[39m src/components/admin/admin-dashboard-navigation.test.tsx [2m([22m[2m1 test[22m[2m)[22m[90m 162[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/admin/seat-heatmap.test.tsx[2m > [22mSeatHeatmap[2m > [22mmuestra la sala seleccionada, sus indicadores y la pantalla
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 75%. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-5"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"text-xs font-semibold uppercase tracking-wide text-navy/50"[39m
+            [33mfor[39m=[32m"seat-heatmap-sala"[39m
+          [36m>[39m
+            [0mSeleccionar sala[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mclass[39m=[32m"mt-1 block h-11 w-full rounded-2xl border-2 border-navy/15 bg-white px-3 text-sm font-semibold text-navy sm:w-auto"[39m
+            [33mid[39m=[32m"seat-heatmap-sala"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"1"[39m
+            [36m>[39m
+              [0mSala 1[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"2"[39m
+            [36m>[39m
+              [0mSala 2[0m
+            [36m</option>[39m
+          [36m</select>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid grid-cols-1 gap-2"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-2xl bg-red-50 px-3 py-2 text-red-800"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"block text-[10px] font-semibold uppercase tracking-wide"[39m
+            [36m>[39m
+              [0mMás pedida[0m
+            [36m</span>[39m
+            [36m<strong[39m
+              [33mclass[39m=[32m"text-sm"[39m
+            [36m>[39m
+              [0mA2[0m
+            [36m</strong>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-1.5"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto h-1.5 w-4/5 rounded-full bg-gradient-to-b from-primary/60 to-primary/10"[39m
+        [36m/>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"text-center text-xs font-semibold uppercase tracking-wider text-navy/50"[39m
+        [36m>[39m
+          [0mPantalla[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"overflow-x-auto pb-2"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Mapa de butacas de Sala 1"[39m
+          [33mclass[39m=[32m"mx-auto w-max min-w-full space-y-2"[39m
+          [33mrole[39m=[32m"grid"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-center gap-1.5"[39m
+            [33mrole[39m=[32m"row"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"w-6 shrink-0 text-xs font-bold text-navy/45"[39m
+            [36m>[39m
+              [0mA[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33maria-label[39m=[32m"Butaca A1 de Sala 1, activa, 0 ventas"[39m
+              [33mclass[39m=[32m"h-8 w-8 shrink-0 rounded-lg border border-navy/10 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:h-9 sm:w-9"[39m
+              [33mrole[39m=[32m"gridcell"[39m
+              [33mstyle[39m=[32m"background-color: rgb(255, 255, 255);"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtitle[39m=[32m"A1: activa, 0 ventas"[39m
+            [36m/>[39m
+            [36m<span[39m
+              [33maria-label[39m=[32m"Butaca A2 de Sala 1, activa, 4 ventas"[39m
+              [33mclass[39m=[32m"h-8 w-8 shrink-0 rounded-lg border border-navy/10 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:h-9 sm:w-9"[39m
+              [33mrole[39m=[32m"gridcell"[39m
+              [33mstyle[39m=[32m"background-color: rgb(220, 38, 38);"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtitle[39m=[32m"A2: activa, 4 ventas"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33maria-label[39m=[32m"Leyenda del mapa de calor"[39m
+        [33mclass[39m=[32m"space-y-2 text-xs text-navy/60"[39m
+        [33mrole[39m=[32m"group"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center justify-center gap-x-3 gap-y-2"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"h-3 w-3 rounded border border-navy/10 bg-white"[39m
+            [36m/>[39m
+            [0mSin ventas[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"h-3 w-3 rounded bg-[#FDE68A]"[39m
+            [36m/>[39m
+            [0mDemanda baja[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"h-3 w-3 rounded bg-[#FB923C]"[39m
+            [36m/>[39m
+            [0mDemanda media[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"flex items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"h-3 w-3 rounded bg-[#DC2626]"[39m
+            [36m/>[39m
+            [0mDemanda alta[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-center gap-1.5"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"h-3 w-3 rounded bg-[#D8DDE4]"[39m
+          [36m/>[39m
+          [36m<span>[39m
+            [0mButaca inactiva[0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/admin/seat-heatmap.test.tsx:[2m75:19[22m[39m
+    [90m 73| [39m      screen[33m.[39m[34mgetByLabelText[39m([32m"Butaca A2 de Sala 1, activa, 4 ventas"[39m)
+    [90m 74| [39m    )[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 75| [39m    [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m"75%"[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                  [31m^[39m
+    [90m 76| [39m    [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m"Pantalla"[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 77| [39m    [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m"Butaca inactiva"[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m30 passed[39m[22m[90m (31)[39m
+[2m   Start at [22m 16:00:41
+[2m   Duration [22m 3.33s[2m (transform 115ms, setup 995ms, collect 1.07s, tests 330ms, environment 5.25s, prepare 631ms)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+
+=============================== Coverage summary ===============================
+Statements   : 2.61% ( 151/5780 )
+Branches     : 42.96% ( 58/135 )
+Functions    : 13.41% ( 11/82 )
+Lines        : 2.61% ( 151/5780 )
+================================================================================
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    2.61 |    42.96 |   13.41 |    2.61 |                   
+ ...pi/admin/stats |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-22              
+ ...mdb-importados |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-14              
+ .../[...nextauth] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-5               
+ .../auth/register |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-61              
+ app/api/compras   |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-136             
+ ...i/compras/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-68              
+ ...pras/recuperar |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-21              
+ ...ompras/separar |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-22              
+ app/api/dulceria  |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-26              
+ ...funciones/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-57              
+ ...s/[id]/butacas |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-34              
+ ...admin/dulceria |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-97              
+ ...dmin/funciones |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-56              
+ .../admin/metrics |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-78              
+ ...dmin/peliculas |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-42              
+ ...le/admin/salas |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-54              
+ ...ile/auth/login |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-61              
+ ...mobile/catalog |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-15              
+ ...mobile/compras |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-177             
+ ...ompras/separar |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-93              
+ ...l/metodos-pago |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-122             
+ ...ile/user/state |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-236             
+ ...[id]/favoritos |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-58              
+ ...s/[id]/resenas |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-249             
+ app/api/perfil    |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-64              
+ ...pi/perfil/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-22              
+ ...l/metodos-pago |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-69              
+ ...social/amistad |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-191             
+ ...pi/social/chat |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-103             
+ ...ecomendaciones |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-71              
+ ...i/tipos-boleto |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-11              
+ .../tmdb/estrenos |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-15              
+ app/api/upload    |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-57              
+ lib               |    7.01 |    61.05 |   26.19 |    7.01 |                   
+  ...ss-control.ts |   91.17 |    72.22 |     100 |   91.17 | 20,24-25          
+  ...cs-helpers.ts |     100 |    93.61 |     100 |     100 | 32,123-124        
+  admin-session.ts |       0 |        0 |       0 |       0 | 1-12              
+  auth.ts          |       0 |        0 |       0 |       0 | 1-61              
+  ...icate-user.ts |       0 |        0 |       0 |       0 | 1-16              
+  codigo-amigo.ts  |       0 |        0 |       0 |       0 | 1-27              
+  compra-flow.ts   |       0 |        0 |       0 |       0 | 1-218             
+  datetime.ts      |       0 |        0 |       0 |       0 | 1-133             
+  folio.ts         |       0 |        0 |       0 |       0 | 1-10              
+  ...t-relative.ts |       0 |        0 |       0 |       0 | 1-32              
+  ...ion-idioma.ts |       0 |        0 |       0 |       0 | 1-16              
+  ...es-overlap.ts |       0 |        0 |       0 |       0 | 1-54              
+  image-path.ts    |       0 |        0 |       0 |       0 | 1-79              
+  image-src.ts     |       0 |        0 |       0 |       0 | 1-68              
+  mobile-auth.ts   |       0 |        0 |       0 |       0 | 1-48              
+  ...le-catalog.ts |       0 |        0 |       0 |       0 | 1-143             
+  ...e-purchase.ts |       0 |        0 |       0 |       0 | 1-111             
+  ...nt-methods.ts |       0 |        0 |       0 |       0 | 1-126             
+  perfil-link.ts   |       0 |        0 |       0 |       0 | 1-10              
+  ...il-publico.ts |       0 |        0 |       0 |       0 | 1-176             
+  ...-serialize.ts |       0 |        0 |       0 |       0 | 1-22              
+  prisma.ts        |       0 |        0 |       0 |       0 | 1-11              
+  ...ng-summary.ts |       0 |        0 |       0 |       0 | 1-43              
+  ...destacadas.ts |       0 |        0 |       0 |       0 | 1-35              
+  sala-butacas.ts  |       0 |        0 |       0 |       0 | 1-79              
+  social.ts        |       0 |        0 |       0 |       0 | 1-44              
+  tipo-funcion.ts  |       0 |        0 |       0 |       0 | 1-33              
+  tmdb.ts          |       0 |        0 |       0 |       0 | 1-72              
+  ...ads-server.ts |       0 |        0 |       0 |       0 | 1-138             
+  uploads.ts       |       0 |        0 |       0 |       0 | 1-71              
+  utils.ts         |   33.33 |      100 |   33.33 |   33.33 | 9-14,17-22        
+  ...d-download.ts |       0 |        0 |       0 |       0 | 1-98              
+ lib/actions       |       0 |        0 |       0 |       0 |                   
+  ...ra-actions.ts |       0 |        0 |       0 |       0 | 1-26              
+  recycle-bin.ts   |       0 |        0 |       0 |       0 | 1-74              
+  types.ts         |       0 |        0 |       0 |       0 | 1                 
+ lib/validations   |       0 |        0 |       0 |       0 |                   
+  admin.ts         |       0 |        0 |       0 |       0 | 1-111             
+  schemas.ts       |       0 |        0 |       0 |       0 | 1-44              
+ services          |       0 |        0 |       0 |       0 |                   
+  analytics.ts     |       0 |        0 |       0 |       0 | 1-577             
+  compras.ts       |       0 |        0 |       0 |       0 | 1-388             
+-------------------|---------|----------|---------|---------|-------------------

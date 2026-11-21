@@ -1,0 +1,8 @@
+# IDOR: GET /api/compras/[id] SIN sesión (2026-11-20T16:34:56-07:00)
+# IDs reales tomados de la BD (13,260 compras, IDs 180002…900002). Solo se registra código, tamaño y qué campos trae; NO se guarda contenido.
+id=180002 -> HTTP 200, 1099 bytes, campos: boletos=true qrsCompra=0 codigoQR=true pago=true correo=true
+id=180003 -> HTTP 200, 1967 bytes, campos: boletos=true qrsCompra=0 codigoQR=true pago=true correo=true
+id=180004 -> HTTP 200, 1038 bytes, campos: boletos=true qrsCompra=0 codigoQR=true pago=true correo=true
+id=870001 -> HTTP 200, 4551 bytes, campos: boletos=true qrsCompra=0 codigoQR=true pago=true correo=true
+id=900001 -> HTTP 200, 9189 bytes, campos: boletos=true qrsCompra=2 codigoQR=true pago=true correo=true
+id=900002 -> HTTP 200, 7907 bytes, campos: boletos=true qrsCompra=1 codigoQR=true pago=true correo=true

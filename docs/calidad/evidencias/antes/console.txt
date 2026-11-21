@@ -1,0 +1,9 @@
+src/app/api/mobile/auth/login/route.ts:55:    console.error("[MOBILE_LOGIN_ERROR]", error);
+src/app/api/mobile/catalog/route.ts:9:    console.error("[mobile/catalog] error:", error);
+src/app/api/upload/route.ts:54:    console.error("[API_UPLOAD_FAIL]", message);
+src/app/auth/login/page.tsx:46:      console.error("[LOGIN_SUBMIT_ERROR]", error);
+src/components/ui/safe-image.tsx:73:    console.error(`[ERROR_CARGA] URL intentada: ${resolved}`, {
+src/components/wrapped/wrapped-story.tsx:162:      console.error("Error generando imagen wrapped", e);
+src/lib/auth.ts:38:          console.error("[AUTH_AUTHORIZE_ERROR]", error);
+src/lib/mobile-auth.ts:46:  console.error("[MOBILE_API_ERROR]", error);
+src/lib/uploads.ts:51:    console.warn("[UPLOAD_FORM_REJECT_BLOB]", { pathField, rawPath: rawPath.slice(0, 40) });
