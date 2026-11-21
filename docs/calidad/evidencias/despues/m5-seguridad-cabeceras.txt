@@ -1,0 +1,29 @@
+# Cabeceras de seguridad (2026-11-20T22:06:56-07:00) – next start, mismo método que la línea base
+## /
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org https://*.public.blob.vercel-storage.com; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+presentes: 4/4
+## /cartelera
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org https://*.public.blob.vercel-storage.com; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+presentes: 4/4
+## /auth/login
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org https://*.public.blob.vercel-storage.com; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+presentes: 4/4
+## /api/funciones/192141
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org https://*.public.blob.vercel-storage.com; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+presentes: 4/4
+## X-Powered-By
+(no se envía)
+
+## Verificación en navegador: cartelera, login y butacas sin violaciones de CSP en consola.
