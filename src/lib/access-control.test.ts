@@ -3,6 +3,7 @@ import {
   getLoginRedirect,
   getProtectedRouteRedirect,
   getPostLoginRedirect,
+  isProtectedPath,
 } from "@/lib/access-control";
 
 describe("getProtectedRouteRedirect", () => {
@@ -36,5 +37,32 @@ describe("login redirects", () => {
 
   it("manda al dashboard si admin intenta callbackUrl de cliente", () => {
     expect(getPostLoginRedirect("/perfil", "ADMINISTRADOR")).toBe("/admin/dashboard");
+  });
+});
+
+describe("isProtectedPath (M2 – middleware)", () => {
+  it.each([
+    "/admin",
+    "/admin/ventas",
+    "/social/amigos",
+    "/social/chat",
+    "/historial",
+    "/historial/15",
+    "/perfil",
+    "/perfil/ajustes",
+    "/wrapped",
+  ])("%s exige sesión", (path) => {
+    expect(isProtectedPath(path)).toBe(true);
+  });
+
+  it.each(["/", "/cartelera", "/perfil/42", "/recuperar", "/socialite"])(
+    "%s es pública",
+    (path) => {
+      expect(isProtectedPath(path)).toBe(false);
+    }
+  );
+
+  it("un perfil público no redirige aunque no haya sesión", () => {
+    expect(getProtectedRouteRedirect("/perfil/42", undefined)).toBeNull();
   });
 });

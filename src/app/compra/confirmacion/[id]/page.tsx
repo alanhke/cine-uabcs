@@ -3,7 +3,10 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { verificarAccesoCompra } from "@/lib/compra-access";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LimpiarSesionCompra } from "@/components/compra/limpiar-sesion-compra";
@@ -32,6 +35,12 @@ export default async function ConfirmacionPage({
   });
 
   if (!compra) notFound();
+
+  // M1: la confirmación solo se muestra al dueño, a un admin o con el folio.
+  const session = await getServerSession(authOptions);
+  if (verificarAccesoCompra(compra, session?.user, searchParams.folio) !== "permitido") {
+    notFound();
+  }
 
   const qrGrupal = await prisma.qRBoleto.findFirst({
     where: { compraId: compra.id, tipoQR: "GRUPAL" },
@@ -122,7 +131,7 @@ export default async function ConfirmacionPage({
 
       <div className="flex flex-col gap-3">
         {!soloDulceria || compra.detalleDulceria.length > 0 ? (
-          <Link href={`/compra/${compra.id}/boletos`}>
+          <Link href={`/compra/${compra.id}/boletos?folio=${encodeURIComponent(compra.folio)}`}>
             <Button className="w-full">Ver y separar QR individuales</Button>
           </Link>
         ) : null}

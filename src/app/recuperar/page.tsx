@@ -133,7 +133,7 @@ export default function RecuperarPage() {
             )}
             {result.compra.boletos.length > 0 ||
             result.compra.detalleDulceria.length > 0 ? (
-              <Link href={`/compra/${result.compra.id}/boletos`} className="block">
+              <Link href={`/compra/${result.compra.id}/boletos?folio=${encodeURIComponent(result.compra.folio)}`} className="block">
                 <Button variant="outline" className="w-full">
                   Ver y separar QR individuales
                 </Button>

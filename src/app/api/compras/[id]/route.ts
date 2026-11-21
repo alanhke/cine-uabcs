@@ -1,12 +1,45 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import {
+  FOLIO_HEADER,
+  respuestaDenegada,
+  verificarAccesoCompra,
+} from "@/lib/compra-access";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { id: string } }
 ) {
+  const id = parseInt(params.id, 10);
+  if (!Number.isInteger(id) || id <= 0) {
+    return NextResponse.json({ error: "Id inválido" }, { status: 400 });
+  }
+
+  // M1: verificar dueño antes de cargar el detalle completo.
+  const cabecera = await prisma.compra.findUnique({
+    where: { id },
+    select: { clienteId: true, folio: true },
+  });
+  const session = await getServerSession(authOptions);
+  const folio = req.headers.get(FOLIO_HEADER);
+  if (!cabecera) {
+    // Sin credenciales no se revela si la compra existe.
+    if (!session && !folio) {
+      const r = respuestaDenegada("no-autenticado");
+      return NextResponse.json({ error: r.error }, { status: r.status });
+    }
+    return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+  }
+  const acceso = verificarAccesoCompra(cabecera, session?.user, folio);
+  if (acceso !== "permitido") {
+    const r = respuestaDenegada(acceso);
+    return NextResponse.json({ error: r.error }, { status: r.status });
+  }
+
   const compra = await prisma.compra.findUnique({
-    where: { id: parseInt(params.id, 10) },
+    where: { id },
     include: {
       boletos: {
         include: {

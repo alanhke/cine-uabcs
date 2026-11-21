@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import QRCode from "qrcode";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,8 @@ type QrPaqueteResponse = {
 export default function BoletosCompraPage() {
   const params = useParams();
   const compraId = params.id as string;
+  const folio = useSearchParams().get("folio");
+  const folioHeaders: Record<string, string> = folio ? { "x-compra-folio": folio } : {};
   const [boletos, setBoletos] = useState<BoletoItem[]>([]);
   const [dulceria, setDulceria] = useState<DulceriaItem[]>([]);
   const [selectedBoletos, setSelectedBoletos] = useState<number[]>([]);
@@ -75,7 +77,7 @@ export default function BoletosCompraPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/compras/${compraId}`)
+    fetch(`/api/compras/${compraId}`, { headers: folioHeaders })
       .then((r) => r.json())
       .then((data) => {
         setBoletos(
@@ -167,7 +169,8 @@ export default function BoletosCompraPage() {
           )
         );
       });
-  }, [compraId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compraId, folio]);
 
   const totalSeleccionadoDulceria = Object.values(selectedDulceria).reduce(
     (sum, cantidad) => sum + cantidad,
@@ -210,7 +213,7 @@ export default function BoletosCompraPage() {
     setError("");
     const res = await fetch("/api/compras/separar", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...folioHeaders },
       body: JSON.stringify({
         tipo: "paquete",
         compraId: Number(compraId),
