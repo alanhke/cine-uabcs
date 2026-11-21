@@ -1,0 +1,7 @@
+# Rutas privadas sin sesión (sin seguir redirecciones)
+/admin -> HTTP 307 http://localhost:3000/api/auth/signin?callbackUrl=%2Fadmin (37 bytes)
+/perfil -> HTTP 307 http://localhost:3000/auth/login?callbackUrl=%2Fperfil (5799 bytes)
+/historial -> HTTP 307 http://localhost:3000/auth/login?callbackUrl=%2Fhistorial (5814 bytes)
+/social/amigos -> HTTP 200  (13103 bytes)
+/social/chat -> HTTP 200  (13594 bytes)
+/wrapped -> HTTP 307 http://localhost:3000/auth/login?callbackUrl=%2Fwrapped (5804 bytes)
