@@ -86,9 +86,6 @@ export default function LoginPage() {
               Regístrate
             </Link>
           </p>
-          <p className="text-center text-xs text-navy/40">
-            Admin demo: admin@cine.uabcs.edu / admin123
-          </p>
         </CardContent>
       </Card>
     </div>
