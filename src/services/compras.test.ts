@@ -34,10 +34,23 @@ const base: CompraInput = {
   ],
 };
 
+// Precios reales en BD: adulto 80, niño 60; palomitas 45; combo 120.
 function prepararCompraValida() {
   db.funcion.findMany.mockResolvedValue([
-    { id: 1, estado: "ACTIVO", fechaHora: futura, pelicula: { duracionMin: 120 } },
+    {
+      id: 1,
+      estado: "ACTIVO",
+      fechaHora: futura,
+      precioBase: 80,
+      pelicula: { duracionMin: 120 },
+      preciosTipo: [
+        { tipoBoletoId: 1, precio: 80 },
+        { tipoBoletoId: 2, precio: 60 },
+      ],
+    },
   ]);
+  db.tipoBoleto.findMany.mockResolvedValue([]);
+  db.combo.findUnique.mockResolvedValue({ id: 9, estado: "ACTIVO", precio: 120 });
   db.boleto.findUnique.mockResolvedValue(null);
   // combo 9 = 1 producto 5 + 2 producto 6
   db.comboDetalle.findMany.mockResolvedValue([
@@ -47,6 +60,8 @@ function prepararCompraValida() {
   db.productoDulceria.findUnique.mockImplementation(async ({ where }: { where: { id: number } }) => ({
     id: where.id,
     nombre: `Producto ${where.id}`,
+    estado: "ACTIVO",
+    precio: 45,
     stock: 10,
   }));
   db.compra.create.mockResolvedValue({ id: 100 });
@@ -92,6 +107,54 @@ describe("crearCompra", () => {
     expect(db.qRBoleto.create.mock.calls[0][0].data.codigo).toMatch(/^DUL-CU-/);
   });
 
+  it("ignora los precios enviados por el cliente (manipulación de precio)", async () => {
+    prepararCompraValida();
+    const manipulada: CompraInput = {
+      ...base,
+      boletos: base.boletos.map((b) => ({ ...b, precioUnitario: 0 })),
+      dulceria: base.dulceria.map((d) => ({ ...d, precioUnitario: 0.01 })),
+    };
+    await crearCompra(manipulada);
+    expect(Number(db.compra.create.mock.calls[0][0].data.total)).toBe(350);
+    const precios = db.boleto.create.mock.calls.map(
+      ([a]: [{ data: { precioUnitario: unknown } }]) => Number(a.data.precioUnitario)
+    );
+    expect(precios).toEqual([80, 60]);
+    expect(Number(db.detalleDulceriaCompra.create.mock.calls[0][0].data.subtotal)).toBe(90);
+  });
+
+  it("sin precios por tipo usa precioBase × factor del tipo de boleto", async () => {
+    prepararCompraValida();
+    db.funcion.findMany.mockResolvedValue([
+      { id: 1, estado: "ACTIVO", fechaHora: futura, precioBase: 100, pelicula: { duracionMin: 90 }, preciosTipo: [] },
+    ]);
+    db.tipoBoleto.findMany.mockResolvedValue([
+      { id: 1, factorPrecio: 1 },
+      { id: 2, factorPrecio: 0.5 },
+    ]);
+    await crearCompra({ ...base, dulceria: [] });
+    expect(Number(db.compra.create.mock.calls[0][0].data.total)).toBe(150);
+  });
+
+  it("rechaza tipos de boleto que la función no ofrece", async () => {
+    prepararCompraValida();
+    await expect(
+      crearCompra({ ...base, boletos: [{ funcionId: 1, butacaId: 10, tipoBoletoId: 99 }] })
+    ).rejects.toThrow("Tipo de boleto no disponible");
+  });
+
+  it("rechaza productos o combos inactivos y cantidades inválidas", async () => {
+    prepararCompraValida();
+    db.combo.findUnique.mockResolvedValue({ id: 9, estado: "INACTIVO", precio: 120 });
+    await expect(crearCompra(base)).rejects.toThrow("combo de dulcería ya no está disponible");
+    await expect(
+      crearCompra({ ...base, dulceria: [{ productoId: 5, cantidad: 0 }] })
+    ).rejects.toThrow("entero positivo");
+    await expect(
+      crearCompra({ ...base, boletos: [], dulceria: [{ cantidad: 1 }] })
+    ).rejects.toThrow("producto o un combo");
+  });
+
   it("rechaza funciones inactivas o inexistentes", async () => {
     prepararCompraValida();
     db.funcion.findMany.mockResolvedValue([]);
@@ -101,7 +164,7 @@ describe("crearCompra", () => {
   it("rechaza funciones que ya terminaron", async () => {
     prepararCompraValida();
     db.funcion.findMany.mockResolvedValue([
-      { id: 1, estado: "ACTIVO", fechaHora: pasada, pelicula: { duracionMin: 120 } },
+      { id: 1, estado: "ACTIVO", fechaHora: pasada, pelicula: { duracionMin: 120 }, preciosTipo: [{ tipoBoletoId: 1, precio: 80 }, { tipoBoletoId: 2, precio: 60 }] },
     ]);
     await expect(crearCompra(base)).rejects.toThrow("ya terminó");
   });
@@ -115,14 +178,20 @@ describe("crearCompra", () => {
 
   it("rechaza si no hay stock suficiente", async () => {
     prepararCompraValida();
-    db.productoDulceria.findUnique.mockResolvedValue({ id: 5, nombre: "Palomitas", stock: 1 });
+    db.productoDulceria.findUnique.mockResolvedValue({
+      id: 5,
+      nombre: "Palomitas",
+      estado: "ACTIVO",
+      precio: 45,
+      stock: 1,
+    });
     await expect(crearCompra(base)).rejects.toThrow("Stock insuficiente para Palomitas");
   });
 
   it("rechaza productos inexistentes", async () => {
     prepararCompraValida();
     db.productoDulceria.findUnique.mockResolvedValue(null);
-    await expect(crearCompra(base)).rejects.toThrow("producto #5");
+    await expect(crearCompra(base)).rejects.toThrow("ya no está disponible");
   });
 });
 
