@@ -1,6 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import { getProtectedRouteRedirect } from "@/lib/access-control";
+import { getProtectedRouteRedirect, isProtectedPath } from "@/lib/access-control";
 
 export default withAuth(
   function middleware(req) {
@@ -18,23 +18,19 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
-        const path = req.nextUrl.pathname;
-        if (
-          path.startsWith("/admin") ||
-          path.startsWith("/social") ||
-          path.startsWith("/historial") ||
-          path.startsWith("/perfil") ||
-          path.startsWith("/wrapped")
-        ) {
-          return !!token;
-        }
-        return true;
-      },
+      authorized: ({ token, req }) =>
+        isProtectedPath(req.nextUrl.pathname) ? !!token : true,
     },
   }
 );
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  // M2: antes solo cubría /admin; ahora las 5 rutas privadas.
+  matcher: [
+    "/admin/:path*",
+    "/social/:path*",
+    "/historial/:path*",
+    "/perfil/:path*",
+    "/wrapped/:path*",
+  ],
 };
