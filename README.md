@@ -56,11 +56,9 @@ Abre [http://localhost:3000](http://localhost:3000).
 
 ## Cuentas de prueba (seed)
 
-| Rol      | Correo                 | Contraseña  |
-|----------|------------------------|-------------|
-| Admin    | admin@cine.uabcs.edu   | admin123    |
-| Cliente  | ana@cine.uabcs.edu     | cliente123  |
-| Cliente  | luis@cine.uabcs.edu    | cliente123  |
+El script `npm run db:seed` crea una cuenta de administrador y cuentas de cliente de prueba.
+Las credenciales están en `prisma/seed.ts`; no se publican aquí porque la base de producción
+usa el mismo seed.
 
 ## Funcionalidades implementadas
 
