@@ -31,7 +31,8 @@ export function normalizePublicImagePath(
   }
 
   if (p.startsWith("public/")) {
-    p = `/${p.slice("public".length)}`;
+    // M7: antes quedaba "//uploads/..." (doble barra); detectado por pruebas.
+    p = `/${p.slice("public/".length)}`;
   }
   if (p.startsWith("/public/")) {
     p = p.slice("/public".length);

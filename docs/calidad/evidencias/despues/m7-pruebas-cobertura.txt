@@ -1,0 +1,34 @@
+# M7 – Pruebas y cobertura (2026-11-20T22:31:49-07:00)
+
+## npm run test:coverage
+      Coverage enabled with v8
+ Test Files  15 passed (15)
+      Tests  160 passed (160)
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+=============================== Coverage summary ===============================
+Statements   : 41.31% ( 735/1779 )
+Branches     : 33.03% ( 410/1241 )
+Functions    : 42.96% ( 165/384 )
+Lines        : 40.38% ( 666/1649 )
+
+## Archivos de prueba
+src/app/api/api-autorizacion.test.ts
+src/app/api/mobile/mobile-autorizacion.test.ts
+src/lib/catalogo-salas.test.ts
+src/lib/compra-flow.test.ts
+src/lib/datetime.test.ts
+src/lib/image-utils.test.ts
+src/services/analytics.test.ts
+src/services/compras.test.ts
+src/components/admin/admin-dashboard-navigation.test.tsx
+src/components/admin/seat-heatmap.test.tsx
+src/lib/access-control.test.ts
+src/lib/admin-analytics-helpers.test.ts
+src/lib/compra-access.test.ts
+src/lib/folio.test.ts
+src/lib/rate-limit.test.ts
+
+## Comparación de cobertura con la misma herramienta (vitest 5 + v8, mismo include)
+Antes (commit 1bbc822): Lines 4.03% (63/1560)
+Después: ver 'Lines' arriba
+Nota: la línea base original (2.61%, 151/5780) se midió con vitest 2, que cuenta líneas físicas; vitest 5 cuenta líneas ejecutables. Para comparar se usa la medición homogénea.
