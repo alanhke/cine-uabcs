@@ -1,0 +1,12 @@
+# Rate limiting: 15 intentos seguidos por endpoint (2026-11-20T21:59:21-07:00). Mismo método que la línea base.
+## Login (NextAuth credentials, correo inexistente)
+códigos: 401 401 401 401 401 429 429 429 429 429 429 429 429 429 429
+## Registro (cuerpo inválido, no crea usuarios)
+códigos: 400 400 400 400 400 429 429 429 429 429 429 429 429 429 429
+## Recuperar compra por folio (correo y folio inventados)
+códigos: 404 404 404 404 404 429 429 429 429 429 429 429 429 429 429
+## Cabeceras de una respuesta bloqueada (recuperar)
+HTTP/1.1 429 Too Many Requests
+retry-after: 899
+{"error":"Demasiados intentos. Espera 15 minutos e inténtalo de nuevo."}
+
