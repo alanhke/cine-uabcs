@@ -72,7 +72,10 @@ describe("SeatHeatmap", () => {
     expect(
       screen.getByLabelText("Butaca A2 de Sala 1, activa, 4 ventas")
     ).toBeInTheDocument();
-    expect(screen.getByText("75%")).toBeInTheDocument();
+    // El indicador "Concentración central" se retiró en 135b860; el panel
+    // ahora muestra la butaca más pedida.
+    expect(screen.getByText("Más pedida")).toBeInTheDocument();
+    expect(screen.getByText("A2")).toBeInTheDocument();
     expect(screen.getByText("Pantalla")).toBeInTheDocument();
     expect(screen.getByText("Butaca inactiva")).toBeInTheDocument();
     expect(
