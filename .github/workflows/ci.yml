@@ -32,7 +32,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Misma versión que en desarrollo: el lockfile se genera con npm 11 (Node 24);
+          # npm 10 (Node 22) rechaza las dependencias opcionales de WebAssembly de vite 8.
+          node-version: 24
           cache: npm
 
       - name: Instalar dependencias (lockfile exacto)
