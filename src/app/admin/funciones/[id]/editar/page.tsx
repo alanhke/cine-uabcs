@@ -8,11 +8,12 @@ import { AdminSubmitForm } from "@/components/admin/admin-submit-form";
 import { FuncionFields } from "@/components/admin/funcion-fields";
 import { actualizarFuncion } from "@/app/actions/admin/funciones";
 
-export default async function EditarFuncionPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditarFuncionPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const id = parseInt(params.id, 10);
   const [funcion, peliculas, salas] = await Promise.all([
     prisma.funcion.findUnique({ where: { id } }),

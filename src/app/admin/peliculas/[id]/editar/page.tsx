@@ -8,11 +8,12 @@ import { AdminSubmitForm } from "@/components/admin/admin-submit-form";
 import { actualizarPelicula } from "@/app/actions/admin/peliculas";
 import { PeliculaFields } from "@/components/admin/pelicula-fields";
 
-export default async function EditarPeliculaPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditarPeliculaPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const id = parseInt(params.id, 10);
   const pelicula = await prisma.pelicula.findUnique({ where: { id } });
   if (!pelicula) notFound();

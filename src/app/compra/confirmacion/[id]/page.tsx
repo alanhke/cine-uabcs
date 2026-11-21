@@ -13,13 +13,14 @@ import { LimpiarSesionCompra } from "@/components/compra/limpiar-sesion-compra";
 import { BoletoStub } from "@/components/compra/boleto-stub";
 import { Check } from "lucide-react";
 
-export default async function ConfirmacionPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: { folio?: string };
-}) {
+export default async function ConfirmacionPage(
+  props: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ folio?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const compra = await prisma.compra.findUnique({
     where: { id: parseInt(params.id, 10) },
     include: {

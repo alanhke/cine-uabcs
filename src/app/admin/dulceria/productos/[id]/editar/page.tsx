@@ -8,11 +8,12 @@ import { AdminSubmitForm } from "@/components/admin/admin-submit-form";
 import { ProductoFields } from "@/components/admin/producto-fields";
 import { actualizarProducto } from "@/app/actions/admin/dulceria";
 
-export default async function EditarProductoPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditarProductoPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const id = parseInt(params.id, 10);
   const producto = await prisma.productoDulceria.findUnique({ where: { id } });
   if (!producto) notFound();

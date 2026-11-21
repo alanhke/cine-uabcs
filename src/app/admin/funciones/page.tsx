@@ -18,11 +18,12 @@ import {
 } from "@/app/actions/admin/funciones";
 import { Plus, Pencil } from "lucide-react";
 
-export default async function AdminFuncionesPage({
-  searchParams,
-}: {
-  searchParams: { vista?: string; fecha?: string; salaId?: string; peliculaId?: string };
-}) {
+export default async function AdminFuncionesPage(
+  props: {
+    searchParams: Promise<{ vista?: string; fecha?: string; salaId?: string; peliculaId?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const enPapelera = searchParams.vista === "papelera";
   const selectedDateKey =
     typeof searchParams.fecha === "string" && /^\d{4}-\d{2}-\d{2}$/.test(searchParams.fecha)

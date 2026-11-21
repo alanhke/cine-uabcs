@@ -18,11 +18,12 @@ import {
 } from "@/app/actions/admin/dulceria";
 import { Plus, Pencil } from "lucide-react";
 
-export default async function AdminDulceriaPage({
-  searchParams,
-}: {
-  searchParams: { vista?: string };
-}) {
+export default async function AdminDulceriaPage(
+  props: {
+    searchParams: Promise<{ vista?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const enPapelera = searchParams.vista === "papelera";
 
   const [productos, combos, productosPapelera, combosPapelera] = await Promise.all([

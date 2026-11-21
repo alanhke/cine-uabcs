@@ -9,11 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SalaSeatPreview } from "@/components/admin/sala-seat-preview";
 import { Pencil } from "lucide-react";
 
-export default async function SalaDetallePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function SalaDetallePage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const id = parseInt(params.id, 10);
   const sala = await prisma.sala.findUnique({
     where: { id },
