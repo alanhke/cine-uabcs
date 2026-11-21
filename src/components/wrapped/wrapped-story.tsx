@@ -7,6 +7,7 @@ import { SafeImage } from "@/components/ui/safe-image";
 import { cn } from "@/lib/utils";
 import { WrappedSummaryDashboard } from "@/components/wrapped/wrapped-summary-dashboard";
 import type { WrappedData } from "@/app/actions/wrapped";
+import { registrarError } from "@/lib/logger";
 
 const SLIDE_COUNT = 7;
 const DASHBOARD_SLIDE = 6;
@@ -159,7 +160,7 @@ export function WrappedStory({ data }: { data: WrappedData }) {
       link.click();
       document.body.removeChild(link);
     } catch (e) {
-      console.error("Error generando imagen wrapped", e);
+      registrarError("WRAPPED_IMAGEN_ERROR", e);
     } finally {
       // pequeño delay visual para evitar doble clic inmediato
       setTimeout(() => setDownloading(false), 600);

@@ -10,6 +10,7 @@ import {
   saveWebFileToUploads,
   type UploadPrefix,
 } from "@/lib/uploads-server";
+import { registrarAdvertencia } from "@/lib/logger";
 
 export { UPLOADS_PUBLIC_PREFIX, normalizePublicImagePath, isLocalUploadPath };
 export type { UploadPrefix };
@@ -48,7 +49,7 @@ export async function resolveImagePathFromForm(
   const rawPath = String(formData.get(pathField) ?? "");
 
   if (isEphemeralImageUrl(rawPath)) {
-    console.warn("[UPLOAD_FORM_REJECT_BLOB]", { pathField, rawPath: rawPath.slice(0, 40) });
+    registrarAdvertencia("UPLOAD_FORM_REJECT_BLOB", { pathField, rawPath: rawPath.slice(0, 40) });
   }
 
   const existing = normalizePublicImagePath(rawPath);

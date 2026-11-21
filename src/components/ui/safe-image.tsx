@@ -9,6 +9,7 @@ import {
   isBlobPreviewUrl,
   resolveImageSrc,
 } from "@/lib/image-src";
+import { registrarError } from "@/lib/logger";
 
 export type SafeImageVariant = "poster" | "avatar" | "product";
 
@@ -70,7 +71,8 @@ export function SafeImage({
     }
     if (!resolved) return;
 
-    console.error(`[ERROR_CARGA] URL intentada: ${resolved}`, {
+    registrarError("IMAGEN_ERROR_CARGA", {
+      url: resolved,
       raw: src ?? null,
       nativeImg: useNativeImg,
       label: debugLabel ?? alt,

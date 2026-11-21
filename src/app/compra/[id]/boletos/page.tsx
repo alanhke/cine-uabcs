@@ -2,66 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import QRCode from "qrcode";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FormError } from "@/components/ui/form-error";
-
-type BoletoItem = {
-  id: number;
-  fila: string;
-  numero: number;
-  pelicula: string;
-  tipoNombre: string;
-  estadoUso: "VIGENTE" | "USADO" | "SEPARADO";
-};
-
-type DulceriaItem = {
-  id: number;
-  nombre: string;
-  cantidad: number;
-  separados: number;
-};
-
-type QrPaquete = {
-  id: number;
-  codigo: string;
-  boletos: Array<{ id: number; fila: string; numero: number; pelicula: string; tipoNombre: string }>;
-  dulceria: Array<{ id: number; nombre: string; cantidad: number }>;
-};
-
-type QrPaqueteResponse = {
-  id: number;
-  codigo: string;
-  boleto?: {
-    id: number;
-    butaca: { fila: string; numero: number };
-    tipoBoleto: { nombre: string };
-    funcion: { pelicula: { titulo: string } };
-  } | null;
-  detalleDulceriaCompra?: {
-    id: number;
-    producto?: { nombre: string } | null;
-    combo?: { nombre: string } | null;
-  } | null;
-  boletosSeparados?: Array<{
-    boleto: {
-      id: number;
-      butaca: { fila: string; numero: number };
-      tipoBoleto: { nombre: string };
-      funcion: { pelicula: { titulo: string } };
-    };
-  }>;
-  dulceriaSeparada?: Array<{
-    cantidad: number;
-    detalleDulceriaCompra: {
-      id: number;
-      producto?: { nombre: string } | null;
-      combo?: { nombre: string } | null;
-    };
-  }>;
-};
+import { QrPaqueteCard } from "@/components/compra/boletos/qr-paquete-card";
+import type { BoletoItem, DulceriaItem, QrPaquete, QrPaqueteResponse } from "@/components/compra/boletos/tipos";
 
 export default function BoletosCompraPage() {
   const params = useParams();
@@ -390,36 +336,5 @@ export default function BoletosCompraPage() {
         </section>
       ) : null}
     </div>
-  );
-}
-
-function QrPaqueteCard({ qr }: { qr: QrPaquete }) {
-  const [qrImg, setQrImg] = useState("");
-
-  useEffect(() => {
-    QRCode.toDataURL(qr.codigo).then(setQrImg);
-  }, [qr.codigo]);
-
-  const resumenContenido = [
-    ...qr.boletos.map((boleto) => `Butaca ${boleto.fila}${boleto.numero}`),
-    ...qr.dulceria.map((item) => `${item.cantidad} ${item.nombre}`),
-  ].join(", ");
-
-  return (
-    <Card>
-      <CardContent className="space-y-3 py-4">
-        <div className="space-y-1 text-center">
-          <p className="font-semibold text-navy">QR separado</p>
-          <p className="truncate text-[11px] text-navy/50">{qr.codigo}</p>
-        </div>
-        {qrImg ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={qrImg} alt="QR separado" className="mx-auto w-full max-w-[120px] rounded-xl" />
-        ) : null}
-        <p className="text-center text-xs leading-relaxed text-navy/70">
-          {resumenContenido || "Sin elementos asociados"}
-        </p>
-      </CardContent>
-    </Card>
   );
 }

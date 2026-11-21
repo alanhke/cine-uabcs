@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authenticateUser } from "@/lib/authenticate-user";
 import { prisma } from "@/lib/prisma";
 import { LIMITES, consumirVarios, ipDeSolicitud, respuesta429 } from "@/lib/rate-limit";
+import { registrarError } from "@/lib/logger";
 
 const mobileLoginSchema = z.object({
   correo: z.string().email(),
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
       expiracion: authToken.expiracion.toISOString(),
     });
   } catch (error) {
-    console.error("[MOBILE_LOGIN_ERROR]", error);
+    registrarError("MOBILE_LOGIN_ERROR", error);
     return NextResponse.json(
       { error: "No se pudo iniciar sesión" },
       { status: 500 }

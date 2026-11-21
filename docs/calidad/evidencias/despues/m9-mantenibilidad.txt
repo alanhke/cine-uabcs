@@ -1,0 +1,55 @@
+# M9 – Mantenibilidad (2026-11-20T23:19:17-07:00). Mismo método que la línea base (wc -l sobre src, sin pruebas).
+
+## 10 archivos más grandes
+   397 src/components/wrapped/wrapped-story.tsx
+   390 src/components/compra/wizard/use-compra-wizard.ts
+   383 src/app/compra/checkout/page.tsx
+   373 src/services/analytics.ts
+   361 src/app/actions/admin/dulceria.ts
+   360 src/components/perfil/perfil-publico-view.tsx
+   354 src/app/social/chat/chat-client.tsx
+   340 src/app/compra/[id]/boletos/page.tsx
+   316 src/app/social/amigos/page.tsx
+   289 src/app/actions/wrapped.ts
+
+## Archivos > 400 líneas: 0
+
+## console.* fuera de src/lib/logger.ts
+0
+(src/lib/logger.ts concentra el registro: 2 llamadas, protegidas por eslint-disable explícito)
+
+## Reglas ESLint activas
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-console": "error",
+    "max-lines": ["error", { "max": 400, "skipBlankLines": false, "skipComments": false }]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "src/test/**"],
+      "rules": { "max-lines": "off" }
+    }
+  ]
+}
+
+## Antes → después de los 5 archivos de la línea base
+1192 → 69  src/components/compra/compra-wizard.tsx
+577 → 373  src/services/analytics.ts
+503 → 383  src/app/compra/checkout/page.tsx
+461 → 263  src/app/admin/dashboard/page.tsx
+422 → 340  src/app/compra/[id]/boletos/page.tsx
+
+## Archivos nuevos (módulos extraídos)
+?? docs/calidad/evidencias/despues/m9-mantenibilidad.txt
+?? src/components/admin/dashboard/
+?? src/components/compra/boletos/
+?? src/components/compra/checkout/
+?? src/components/compra/compra-wizard.test.tsx
+?? src/components/compra/metodos-guardados.tsx
+?? src/components/compra/wizard/
+?? src/lib/logger.ts
+?? src/lib/pago-checkout.test.ts
+?? src/lib/pago-checkout.ts
+?? src/services/analytics/
+?? src/services/compras-qr.ts

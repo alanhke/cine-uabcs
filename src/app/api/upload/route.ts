@@ -9,6 +9,7 @@ import {
   saveWebFileToUploads,
   type UploadPrefix,
 } from "@/lib/uploads-server";
+import { registrarError } from "@/lib/logger";
 
 const PREFIXES: UploadPrefix[] = ["poster", "product", "avatar"];
 
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ path: publicPath }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al subir";
-    console.error("[API_UPLOAD_FAIL]", message);
+    registrarError("API_UPLOAD_FAIL", message);
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { FormError } from "@/components/ui/form-error";
 import { PageHeaderConVolver } from "@/components/navigation/boton-volver";
-import { formatCurrency } from "@/lib/utils";
 import {
   checkoutInvitadoSchema,
   checkoutRegistradoSchema,
@@ -20,48 +19,14 @@ import {
   limpiarCompraFlow,
   COMPRA_DULCERIA_KEY,
 } from "@/lib/compra-flow";
-
-interface CheckoutForm {
-  nombreComprador: string;
-  correoComprador: string;
-  telefonoComprador: string;
-  esInvitado?: boolean;
-  metodoPago: "tarjeta" | "paypal";
-  numeroTarjeta: string;
-  vencimientoTarjeta: string;
-  cvvTarjeta: string;
-  titularTarjeta: string;
-  paypalCorreo: string;
-  paypalPassword: string;
-}
-
-type SavedPaymentMethod = {
-  id: number;
-  tipo: "tarjeta" | "paypal";
-  titulo: string;
-  detalle: string;
-  ultimos4Tarjeta: string | null;
-  titularTarjeta: string | null;
-  vencimientoTarjeta: string | null;
-  paypalCorreo: string | null;
-};
-
-function validarVencimientoTarjeta(value: string) {
-  const match = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(value);
-  if (!match) return "Usa el formato MM/AA";
-
-  const month = Number(match[1]);
-  const year = 2000 + Number(match[2]);
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-
-  if (year < currentYear || (year === currentYear && month < currentMonth)) {
-    return "La tarjeta está vencida";
-  }
-
-  return null;
-}
+import {
+  pagoParaCompra,
+  validarDatosPago,
+  type CheckoutForm,
+  type SavedPaymentMethod,
+} from "@/lib/pago-checkout";
+import { ResumenCheckout } from "@/components/compra/checkout/resumen-checkout";
+import { MetodosGuardados } from "@/components/compra/metodos-guardados";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -205,36 +170,10 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (data.metodoPago === "tarjeta") {
-      const numeroTarjeta = data.numeroTarjeta.replace(/\s/g, "");
-      const vencimientoError = validarVencimientoTarjeta(data.vencimientoTarjeta);
-      if (!/^\d{13,19}$/.test(numeroTarjeta)) {
-        setError("root", { message: "Ingresa un número de tarjeta válido" });
-        return;
-      }
-      if (vencimientoError) {
-        setError("root", { message: vencimientoError });
-        return;
-      }
-      if (!/^\d{3,4}$/.test(data.cvvTarjeta)) {
-        setError("root", { message: "Ingresa un CVV válido" });
-        return;
-      }
-      if (data.titularTarjeta.trim().length < 3) {
-        setError("root", { message: "Ingresa el titular de la tarjeta" });
-        return;
-      }
-    }
-
-    if (data.metodoPago === "paypal") {
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.paypalCorreo)) {
-        setError("root", { message: "Ingresa el correo de PayPal" });
-        return;
-      }
-      if (data.paypalPassword.length < 6) {
-        setError("root", { message: "Ingresa la contraseña de PayPal simulada" });
-        return;
-      }
+    const errorPago = validarDatosPago(data);
+    if (errorPago) {
+      setError("root", { message: errorPago });
+      return;
     }
 
     const dulceriaRaw = sessionStorage.getItem(COMPRA_DULCERIA_KEY);
@@ -249,20 +188,7 @@ export default function CheckoutPage() {
         guardarMetodoPago: guardarMetodoPago && Boolean(session?.user?.clienteId),
         boletos: boletosPayload,
         dulceria: dulceriaCart,
-        pago:
-          data.metodoPago === "tarjeta"
-            ? {
-                metodo: "tarjeta",
-                numeroTarjeta: data.numeroTarjeta.replace(/\s/g, ""),
-                vencimientoTarjeta: data.vencimientoTarjeta,
-                cvvTarjeta: data.cvvTarjeta,
-                titularTarjeta: data.titularTarjeta,
-              }
-            : {
-                metodo: "paypal",
-                paypalCorreo: data.paypalCorreo,
-                paypalPassword: data.paypalPassword,
-              },
+        pago: pagoParaCompra(data),
       }),
     });
 
@@ -288,40 +214,12 @@ export default function CheckoutPage() {
       />
 
       <div className="mx-auto max-w-5xl space-y-6">
-      <Card className="border-white/10 bg-sala-surface text-sala-ink">
-        <CardContent className="space-y-2 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-sala-muted">
-            Resumen
-          </p>
-          {resumenBoletos.map((r) => (
-            <div key={r.nombre} className="flex justify-between text-sm text-sala-ink">
-              <span>
-                {r.cantidad} × {r.nombre}
-              </span>
-            </div>
-          ))}
-          <div className="flex justify-between border-t border-white/10 pt-2 text-sm">
-            <span className="text-sala-muted">Boletos</span>
-            <span className="font-semibold text-sala-ink">
-              {formatCurrency(subtotalBoletos)}
-            </span>
-          </div>
-          {subtotalDulceria > 0 && (
-            <div className="flex justify-between text-sm">
-              <span className="text-sala-muted">Dulcería</span>
-              <span className="font-semibold text-sala-ink">
-                {formatCurrency(subtotalDulceria)}
-              </span>
-            </div>
-          )}
-          <div className="flex justify-between border-t border-white/15 pt-2">
-            <span className="font-display font-bold text-white">Total</span>
-            <span className="font-display text-xl font-bold text-white">
-              {formatCurrency(total)}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+      <ResumenCheckout
+        resumenBoletos={resumenBoletos}
+        subtotalBoletos={subtotalBoletos}
+        subtotalDulceria={subtotalDulceria}
+        total={total}
+      />
 
       {/* La taquilla iluminada: el formulario se mantiene claro para que la
           captura de datos sea nítida sobre la sala a oscuras. */}
@@ -382,30 +280,12 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {savedMethods.filter((method) => method.tipo === metodoPago).length > 0 ? (
-            <div className="space-y-2">
-              <Label>Métodos guardados</Label>
-              <div className="grid gap-2">
-                {savedMethods
-                  .filter((method) => method.tipo === metodoPago)
-                  .map((method) => (
-                    <button
-                      key={method.id}
-                      type="button"
-                      onClick={() => selectSavedMethod(method)}
-                      className={`rounded-2xl border px-4 py-3 text-left transition ${
-                        selectedSavedMethodId === method.id
-                          ? "border-primary bg-primary/10"
-                          : "border-navy/10 bg-cream"
-                      }`}
-                    >
-                      <p className="font-semibold text-navy">{method.titulo}</p>
-                      <p className="text-sm text-navy/60">{method.detalle}</p>
-                    </button>
-                  ))}
-              </div>
-            </div>
-          ) : null}
+          <MetodosGuardados
+            metodos={savedMethods}
+            metodoPago={metodoPago}
+            seleccionadoId={selectedSavedMethodId}
+            onSeleccionar={selectSavedMethod}
+          />
 
           {metodoPago === "tarjeta" ? (
             <div className="grid gap-4 sm:grid-cols-2">

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { getPostLoginRedirect } from "@/lib/access-control";
+import { registrarError } from "@/lib/logger";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,7 +47,7 @@ export default function LoginPage() {
       router.push(getPostLoginRedirect(callbackUrl, role));
       router.refresh();
     } catch (error) {
-      console.error("[LOGIN_SUBMIT_ERROR]", error);
+      registrarError("LOGIN_SUBMIT_ERROR", error);
       setError("Error de autenticación. Revisa la configuración del servidor.");
     }
   }

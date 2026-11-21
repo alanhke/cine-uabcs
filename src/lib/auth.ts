@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { authenticateUser } from "@/lib/authenticate-user";
+import { registrarError } from "@/lib/logger";
 
 const nextAuthSecret = process.env.NEXTAUTH_SECRET?.trim() || undefined;
 
@@ -35,7 +36,7 @@ export const authOptions: NextAuthOptions = {
             clienteId: usuario.cliente?.id ?? null,
           };
         } catch (error) {
-          console.error("[AUTH_AUTHORIZE_ERROR]", error);
+          registrarError("AUTH_AUTHORIZE_ERROR", error);
           return null;
         }
       },

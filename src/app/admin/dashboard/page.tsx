@@ -7,8 +7,6 @@ import {
   Ticket,
   RefreshCw,
   Download,
-  Armchair,
-  ShoppingBag,
   AlertTriangle,
 } from "lucide-react";
 import { TmdbImportPanel } from "@/components/admin/tmdb-import-panel";
@@ -16,14 +14,14 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import {
-  AsistenciaCard,
   VentasChart,
   VentasPorPeliculaChart,
   SatisfaccionChart,
 } from "@/components/admin/dashboard-charts";
-import { SeatHeatmap } from "@/components/admin/seat-heatmap";
 import { ConversacionesImpacto } from "@/components/admin/conversaciones-impacto";
 import { AdminDashboardNavigation } from "@/components/admin/admin-dashboard-navigation";
+import { SeccionOcupacion } from "@/components/admin/dashboard/seccion-ocupacion";
+import { SeccionDulceria } from "@/components/admin/dashboard/seccion-dulceria";
 import type { AdminAnalytics } from "@/types/admin-analytics";
 import type { RangoVentas } from "@/lib/validations/admin";
 import { cn } from "@/lib/utils";
@@ -242,205 +240,9 @@ export default function AdminDashboardPage() {
             </Card>
           )}
 
-          <section>
-            <h2 className="mb-3 font-display text-lg font-bold text-navy">
-              Ocupación de salas
-              <span className="ml-2 text-sm font-normal text-navy/50">
-                ({stats.ocupacion.funcionesContadas} funciones)
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Card className="border-navy/15 bg-white/90">
-                <CardContent className="py-5">
-                  <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-navy/50">
-                    <Armchair className="h-3.5 w-3.5" />
-                    Ocupación global
-                  </p>
-                  <p className="font-display mt-2 text-3xl font-bold text-primary">
-                    {stats.ocupacion.porcentajeGlobal}%
-                  </p>
-                  <p className="mt-1 text-xs text-navy/50">
-                    {stats.ocupacion.asientosVendidos} de{" "}
-                    {stats.ocupacion.asientosDisponibles} asientos
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="border-navy/15">
-                <CardContent className="py-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
-                    Por franja horaria
-                  </p>
-                  {stats.ocupacion.porFranja.length > 0 ? (
-                    <div className="mt-3 space-y-2">
-                      {stats.ocupacion.porFranja.map((f) => (
-                        <div key={f.franja}>
-                          <div className="flex justify-between text-xs text-navy/60">
-                            <span>{f.franja}</span>
-                            <span className="font-medium text-navy">
-                              {f.porcentaje}%
-                            </span>
-                          </div>
-                          <div className="mt-1 h-2 overflow-hidden rounded-full bg-navy/10">
-                            <div
-                              className="h-full rounded-full bg-primary transition-all"
-                              style={{ width: `${f.porcentaje}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-3 text-sm text-navy/40">
-                      Sin funciones en el periodo
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+          <SeccionOcupacion stats={stats} />
 
-            <div className="mt-3">
-              <AsistenciaCard data={stats} />
-            </div>
-
-            <div className="mt-3 min-w-0">
-              <Card>
-                <CardContent className="py-4">
-                  <CardTitle className="mb-1 text-base">
-                    Mapa de calor de butacas
-                  </CardTitle>
-                  <p className="mb-4 text-sm text-navy/60">
-                    Demanda por asiento en el periodo seleccionado. Útil para
-                    ajustar precios por zona y distribución de funciones.
-                  </p>
-                  <SeatHeatmap mapas={stats.mapasButacas} />
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 font-display text-lg font-bold text-navy">
-              Dulcería
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Card className="border-navy/15 bg-white/90">
-                <CardContent className="py-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
-                    Ticket promedio
-                  </p>
-                  <p className="font-display mt-2 text-2xl font-bold text-navy">
-                    {formatCurrency(stats.ticketPromedio)}
-                  </p>
-                  <p className="mt-1 text-xs text-navy/50">por compra</p>
-                </CardContent>
-              </Card>
-              <Card className="border-paliacate/50 bg-paliacate/10">
-                <CardContent className="py-5">
-                  <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-navy/50">
-                    <ShoppingBag className="h-3.5 w-3.5" />
-                    Attach rate
-                  </p>
-                  <p className="font-display mt-2 text-2xl font-bold text-navy">
-                    {stats.dulceriaMetrics.attachRate}%
-                  </p>
-                  <p className="mt-1 text-xs text-navy/50">
-                    {stats.dulceriaMetrics.comprasConDulceria} compras con
-                    dulcería
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="border-navy/15">
-                <CardContent className="py-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
-                    Gasto en dulcería
-                  </p>
-                  <p className="font-display mt-2 text-2xl font-bold text-navy">
-                    {formatCurrency(
-                      stats.dulceriaMetrics.gastoPromedioDulceria
-                    )}
-                  </p>
-                  <p className="mt-1 text-xs text-navy/50">
-                    por compra con dulcería
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="border-navy/15 bg-white/90">
-                <CardContent className="py-5">
-                  <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-navy/50">
-                    <Popcorn className="h-3.5 w-3.5" />
-                    Más solicitado
-                  </p>
-                  <div className="mt-2 space-y-2">
-                    <div>
-                      <p className="text-xs text-navy/50">Producto</p>
-                      <p className="font-display text-lg font-bold text-navy">
-                        {stats.dulceriaMetrics.productoTop?.nombre ?? "—"}
-                      </p>
-                      {stats.dulceriaMetrics.productoTop && (
-                        <p className="text-xs text-navy/50">
-                          {stats.dulceriaMetrics.productoTop.cantidad} vendidos
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-xs text-navy/50">Combo</p>
-                      <p className="font-display text-lg font-bold text-navy">
-                        {stats.dulceriaMetrics.comboTop?.nombre ?? "—"}
-                      </p>
-                      {stats.dulceriaMetrics.comboTop && (
-                        <p className="text-xs text-navy/50">
-                          {stats.dulceriaMetrics.comboTop.cantidad} vendidos
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="mt-3 border-navy/15">
-              <CardContent className="py-4">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-paliacate" />
-                  <CardTitle className="text-base">
-                    Productos con bajo stock
-                  </CardTitle>
-                </div>
-                <p className="mt-1 text-xs text-navy/60">
-                  Productos con {stats.inventario.umbral} unidades o menos
-                </p>
-                {stats.inventario.stockBajo.length > 0 ? (
-                  <div className="mt-3 space-y-1">
-                    {stats.inventario.stockBajo.map((p) => (
-                      <div
-                        key={p.id}
-                        className="flex items-center justify-between border-b border-navy/5 py-1.5 text-sm"
-                      >
-                        <span className="text-navy">
-                          {p.nombre}
-                          <span className="ml-2 text-xs text-navy/40">
-                            {p.categoria}
-                          </span>
-                        </span>
-                        <span
-                          className={cn(
-                            "font-semibold",
-                            p.stock === 0 ? "text-red-600" : "text-paliacate"
-                          )}
-                        >
-                          {p.stock === 0 ? "Agotado" : `${p.stock} u.`}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="mt-3 text-sm text-navy/40">
-                    No hay productos con bajo stock
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </section>
+          <SeccionDulceria stats={stats} />
 
           <ConversacionesImpacto items={stats.conversacionesImpacto} />
 

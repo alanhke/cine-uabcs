@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { registrarError } from "@/lib/logger";
 
 export async function requireMobileUser(req: Request) {
   const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
@@ -43,6 +44,6 @@ export async function requireMobileAdmin(req: Request) {
 
 export function handleMobileError(error: unknown) {
   if (error instanceof Response) return error;
-  console.error("[MOBILE_API_ERROR]", error);
+  registrarError("MOBILE_API_ERROR", error);
   return Response.json({ error: "No se pudo procesar la solicitud" }, { status: 500 });
 }
