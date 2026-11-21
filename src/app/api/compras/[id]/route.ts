@@ -8,10 +8,8 @@ import {
   verificarAccesoCompra,
 } from "@/lib/compra-access";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const id = parseInt(params.id, 10);
   if (!Number.isInteger(id) || id <= 0) {
     return NextResponse.json({ error: "Id inválido" }, { status: 400 });

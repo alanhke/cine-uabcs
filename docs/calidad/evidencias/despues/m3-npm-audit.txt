@@ -1,0 +1,13 @@
+found 0 vulnerabilities
+
+== npm audit (incluye dependencias de desarrollo) ==
+found 0 vulnerabilities
+cine-uabcs@0.1.0 C:\Users\Spamp\Documents\Trabajos UABCS\Proyecto Calidad de Software
++-- @prisma/client@6.19.3
++-- next-auth@4.24.15
++-- next@15.5.29
++-- prisma@6.19.3
++-- react@19.3.1
++-- vitest@5.1.1
+`-- zod@4.6.7
+

@@ -6,13 +6,14 @@ import { funcionSigueDisponible } from "@/lib/datetime";
 import { CompraWizard } from "@/components/compra/compra-wizard";
 import { getIdiomaFuncionLabel } from "@/lib/funcion-idioma";
 
-export default async function CompraFuncionWizardPage({
-  params,
-  searchParams,
-}: {
-  params: { funcionId: string };
-  searchParams?: { paso?: string };
-}) {
+export default async function CompraFuncionWizardPage(
+  props: {
+    params: Promise<{ funcionId: string }>;
+    searchParams?: Promise<{ paso?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const funcionId = parseInt(params.funcionId, 10);
   const funcion = await prisma.funcion.findUnique({
     where: { id: funcionId },

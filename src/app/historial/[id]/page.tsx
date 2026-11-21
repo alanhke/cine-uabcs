@@ -14,11 +14,12 @@ import {
   obtenerQrGrupalCompra,
 } from "@/lib/actions/compra-actions";
 
-export default async function HistorialDetallePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function HistorialDetallePage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.clienteId) return notFound();
 

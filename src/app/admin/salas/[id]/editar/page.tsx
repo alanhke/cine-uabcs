@@ -8,11 +8,12 @@ import { AdminSubmitForm } from "@/components/admin/admin-submit-form";
 import { SalaFields } from "@/components/admin/sala-fields";
 import { actualizarSala } from "@/app/actions/admin/salas";
 
-export default async function EditarSalaPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditarSalaPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const id = parseInt(params.id, 10);
   const sala = await prisma.sala.findUnique({ where: { id } });
   if (!sala) notFound();

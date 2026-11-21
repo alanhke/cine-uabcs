@@ -14,11 +14,12 @@ import { ResenasSection } from "./resenas-section";
 import { RecomendarButton } from "./recomendar-button";
 import { FavoritoButton } from "./favorito-button";
 
-export default async function PeliculaDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function PeliculaDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const id = parseInt(params.id, 10);
   const pelicula = await prisma.pelicula.findUnique({
     where: { id },

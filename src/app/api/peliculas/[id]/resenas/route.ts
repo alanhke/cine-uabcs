@@ -62,10 +62,8 @@ function mapResena(
   };
 }
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const peliculaId = parseInt(params.id, 10);
   const session = await getServerSession(authOptions);
   const usuarioId = session?.user?.id ? parseInt(session.user.id, 10) : null;
@@ -155,10 +153,8 @@ export async function GET(
   });
 }
 
-export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Debes iniciar sesión" }, { status: 401 });

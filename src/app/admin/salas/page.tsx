@@ -14,11 +14,12 @@ import {
 } from "@/app/actions/admin/salas";
 import { Plus, Pencil, Map } from "lucide-react";
 
-export default async function AdminSalasPage({
-  searchParams,
-}: {
-  searchParams: { vista?: string };
-}) {
+export default async function AdminSalasPage(
+  props: {
+    searchParams: Promise<{ vista?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const enPapelera = searchParams.vista === "papelera";
 
   const [salas, papeleraCount] = await Promise.all([

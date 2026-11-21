@@ -5,10 +5,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { fetchPerfilPublico } from "@/lib/perfil-publico";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const perfilId = parseInt(params.id, 10);
   const session = await getServerSession(authOptions);
   const viewerId = session?.user?.id ? parseInt(session.user.id, 10) : null;
