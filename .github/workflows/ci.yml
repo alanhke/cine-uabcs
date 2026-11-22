@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Misma versión que en desarrollo: el lockfile se genera con npm 11 (Node 24);
           # npm 10 (Node 22) rechaza las dependencias opcionales de WebAssembly de vite 8.
