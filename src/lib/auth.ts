@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { authenticateUser } from "@/lib/authenticate-user";
-import { registrarError } from "@/lib/logger";
+import { enmascararCorreo, registrarError, registrarEventoSeguridad } from "@/lib/logger";
 
 const nextAuthSecret = process.env.NEXTAUTH_SECRET?.trim() || undefined;
 
@@ -26,7 +26,13 @@ export const authOptions: NextAuthOptions = {
             credentials.correo,
             credentials.password
           );
-          if (!usuario) return null;
+          if (!usuario) {
+            registrarEventoSeguridad("LOGIN_FALLIDO", {
+              canal: "web",
+              correo: enmascararCorreo(credentials.correo),
+            });
+            return null;
+          }
 
           return {
             id: String(usuario.id),

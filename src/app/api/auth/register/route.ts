@@ -7,8 +7,9 @@ import { registroSchema } from "@/lib/validations/schemas";
 
 export async function POST(req: Request) {
   // M4: máximo 5 registros por hora por IP.
-  const limite = consumirIntento(`registro:${ipDeSolicitud(req)}`, LIMITES.registro);
-  if (!limite.permitido) return respuesta429(limite);
+  const ip = ipDeSolicitud(req);
+  const limite = consumirIntento(`registro:${ip}`, LIMITES.registro);
+  if (!limite.permitido) return respuesta429(limite, {}, { endpoint: "registro", ip });
   try {
     const body = await req.json();
     const parsed = registroSchema.safeParse(body);
