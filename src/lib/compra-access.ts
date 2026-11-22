@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { registrarEventoSeguridad } from "@/lib/logger";
 
 /**
  * M1 – Control de acceso a compras (ISO 27001 A.5.15 / A.8.3 · OWASP A01).
@@ -42,7 +43,14 @@ export function verificarAccesoCompra(
   return session || folio ? "prohibido" : "no-autenticado";
 }
 
-export function respuestaDenegada(resultado: Exclude<CompraAccessResult, "permitido">) {
+export function respuestaDenegada(
+  resultado: Exclude<CompraAccessResult, "permitido">,
+  recurso?: string
+) {
+  registrarEventoSeguridad("ACCESO_DENEGADO", {
+    recurso: recurso ?? "compra",
+    status: resultado === "no-autenticado" ? 401 : 403,
+  });
   return resultado === "no-autenticado"
     ? { error: "Inicia sesión o proporciona el folio de la compra", status: 401 }
     : { error: "No tienes permiso para ver esta compra", status: 403 };

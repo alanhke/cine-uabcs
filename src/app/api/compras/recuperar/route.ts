@@ -5,8 +5,9 @@ import { LIMITES, consumirIntento, ipDeSolicitud, respuesta429 } from "@/lib/rat
 
 export async function POST(req: Request) {
   // M4: el folio funciona como llave de la compra; limitar la fuerza bruta.
-  const limite = consumirIntento(`recuperar:${ipDeSolicitud(req)}`, LIMITES.recuperar);
-  if (!limite.permitido) return respuesta429(limite);
+  const ip = ipDeSolicitud(req);
+  const limite = consumirIntento(`recuperar:${ip}`, LIMITES.recuperar);
+  if (!limite.permitido) return respuesta429(limite, {}, { endpoint: "recuperar", ip });
   const { correo, folio } = await req.json();
   if (!correo || !folio) {
     return NextResponse.json({ error: "Correo y folio requeridos" }, { status: 400 });

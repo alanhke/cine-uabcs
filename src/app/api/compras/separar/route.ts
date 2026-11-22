@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         ? "prohibido"
         : "no-autenticado";
     if (acceso !== "permitido") {
-      const r = respuestaDenegada(acceso);
+      const r = respuestaDenegada(acceso, "POST /api/compras/separar");
       return NextResponse.json({ error: r.error }, { status: r.status });
     }
     const qr =

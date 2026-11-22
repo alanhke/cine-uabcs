@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { registrarEventoSeguridad } from "@/lib/logger";
 
 /**
  * M4 – Limitador de intentos (ISO 27001 A.8.5 · OWASP A07).
@@ -90,7 +91,16 @@ export function mensajeEspera(seg: number) {
     : `Demasiados intentos. Espera ${min} minutos e inténtalo de nuevo.`;
 }
 
-export function respuesta429(r: ResultadoLimite, extra: Record<string, unknown> = {}) {
+export function respuesta429(
+  r: ResultadoLimite,
+  extra: Record<string, unknown> = {},
+  contexto?: { endpoint: string; ip?: string }
+) {
+  registrarEventoSeguridad("LIMITE_EXCEDIDO", {
+    endpoint: contexto?.endpoint ?? "desconocido",
+    ip: contexto?.ip,
+    reintentarEnSeg: r.reintentarEnSeg,
+  });
   return NextResponse.json(
     { error: mensajeEspera(r.reintentarEnSeg), ...extra },
     { status: 429, headers: { "Retry-After": String(r.reintentarEnSeg) } }

@@ -29,14 +29,14 @@ export async function GET(
   if (!cabecera) {
     // Sin credenciales no se revela si la compra existe.
     if (!session && !folio) {
-      const r = respuestaDenegada("no-autenticado");
+      const r = respuestaDenegada("no-autenticado", `GET /api/compras/${id}`);
       return NextResponse.json({ error: r.error }, { status: r.status });
     }
     return NextResponse.json({ error: "No encontrada" }, { status: 404 });
   }
   const acceso = verificarAccesoCompra(cabecera, session?.user, folio);
   if (acceso !== "permitido") {
-    const r = respuestaDenegada(acceso);
+    const r = respuestaDenegada(acceso, `GET /api/compras/${id}`);
     return NextResponse.json({ error: r.error }, { status: r.status });
   }
 

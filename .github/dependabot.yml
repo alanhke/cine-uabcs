@@ -1,0 +1,24 @@
+# ISO 27001 A.8.8 – Gestión de vulnerabilidades técnicas (Plan de Calidad, sección 6).
+# Revisión semanal de dependencias de npm y de las acciones de GitHub.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Mazatlan
+    open-pull-requests-limit: 5
+    labels: [dependencias, seguridad]
+    groups:
+      # Parches y menores juntos para no saturar de PRs; las mayores van por separado.
+      menores-y-parches:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Mazatlan
+    labels: [dependencias, ci]

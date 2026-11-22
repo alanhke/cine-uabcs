@@ -1,0 +1,7 @@
+[SEGURIDAD] ACCESO_DENEGADO {"recurso":"GET /api/compras/180002","status":401,"fecha":"2026-11-22T19:23:52.337Z"}
+[SEGURIDAD] LOGIN_FALLIDO {"canal":"movil","correo":"n***@example.com","ip":"::1","fecha":"2026-11-22T19:23:52.541Z"}
+[SEGURIDAD] LOGIN_FALLIDO {"canal":"movil","correo":"n***@example.com","ip":"::1","fecha":"2026-11-22T19:23:52.656Z"}
+[SEGURIDAD] LOGIN_FALLIDO {"canal":"movil","correo":"n***@example.com","ip":"::1","fecha":"2026-11-22T19:23:52.774Z"}
+[SEGURIDAD] LOGIN_FALLIDO {"canal":"movil","correo":"n***@example.com","ip":"::1","fecha":"2026-11-22T19:23:52.888Z"}
+[SEGURIDAD] LOGIN_FALLIDO {"canal":"movil","correo":"n***@example.com","ip":"::1","fecha":"2026-11-22T19:23:53.010Z"}
+[SEGURIDAD] LIMITE_EXCEDIDO {"endpoint":"login-movil","ip":"::1","reintentarEnSeg":900,"fecha":"2026-11-22T19:23:53.053Z"}

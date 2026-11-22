@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import { registrarEventoSeguridad } from "@/lib/logger";
 import { authOptions } from "@/lib/auth";
 import {
   LIMITES,
@@ -28,6 +29,7 @@ async function POST(req: Request, ctx: Ctx) {
       [`login:cuenta:${ip}:${correo}`, LIMITES.loginCuenta],
     ]);
     if (!r.permitido) {
+      registrarEventoSeguridad("LIMITE_EXCEDIDO", { endpoint: "login-web", ip });
       // next-auth (signIn con redirect:false) lee `url` y extrae `error`.
       const base = process.env.NEXTAUTH_URL ?? new URL(req.url).origin;
       return Response.json(
